@@ -1,0 +1,142 @@
+\documentclass[dvipsnames]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{unicode-math}
+
+\setmainfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
+% \setmathfont{Latin Modern Math}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[backend=biber]{biblatex}
+
+\usepackage{minted2}
+\usemintedstyle{xcode}
+\setminted{escapeinside=||}
+\newmintinline[python]{python}{fontsize=\small}
+\newmintinline[code]{c}{fontsize=\small}
+\let\codeOrig\code
+\renewcommand{\code}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\ttfamily #2}}{\mbox{\normalfont\ttfamily #2}}{\mbox{\normalfont\ttfamily #2}}{\mbox{\normalfont\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\footnotesize\ttfamily #2}}{\mbox{\normalfont\footnotesize\ttfamily #2}}{\mbox{\normalfont\footnotesize\ttfamily #2}}{\mbox{\normalfont\footnotesize\ttfamily #2}}%
+    \fi
+  \else
+    \codeOrig[#1]{#2}%
+  \fi}
+
+\usepackage{mdframed}
+
+\title{Языки программирования. Семантика и системы типов}
+\author{Николай Кудасов}
+\date{13 февраля 2024}
+
+\addbibresource{../references.bib}
+
+\begin{document}
+
+\pagestyle{fancy}
+\fancyhf{}
+\chead{Задание выполнил \textcolor{blue}{Бенжамин Пирс (замените на своё имя)}}
+\cfoot{Языки программирования. Семантика и системы типов (весна 2026, Университет ИТМО)}
+
+\section*{Тема 1. Теоретическое задание \textcolor{blue}{(выполнил Бенжамин Пирс)}}%
+
+\begin{enumerate}
+  \item
+В бестиповом $\lambda$-исчислении~\cite[\S 5]{TaPL-ru} выполните задания по подстановке с избежанием захвата, строгому вычислению и безымянному представлению.
+
+  \begin{enumerate}
+  \item
+  Выполните подстановку \code{[y |$\mapsto$| (λa. x a)(λb. z b)](λx. λw. λz. y x z)}. \\
+  При необходимости выполните $\alpha$-конверсию (переименование связанных переменных) и укажите итоговый результат подстановки.
+
+  \item
+  Переведите следующий терм в безымянное представление (индексы де Брёйна)~\cite[\S 6]{TaPL-ru} и
+  вычислите его в безымянной форме, используя \emph{строгое} вычисление (один шаг — один переход ($\longrightarrow$) по операционной семантике).
+  \begin{mdframed}
+    \code{(λf. λx. f (f (f x))) (λg. λy. g (g y)) (λz. z)}
+  \end{mdframed}
+  \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+  \item Для бестипового $\lambda$-исчисления с булевыми и арифметическими выражениями~\cite[\S 5]{TaPL-ru} докажите по \emph{индукции по правилам вывода} одношагового вычисления, что при вычислении число свободных переменных не увеличивается:
+  \[
+    \text{если } t \longrightarrow t', \text{ то } FV(t') \subseteq FV(t) \quad \text{(в частности, } |FV(t')| \leq |FV(t)|\text{).}
+  \]
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+  \item Приведите терм $\code{t}$ в бестиповом $\lambda$-исчислении с арифметическими выражениями~\cite[\S 5]{TaPL-ru}, такой что
+  \begin{itemize}
+    \item размер терма $\mathsf{size}(\code{t}) \geq 20$
+    \item $\code{t (λx. λy. x)} \longrightarrow^* \code{succ 0}$
+    \item $\code{t (λx. λy. y)} \longrightarrow^* \code{succ (succ 0)}$
+  \end{itemize}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+  \item Преобразуйте фрагмент программы на Python ниже в эквивалентный фрагмент, применив операцию инлайнинга функций \python{make_reporter} и \python{report_cost}.
+  Если для корректного преобразования требуется переименование переменных или другие изменения — явно дайте пояснение этим действиям.
+  Убедитесь в корректности преобразования проверкой в интерпретаторе.
+
+\begin{minted}[linenos,frame=single,fontsize=\footnotesize]{python}
+def make_reporter(level):
+  threshold = level * 2
+  def report_cost(msg_id):
+    if msg_id >= 2:
+      return (level * msg_id) + threshold
+    return level * msg_id
+  return report_cost
+
+def total_diagnostic_cost():
+  levels = list(map(int, input().split()))
+  report_order = list(map(int, input().split()))
+  msg_id = int(input())
+
+  reporters = {}
+  for level in levels:
+    reporters[level] = make_reporter(level)
+
+  total = 0
+  for lev in report_order:
+    total += reporters[lev](msg_id)
+
+  return total
+
+total_diagnostic_cost()
+\end{minted}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+\end{enumerate}
+
+\section*{Список литературы}
+\printbibliography[heading=none]
+
+\end{document}
