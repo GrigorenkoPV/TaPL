@@ -16,6 +16,8 @@ let
       xetex
 
       latexmk
+      latexindent
+      lacheck
 
       cyrillic
       babel-russian

@@ -7,4 +7,8 @@
 *.log
 *.out
 *.run.xml
+*.synctex.gz
+*.xdv
 _minted*/
+
+solution.pdf
