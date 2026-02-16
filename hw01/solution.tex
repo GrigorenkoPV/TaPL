@@ -38,7 +38,7 @@
 
 \title{Языки программирования. Семантика и системы типов}
 \author{Николай Кудасов}
-\date{15 февраля 2026}
+\date{16 февраля 2026}
 
 \addbibresource{../references.bib}
 
@@ -70,8 +70,49 @@
 
   \color{blue}
   \textbf{Решение.}
-  \emph{место для решения}
   \color{black}
+
+  \begin{enumerate}
+  \item
+
+  \code{[y |$\mapsto$| (λa. x a)(λb. z b)](λx. λw. λz. y x z)}
+
+  \code{[y |$\mapsto$| (λa. x a)(λb. z b)](λx. λw. λt. y x t)}
+
+  \code{[y |$\mapsto$| (λa. x a)(λb. z b)](λu. λw. λt. y u t)}
+
+  \code{λu. λw. λt. (λa. x a)(λb. z b) u t}
+
+  \item
+
+  \code{(λf. λx. f (f (f x))) (λg. λy. g (g y)) (λz. z)}
+
+  \code{(λ λ 1 (1 (1 0))) (λ λ 1 (1 0)) (λ 0)}
+
+  \code{(λ (λ λ 1 (1 0)) ((λ λ 1 (1 0)) ((λ λ 1 (1 0)) 0))) (λ 0)}
+
+  \code{(λ λ 1 (1 0)) ((λ λ 1 (1 0)) ((λ λ 1 (1 0)) (λ 0)))}
+
+  \code{(λ λ 1 (1 0)) ((λ λ 1 (1 0)) (λ (λ 0) ((λ 0) 0)))}
+
+  \code{(λ λ 1 (1 0)) ((λ λ 1 (1 0)) (λ (λ 0) 0))}
+
+  \code{(λ λ 1 (1 0)) ((λ λ 1 (1 0)) (λ 0))}
+
+  \code{(λ λ 1 (1 0)) (λ (λ 0) ((λ 0) 0))}
+
+  \code{(λ λ 1 (1 0)) (λ (λ 0) 0)}
+
+  \code{(λ λ 1 (1 0)) (λ 0)}
+
+  \code{λ (λ 0) ((λ 0) 0)}
+
+  \code{λ (λ 0) 0}
+
+  \code{λ 0}
+
+  \end{enumerate}
+
 
   \clearpage
   \item Для бестипового $\lambda$-исчисления с булевыми и арифметическими выражениями~\cite[\S 5]{TaPL-ru} докажите по \emph{индукции по правилам вывода} одношагового вычисления, что при вычислении число свободных переменных не увеличивается:
@@ -81,8 +122,28 @@
 
   \color{blue}
   \textbf{Решение.}
-  \emph{место для решения}
   \color{black}
+
+  \begin{itemize}
+    \item Набор свободных переменных в if это объединение наборов свободных переменных
+    его условия, и двух веток.
+    \begin{itemize}
+      \item При выводе в одну из веток при явном значении условия, остаёмся лишь с набором свободных переменных этой ветки. Очевидно, что подмножество.
+      \item При выводе, когда условие выводится в новую форму,
+      (по индуктивной гипотезе) множество его свободных переменных становится нестрогим подмножеством того, что было раньше. Очевидно, что если его теперь объединит
+      с множествами для веток, получим подмножество того, что было раннее.
+    \end{itemize}
+    \item $\code{pred 0}\mapsto\code{0}$: было и осталось $\emptyset$.
+    \item $\code{pred (succ v)}\mapsto\code{v}$: было и осталось $FV(v)$.
+    \item $\code{iszero 0}\mapsto\code{true}$: было и осталось $\emptyset$.
+    \item $\code{iszero (succ v)}\mapsto\code{false}$: $\emptyset\subseteq FV(v)$.
+    \item Правила вывода \code{pred}, \code{succ} и \code{iszero} при выводе их аргумента
+    очевидно подходят по индуктивной гипотезе.
+    \item Правила вывода аппликации при выводе её левой или её правой части тоже очевидно подходят по индуктивной гипотезе.
+    \item Вычисление лямбды подстановкой аргумента. Будем считать, что ни одна абстракция в левой части не использует имена каких-либо свободных переменных правой части. Иначе выполним $\alpha$ преобразование. Теперь все новые вхождения правой части в итоговое выражение
+    очевидно не поменяли своё множество свободных переменных. Что касается левой части,
+    в её теле мы убрали все вхождения той переменной, по которой шла абстракция и саму абстракцию по этой переменной. Так что по определению свободных переменных в абстракции тоже очевидно нет изменений.
+  \end{itemize}
 
   \clearpage
   \item Приведите терм $\code{t}$ в бестиповом $\lambda$-исчислении с арифметическими выражениями~\cite[\S 5]{TaPL-ru}, такой что
@@ -94,8 +155,11 @@
 
   \color{blue}
   \textbf{Решение.}
-  \emph{место для решения}
   \color{black}
+
+  \code{t := λf. (pred (succ (pred (succ (pred (succ (pred (succ (pred (succ (pred (succ}
+  \\
+  \code{(pred (succ (pred (succ (pred (succ (pred (succ (f (succ 0) (succ (succ 0)))))))))))))))))))))))}
 
   \clearpage
   \item Преобразуйте фрагмент программы на Python ниже в эквивалентный фрагмент, применив операцию инлайнинга функций \python{make_reporter} и \python{report_cost}.
@@ -131,8 +195,32 @@ total_diagnostic_cost()
 
   \color{blue}
   \textbf{Решение.}
-  \emph{место для решения}
   \color{black}
+
+  Переименовываем аргумент у \code{report_cost} из \code{msg_id} в \code{m}.
+  Меняем её две ветки на тернарник, и превращаем саму функцию в лямбду.
+  Подставляем \code{report_cost} на место её вызова.
+  Меняем возврат значения на запись его туда, куда раньше оно записывалось после возврата.
+
+\begin{minted}[linenos,frame=single,fontsize=\footnotesize]{python}
+def total_diagnostic_cost():
+  levels = list(map(int, input().split()))
+  report_order = list(map(int, input().split()))
+  msg_id = int(input())
+
+  reporters = {}
+  for level in levels:
+    threshold = level * 2
+    reporters[level] = lambda m: (level * m) + threshold if m >= 2 else level * m
+
+  total = 0
+  for lev in report_order:
+    total += reporters[lev](msg_id)
+
+  return total
+
+total_diagnostic_cost()
+\end{minted}
 
 \end{enumerate}
 
