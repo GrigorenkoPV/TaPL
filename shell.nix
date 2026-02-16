@@ -14,6 +14,7 @@ let
     inherit (texlive)
       scheme-basic
       xetex
+      biber
 
       latexmk
       latexindent
