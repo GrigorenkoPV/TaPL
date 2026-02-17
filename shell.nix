@@ -8,6 +8,7 @@ let
     (callPackage ./fonts/serif.nix { })
     (callPackage ./fonts/sans-serif.nix { })
     (callPackage ./fonts/typewriter.nix { })
+    (callPackage ./fonts/menlo.nix { })
   ];
 
   texenv = texlive.combine {
@@ -27,6 +28,7 @@ let
 
       amsmath
       biblatex
+      bussproofs
       fancyhdr
       fontspec
       framed

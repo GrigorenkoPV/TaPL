@@ -1,0 +1,151 @@
+\documentclass[dvipsnames]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{unicode-math}
+
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+\setmainfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
+\newfontfamily\cyrillicfonttt{Menlo}[Scale=MatchLowercase]
+% \setmathfont{Latin Modern Math}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{bussproofs}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[backend=biber]{biblatex}
+\usepackage{xcolor}
+
+\usepackage{minted2}
+\usemintedstyle{xcode}
+\setminted{escapeinside=||}
+\newmintinline[code]{c}{fontsize=\scriptsize}
+\let\codeOrig\code
+\renewcommand{\code}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\scriptsize\ttfamily #2}}{\mbox{\normalfont\scriptsize\ttfamily #2}}{\mbox{\normalfont\scriptsize\ttfamily #2}}{\mbox{\normalfont\scriptsize\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\scriptsize\ttfamily #2}}{\mbox{\normalfont\scriptsize\ttfamily #2}}{\mbox{\normalfont\scriptsize\ttfamily #2}}{\mbox{\normalfont\scriptsize\ttfamily #2}}%
+    \fi
+  \else
+    \codeOrig[#1]{#2}%
+  \fi}
+
+% Command for primitive recursion syntax: \primrec{r}{t_zero}{k}{t_nat}{t_step}
+\newcommand{\primrec}[5]{%
+  \code{with}\,\colorbox{green!20}{\code{#1}}\,\code{:=}\,\colorbox{yellow!30}{\code{#2}}\,\code{for}\,\colorbox{green!20}{\code{#3}}\,\code{=}\,\colorbox{yellow!30}{\code{#4}}\,\code{downto 0 do}\,\colorbox{green!20}{\code{#1}}\,\code{:=}\,\colorbox{yellow!30}{\code{#5}}%
+}
+
+\usepackage{mdframed}
+
+\addbibresource{../references.bib}
+
+\begin{document}
+
+\pagestyle{fancy}
+\fancyhf{}
+\chead{Задание выполнил \textcolor{blue}{Бенжамин Пирс (замените на своё имя)}}
+\cfoot{Языки программирования. Семантика и системы типов (весна 2026, Университет ИТМО)}
+
+\section*{Тема 2. Теоретическое задание \textcolor{blue}{(выполнил Бенжамин Пирс)}}%
+
+В следующих заданиях рассматривается расширение простого типизированного $\lambda$-исчисления оператором примитивной рекурсии с синтаксисом, аналогичным циклу \code{for}:
+\[
+\primrec{r}{t|$_{\mathsf{zero}}$|}{k}{t|$_{\mathsf{nat}}$|}{t|$_{\mathsf{step}}$|}
+\]
+Семантика: при \code{t|$_{\mathsf{nat}}$|} = \code{0} результат равен \code{t|$_{\mathsf{zero}}$|};
+при \code{t|$_{\mathsf{nat}}$|} = \code{succ nv} (где \code{nv} — значение типа \code{Nat}) — в цикле выполняется \code{nv} итераций,
+на каждой итерации вычисляется \code{t|$_{\mathsf{step}}$|} с подстановкой текущего значения счётчика \code{k} и текущего значения результата \code{r}, результат этого вычисления становится новым значением \code{r} для следующей итерации; итоговый результат равен значению \code{r} после завершения всех итераций.
+
+\begin{prooftree}
+  \AxiomC{$\code{t$_{\mathsf{zero}}$} \longrightarrow \code{t$_{\mathsf{zero}}'$}$}
+  \RightLabel{E-NatFor$_1$}
+  \UnaryInfC{$\primrec{r}{t|$_{\mathsf{zero}}$|}{k}{t|$_{\mathsf{nat}}$|}{t|$_{\mathsf{step}}$|} \longrightarrow \primrec{r}{t|$_{\mathsf{zero}}'$|}{k}{t|$_{\mathsf{nat}}$|}{t|$_{\mathsf{step}}$|}$}
+\end{prooftree}
+\begin{prooftree}
+  \AxiomC{$\code{t$_{\mathsf{nat}}$} \longrightarrow \code{t$_{\mathsf{nat}}'$}$}
+  \RightLabel{E-NatFor$_2$}
+  \UnaryInfC{$\primrec{r}{v|$_{\mathsf{zero}}$|}{k}{t|$_{\mathsf{nat}}$|}{t|$_{\mathsf{step}}$|} \longrightarrow \primrec{r}{v|$_{\mathsf{zero}}$|}{k}{t|$_{\mathsf{nat}}'$|}{t|$_{\mathsf{step}}$|}$}
+\end{prooftree}
+\begin{prooftree}
+  \AxiomC{}
+  \RightLabel{E-NatForZero}
+  \UnaryInfC{$\primrec{r}{v|$_{\mathsf{zero}}$|}{k}{0}{t|$_{\mathsf{step}}$|} \longrightarrow \code{v$_{\mathsf{zero}}$}$}
+\end{prooftree}
+\begin{prooftree}
+  \AxiomC{}
+  \RightLabel{E-NatForSucc}
+  \UnaryInfC{$\primrec{r}{v|$_{\mathsf{zero}}$|}{k}{succ nv}{t|$_{\mathsf{step}}$|}$}
+  \noLine \UnaryInfC{$\longrightarrow \primrec{r}{[k |$\mapsto$| nv, r |$\mapsto$| v|$_{\mathsf{zero}}$|]t|$_{\mathsf{step}}$|}{k}{n}{t|$_{\mathsf{step}}$|}$}
+\end{prooftree}
+
+Правило типизации:
+\begin{prooftree}
+  \AxiomC{$\Gamma \vdash \code{t$_{\mathsf{nat}}$} : \code{Nat}$}
+  \AxiomC{$\Gamma \vdash \code{t$_{\mathsf{zero}}$} : \code{T}$}
+  \AxiomC{$\Gamma,\, \code{k : Nat},\, \code{r : T} \vdash \code{t$_{\mathsf{step}}$} : \code{T}$}
+  \RightLabel{T-NatFor}
+  \TrinaryInfC{$\Gamma \vdash \primrec{r}{t|$_{\mathsf{zero}}$|}{k}{t|$_{\mathsf{nat}}$|}{t|$_{\mathsf{step}}$|} : \code{T}$}
+\end{prooftree}
+
+\begin{enumerate}
+
+  \item Проставьте явные аннотации типа для аргументов $\lambda$-абстракций и постройте дерево вывода типа для замкнутого терма:
+  \[
+  \code{(λx. \primrec{r}{λf. f}{k}{pred x}{λf. λx. r (r x)}) (succ 0)}
+  \]
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+  \item
+  Расширьте \emph{лемму об инверсии}~\cite[Лемма~9.3.1]{TaPL-ru} и \emph{лемму о канонических формах}~\cite[Лемма~9.3.4]{TaPL-ru} с учётом оператора \code{for}:
+  \begin{enumerate}
+  \item Добавьте пункт инверсии для термов вида $\primrec{r}{t|$_{\mathsf{zero}}$|}{k}{t|$_{\mathsf{nat}}$|}{t|$_{\mathsf{step}}$|}$: какие типы и выводы обязаны иметь подтермы?
+  \item Уточните канонические формы для типа \code{Nat}: остаётся ли утверждение «значение типа \code{Nat} есть либо \code{0}, либо \code{succ nv}»
+  верным в расширенном языке, или значения могут иметь и другую форму? Обоснуйте.
+  \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+  \item
+  Расширьте формулировки и доказательства лемм \emph{продвижения} и \emph{сохранения}~\cite[\S 9.3]{TaPL-ru} на исчисление с оператором \code{for} (примитивная рекурсия).
+  Укажите, какие новые случаи появляются в доказательствах и как они разбираются.
+  Объясните, почему замкнутый хорошо типизированный терм по-прежнему не может быть тупиковым.
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+  \item
+  Расширьте правила \emph{двунаправленной типизации}~\cite{DunfieldKrishnaswami2021} на оператор \code{for}: введите правила для суждений $\Gamma \vdash t \Leftarrow T$ и $\Gamma \vdash t \Rightarrow T$ (проверка и синтез типа).
+  Объясните, почему для \code{for} выбран именно такой режим (проверка, синтез, или оба режима).
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+\end{enumerate}
+
+\section*{Список литературы}
+\printbibliography[heading=none]
+
+\end{document}
