@@ -50,8 +50,9 @@ let
   };
 in
 pkgs.mkShellNoCC {
+  __structuredAttrs = true;
+  strictDeps = true;
   preferLocalBuild = true;
-  allowSubstitutes = false;
 
   name = "semantics-and-type-systems";
 
