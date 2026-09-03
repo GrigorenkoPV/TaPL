@@ -57,14 +57,12 @@ pkgs.mkShellNoCC {
   name = "semantics-and-type-systems";
 
   packages = with pkgs; [
-    typst
+    (typst.wrapper {
+      inherit fonts;
+    })
     tinymist
     typstyle
     texenv
     python3Packages.pygments
   ];
-
-  env.FONTCONFIG_FILE = pkgs.makeFontsConf {
-    fontDirectories = fonts;
-  };
 }
