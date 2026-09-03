@@ -2,7 +2,7 @@
   pkgs ? import <nixpkgs> { },
 }:
 let
-  inherit (pkgs) lib texlive;
+  inherit (pkgs) lib;
 
   fonts = with pkgs; [
     (callPackage ./fonts/serif.nix { })
@@ -11,8 +11,8 @@ let
     (callPackage ./fonts/menlo.nix { })
   ];
 
-  texenv = texlive.combine {
-    inherit (texlive)
+  texenv = pkgs.texliveMinimal.withPackages (
+    p: with p; [
       scheme-basic
       xetex
       biber
@@ -43,11 +43,11 @@ let
       upquote
       xstring
       zref
-      ;
 
-    # https://wellquite.org/posts/latex_fonts_and_nixos/
-    latexFonts.pkgs = lib.map (pkg: pkg // { tlType = "run"; }) fonts;
-  };
+      # https://wellquite.org/posts/latex_fonts_and_nixos/
+      { pkgs = lib.map (pkg: pkg // { tlType = "run"; }) fonts; }
+    ]
+  );
 in
 pkgs.mkShellNoCC {
   __structuredAttrs = true;
