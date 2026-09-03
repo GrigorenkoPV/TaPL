@@ -29,6 +29,7 @@ let
       amsmath
       biblatex
       bussproofs
+      csquotes
       fancyhdr
       fontspec
       framed
@@ -39,6 +40,7 @@ let
       minted
       needspace
       polyglossia
+      sourcecodepro
       unicode-math
       upquote
       xstring

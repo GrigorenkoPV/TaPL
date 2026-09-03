@@ -1,0 +1,159 @@
+\documentclass[dvipsnames]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{unicode-math}
+\usepackage{csquotes}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+\setmainfont[SmallCapsFont=Latin Modern Roman Caps]{CMU Serif}
+\setsansfont[SmallCapsFont=Latin Modern Roman Caps]{CMU Sans Serif}
+\setmonofont[SmallCapsFont=Latin Modern Roman Caps]{CMU Typewriter Text}
+% \setmathfont{Latin Modern Math}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{bussproofs}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[backend=biber]{biblatex}
+\usepackage{xcolor}
+
+\usepackage{minted2}
+\usemintedstyle{xcode}
+\setminted{escapeinside=||}
+\newminted[stella]{cpp}{escapeinside=||,frame=single,texcomments,fontsize=\small}
+\newmintinline[haskell]{haskell}{fontsize=\scriptsize}
+\newmintinline[java]{java}{fontsize=\scriptsize}
+\newmintinline[python]{python}{fontsize=\scriptsize}
+\newmintinline[code]{cpp}{fontsize=\small}
+\newmintinline[smallcode]{cpp}{fontsize=\small}
+\let\smallcodeOrig\smallcode
+\renewcommand{\smallcode}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \smallcodeOrig[#1]{#2}%
+  \fi}
+
+\usepackage{sourcecodepro}
+\usepackage{mdframed}
+
+\newcommand{\Fsub}{F$_{\text{\textbf{<:}}}$}
+\newcommand{\vto}{%
+    \mathrel{%
+        \vdash\hspace*{-5pt}%
+        \raisebox{2.65pt}{\scalebox{.33}{\(\blacktriangleright\)}}%
+    }%
+}
+
+\begin{filecontents*}{\jobname.bib}
+@book{TaPL-ru,
+   TITLE      = {Типы в языках программирования: пер. с англ.},
+   AUTHOR     = {Пирс, Б.},
+   ISBN       = {9785791300829},
+   URL        = {https://books.google.ru/books?id=HJJCkgEACAAJ},
+   YEAR       = {2012},
+   PUBLISHER  = {Лямбда пресс}
+}
+\end{filecontents*}
+
+\addbibresource{\jobname.bib}
+
+\begin{document}
+
+\thispagestyle{fancy}
+\lhead{\includegraphics[height=1cm]{../images/itmo_logo}}
+\rhead{\includegraphics[height=1cm]{../images/stella-logo}}
+\cfoot{Языки программирования. Семантика и системы типов (весна 2026, Университет ИТМО)}
+
+\section*{Тема 13. Теоретическое задание \textcolor{blue}{(выполнил Бенжамин Пирс)}}%
+
+\begin{enumerate}
+  \item Предложите кодировку для типов-сумм~\cite[\S 11.9]{TaPL-ru} в Системе \Fsub~(аналогично кодировке пар~\cite[\S 26.3]{TaPL-ru}):
+  \begin{enumerate}
+    \item определите тип \smallcode{Sum T₁ T₂};
+    \item выпишите типы и определения функций \smallcode{inl}, \smallcode{inr} и \smallcode{match},
+    соответствующих конструкциям \smallcode{inl(t)}, \smallcode{inr(t)} и
+    \smallcode{case t of inl(x₁)⇒t₁ | inr(x₂)⇒t₂};
+    \item покажите (построив соответствующее дерево вывода), что выполняется правило
+    \begin{prooftree}
+      \AxiomC{$\Gamma \vdash \smallcode{S₁ <: T₁}$}
+      \AxiomC{$\Gamma \vdash \smallcode{S₂ <: T₂}$}
+      \RightLabel{\textsc{S-Sum}}
+      \BinaryInfC{$\Gamma \vdash \smallcode{Sum S₁ S₂  <:  Sum T₁ T₂}$}
+    \end{prooftree}
+  \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Для каждого из следующих типов ядерной Системы \Fsub~\cite[Рис.~26-1]{TaPL-ru}
+  постройте (любой) замкнутый терм этого типа вместе с деревом вывода типа
+  (включая поддеревья вывода подтипизации, где необходимо)
+  или покажите, что это невозможно:
+  \begin{enumerate}
+    \item \smallcode{∀X<:Top. Top → X}
+    \item \smallcode{∀X<:Top. ∀Y<:X. X → Y}
+    \item \smallcode{∀X<:Top. ∀Y<:X. ∀Z<:Y. Z → X}
+  \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Постройте дерево вывода, соответствующее алгоритму проверки типов для ядра \Fsub~\cite[Рис.~28-3]{TaPL-ru},
+  для следующих замкнутых термов:
+  \begin{enumerate}
+    \item \smallcode{λX<:Nat→Nat. λy:X. y 0  :  ∀X<:Nat→Nat. X → Nat}
+    \item \smallcode{(λX<:{a:Nat}. λx:X. succ x.a) [{a:Nat,b:Bool}] {a=0,b=true}  :  Nat}
+    \item \smallcode{(λX<:Top. λx:X. x) [Nat→Nat] (λn:Nat. succ n)  :  Nat→Nat}
+  \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Для контекста
+  $\Gamma = \smallcode{X<:Top, Y<:Nat→Bool, Z<:Y, W<:Z, B<:X→Nat, C<:B}$
+  укажите, какие из следующих утверждений о выявлении верны.
+  Для неверных поясните, какой наименьший надтип получается вместо указанного:
+  \begin{enumerate}
+    \item $\Gamma \vto \smallcode{Top} \Uparrow \smallcode{Top}$
+    \item $\Gamma \vto \smallcode{Y} \Uparrow \smallcode{Top}$
+    \item $\Gamma \vto \smallcode{Z} \Uparrow \smallcode{Nat→Bool}$
+    \item $\Gamma \vto \smallcode{W} \Uparrow \smallcode{Top}$
+    \item $\Gamma \vto \smallcode{B} \Uparrow \smallcode{X→Nat}$
+    \item $\Gamma \vto \smallcode{C} \Uparrow \smallcode{Top}$
+  \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+\end{enumerate}
+
+\section*{Список литературы}
+\printbibliography[heading=none]
+
+\end{document}

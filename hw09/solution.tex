@@ -1,0 +1,168 @@
+\documentclass[dvipsnames]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{unicode-math}
+\usepackage{csquotes}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+\setmainfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
+% \setmathfont{Latin Modern Math}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{bussproofs}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[backend=biber]{biblatex}
+\usepackage{xcolor}
+
+\usepackage{minted2}
+\usemintedstyle{xcode}
+\setminted{escapeinside=||}
+\newminted[stella]{cpp}{escapeinside=||,frame=single,fontsize=\small}
+\newmintinline[haskell]{haskell}{fontsize=\scriptsize}
+\newmintinline[java]{java}{fontsize=\scriptsize}
+\newmintinline[python]{python}{fontsize=\scriptsize}
+\newmintinline[code]{c}{fontsize=\small}
+\newmintinline[smallcode]{c}{fontsize=\small}
+\let\smallcodeOrig\smallcode
+\renewcommand{\smallcode}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \smallcodeOrig[#1]{#2}%
+  \fi}
+\let\codeOrig\code
+\renewcommand{\code}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \codeOrig[#1]{#2}%
+  \fi}
+
+\usepackage{sourcecodepro}
+\usepackage{mdframed}
+
+\DeclareMathOperator{\xor}{\mathsf{xor}}
+\DeclareMathOperator{\tru}{\mathsf{tru}}
+\DeclareMathOperator{\fls}{\mathsf{fls}}
+
+\addbibresource{../references.bib}
+
+\begin{document}
+
+\pagestyle{fancy}
+\fancyhf{}
+\chead{Задание выполнил \textcolor{blue}{Бенжамин Пирс (замените на своё имя)}}
+\cfoot{Языки программирования. Семантика и системы типов (весна 2026, Университет ИТМО)}
+
+\section*{Тема 9. Теоретическое задание \textcolor{blue}{(выполнил Бенжамин Пирс)}}%
+
+Тип настроек приватности задаётся явно как запись \code{Policy}:
+\begin{stella}
+Policy = {
+  shareLocation     : Bool,   // передача геолокации
+  allowAnalytics    : Bool,   // аналитика и телеметрия
+  showPublicProfile : Bool,   // видимость профиля
+  dataRetentionDays : Nat     // срок хранения данных (в днях)
+}
+
+PolicyFlag // тип-перечисление флагов Policy
+  = < shareLocation     : Unit,
+      allowAnalytics    : Unit,
+      showPublicProfile : Unit >
+\end{stella}
+
+Следуя определениям императивных объектов~\cite[\S 18]{TaPL-ru} c использованием открытой рекурсии~\cite[\S 18.10--18.12]{TaPL-ru},
+реализуйте класс \code{PrivacyMode} и подклассы \code{SingleUndoPrivacyMode} и \code{UndoRedoPrivacyMode}
+с возможностью отменять (\code{undo}) или повторять (\code{redo}) действия.
+В своей реализации вы можете использовать абстракции-заглушки~\cite[\S 18.11]{TaPL-ru} или ссылки-заглушки~\cite[\S 18.12]{TaPL-ru}.
+\begin{enumerate}
+  \item Реализуйте класс \code{PrivacyMode} (т.е. опишите тип \code{PrivacyModeRep}, а также реализуйте функции \code{privacyModeClass} и \code{newPrivacyMode}):
+\begin{stella}
+PrivacyMode = {
+  getPolicy   : Unit -> Policy,
+  setPolicy   : Policy -> Unit,
+  toggleFlag  : PolicyFlag -> Unit  // переключить флаг на противоположный
+  }
+\end{stella}
+
+  \emph{Примечание.} Метод \code{toggleFlag} должен быть реализован через \code{setPolicy}.
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Реализуйте класс \code{SingleUndoPrivacyMode}:
+\begin{stella}
+SingleUndoPrivacyMode = {
+  getPolicy   : Unit -> Policy,
+  setPolicy   : Policy -> Unit,
+  toggleFlag  : PolicyFlag -> Unit,
+  undo        : Unit -> Unit // отменить последнее: setPolicy или toggleFlag
+  }                          // повторный вызов ничего не меняет
+\end{stella}
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Используйте списки~\cite[\S 11.12]{TaPL-ru}, чтобы реализовать класс \code{UndoRedoPrivacyMode},
+  который хранит \textbf{стек} сохранённых состояний/действий (представленный списком).
+  Повторный вызов \code{undo}/\code{redo} должен быть поддержан.
+\begin{stella}
+UndoRedoPrivacyMode = {
+  getPolicy   : Unit -> Policy,
+  setPolicy   : Policy -> Unit,
+  toggleFlag  : PolicyFlag -> Unit,
+  undo        : Unit -> Unit,  // отменить действие (setPolicy или toggleFlag)
+  redo        : Nat -> Unit    // повторить отменённое действие
+  }
+\end{stella}
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+\end{enumerate}
+
+По каждому пункту выше, предоставьте:
+\begin{enumerate}
+  \item[\textbf{(i)}] Тип представления.
+  \item[\textbf{(ii)}] Функции класса и генератора объектов.
+  \item[\textbf{(iii)}] Краткое описание реализации.
+  \item[\textbf{(iv)}] Пример использования класса с комментариями.
+\end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+\section*{Список литературы}
+\printbibliography[heading=none]
+
+\end{document}

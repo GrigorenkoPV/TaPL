@@ -1,0 +1,144 @@
+\documentclass[dvipsnames]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{unicode-math}
+\usepackage{csquotes}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+\setmainfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
+% \setmathfont{Latin Modern Math}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{bussproofs}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[backend=biber]{biblatex}
+\usepackage{xcolor}
+
+\usepackage{minted2}
+\usemintedstyle{xcode}
+\setminted{escapeinside=||}
+\newminted[stella]{cpp}{escapeinside=||,frame=single}
+\newmintinline[haskell]{haskell}{fontsize=\scriptsize}
+\newmintinline[java]{java}{fontsize=\scriptsize}
+\newmintinline[python]{python}{fontsize=\scriptsize}
+\newmintinline[code]{c}{fontsize=\small}
+\newmintinline[smallcode]{c}{fontsize=\small}
+
+\let\smallcodeOrig\smallcode
+\renewcommand{\smallcode}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \smallcodeOrig[#1]{#2}%
+  \fi}
+\let\codeOrig\code
+\renewcommand{\code}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \codeOrig[#1]{#2}%
+  \fi}
+
+\usepackage{sourcecodepro}
+\usepackage{mdframed}
+
+\DeclareMathOperator{\xor}{\mathsf{xor}}
+\DeclareMathOperator{\tru}{\mathsf{tru}}
+\DeclareMathOperator{\fls}{\mathsf{fls}}
+
+\title{Языки программирования. Семантика и системы типов}
+\author{Николай Кудасов}
+\date{25 марта 2026}
+
+\addbibresource{../references.bib}
+
+\begin{document}
+
+\pagestyle{fancy}
+\fancyhf{}
+\chead{Задание выполнил \textcolor{blue}{Бенжамин Пирс (замените на своё имя)}}
+\cfoot{Языки программирования. Семантика и системы типов (весна 2026, Университет ИТМО)}
+
+\section*{Тема 6. Теоретическое задание \textcolor{blue}{(выполнил Бенжамин Пирс)}}%
+
+\begin{enumerate}
+  \item Рассмотрим расширение простого типизированного $\lambda$-исчисления со ссылками (TaPL 13) операцией
+    \[
+      \code{with}~x = \code{ref}~t_1~\code{do}~t_2,
+    \]
+    при которой создаётся временная ячейка памяти (с начальным значением равным вычисленному значению $t_1$),
+    доступная только на время выполнения блока $t_2$ (и освобождающаяся по завершении блока).
+    Покажите, почему даже такая конструкция (без явного оператора \code{free}) ломает безопасность типизации:
+    \begin{enumerate}
+      \item Выпишите два правила вычисления для конструкции \code{with}--\code{ref} (одно для случая, когда $t_1$ является значением, другое для случая, когда $t_1$ не является значением). Правила должны учитывать состояние памяти ($\mu$).
+      \item Предложите правило типизации для конструкции \code{with}--\code{ref}. Правило должно учитывать структуру типизации памяти ($\Sigma$).
+      \item Покажите, что сохранение типизации~\cite[Теорема 13.5.3]{TaPL-ru} не выполняется.
+        Составьте выражение \code{t}, использующее конструкцию \code{with}--\code{ref}, и представьте состояния памяти $\mu$ и $\mu'$,
+        контекст $\Gamma$, структуры типизации $\Sigma$ и $\Sigma'$, а также типы $T$ и $T'$,
+        для которых выполняются условия:
+        \[
+          \code{t} \mid \mu \longrightarrow^* \code{t}' \mid \mu',
+        \]
+        \[
+          \Gamma \mid \Sigma \vdash \mu,
+          \qquad
+          \Gamma \mid \Sigma \vdash \code{t} : T,
+          \qquad
+          \Gamma \mid \Sigma' \vdash \mu',
+        \]
+        но при этом
+        \[
+          \Gamma \mid \Sigma' \vdash \code{t}' : T', \quad \text{где } T \neq T'.
+        \]
+    \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Реализуйте следующие функции над списками~\cite[§11.12]{TaPL-ru}, используя ссылки~\cite[§12]{TaPL-ru},
+    и \textbf{не} используя \code{fix} или \code{letrec}~\cite[§11.11]{TaPL-ru}:
+    \begin{enumerate}
+      \item $\code{length[T]} : \code{List[T]} \to \code{Nat}$
+      \item $\code{reverse[A]} : \code{List[A]} \to \code{List[A]}$
+      \item $\code{map[A,B]} : (\code{A} \to \code{B}) \to \code{List[A]} \to \code{List[B]}$
+    \end{enumerate}
+    При необходимости используйте стандартные операции со списками из TaPL (например,
+    \code{nil[T]}, \code{cons[T] t u}, \code{isnil[T] t}, \code{head[T] t}, \code{tail[T] t}) и доступные операции со ссылками
+    (\code{ref}, \code{!}, \code{:=}, последовательное выполнение).
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+\end{enumerate}
+
+\section*{Список литературы}
+\printbibliography[heading=none]
+
+\end{document}
+

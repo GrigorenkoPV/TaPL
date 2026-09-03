@@ -1,0 +1,170 @@
+\documentclass[dvipsnames]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{unicode-math}
+\usepackage{csquotes}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+\setmainfont[SmallCapsFont=Latin Modern Roman Caps]{CMU Serif}
+\setsansfont[SmallCapsFont=Latin Modern Roman Caps]{CMU Sans Serif}
+\setmonofont[SmallCapsFont=Latin Modern Roman Caps]{CMU Typewriter Text}
+% \setmathfont{Latin Modern Math}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{bussproofs}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[backend=biber]{biblatex}
+\usepackage{xcolor}
+
+\usepackage{minted2}
+\usemintedstyle{xcode}
+\setminted{escapeinside=||}
+\newminted[stella]{cpp}{escapeinside=||,frame=single,texcomments,fontsize=\small}
+\newmintinline[haskell]{haskell}{fontsize=\scriptsize}
+\newmintinline[java]{java}{fontsize=\scriptsize}
+\newmintinline[python]{python}{fontsize=\scriptsize}
+\newmintinline[code]{c}{fontsize=\small}
+\newmintinline[smallcode]{c}{fontsize=\small}
+\let\smallcodeOrig\smallcode
+\renewcommand{\smallcode}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \smallcodeOrig[#1]{#2}%
+  \fi}
+\let\codeOrig\code
+\renewcommand{\code}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \codeOrig[#1]{#2}%
+  \fi}
+
+\usepackage{sourcecodepro}
+\usepackage{mdframed}
+
+\DeclareMathOperator{\xor}{\mathsf{xor}}
+\DeclareMathOperator{\tru}{\mathsf{tru}}
+\DeclareMathOperator{\fls}{\mathsf{fls}}
+
+\addbibresource{../references.bib}
+
+\begin{document}
+
+\thispagestyle{fancy}
+\lhead{\includegraphics[height=1cm]{../images/itmo_logo}}
+\rhead{\includegraphics[height=1cm]{../images/stella-logo}}
+\cfoot{Языки программирования. Семантика и системы типов (весна 2026, Университет ИТМО)}
+
+\section*{Тема 10. Теоретическое задание \textcolor{blue}{(выполнил Бенжамин Пирс)}}%
+
+\begin{enumerate}
+  \item Реализуйте классы на Featherweight Java~\cite[\S 19]{TaPL-ru}, соответствующие спискам натуральных чисел~\cite[\S 11.12]{TaPL-ru},
+  а также реализуйте методы \code{isnil}, \code{head}, \code{tail}, \code{reverse}, \code{sum}:
+\begin{minted}[frame=single,linenos,fontsize=\footnotesize]{java}
+class NatList extends Object {
+  ...
+  Bool isnil() { ... }
+  Nat head() { ... }
+  NatList tail() { ... }
+  NatList reverse() { ... }
+  Nat sum() { ... }
+}
+class Nil extends NatList { ... }
+class Cons extends NatList { ... }
+\end{minted}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Реализуйте классы на Welterweight Java~\cite{OstlundWrigstad2010}, соответствующие императивным спискам натуральных чисел,
+  а также реализуйте методы \code{isnil}, \code{head}, \code{tail}, \code{reverse}, \code{sum}:
+\begin{minted}[frame=single,linenos,fontsize=\footnotesize]{java}
+class NatList extends Object {
+  ...
+  Bool isnil() { ... }
+  Unit consHead(Nat n) { ... }
+  Nat popHead() { ... }
+  Nat head() { ... }
+  NatList tail() { ... }
+  Unit reverse() { ... }
+  Nat sum() { ... }
+}
+\end{minted}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Выполните программу на Welterweight Java (см. динамическую семантику~\cite[\S 2.2]{OstlundWrigstad2010}):
+  \begin{enumerate}
+    \item выпишите начальную конфигурацию;
+    \item выпишите последовательность правил динамической семантики (только названия правил, например \textsc{D-Return}, \textsc{D-Assign} и пр.), которые будут применены при вычислении;
+    \item выпишите конечную конфигурацию.
+  \end{enumerate}
+
+\begin{minted}[frame=single,linenos,fontsize=\footnotesize]{java}
+class Thunk extends Object { Object force() { return this; } }
+class Bool extends Thunk {
+  Object if(Object t, Object f) {
+    Object o; Bool b;
+    o = this.force(); b = (Bool)o;
+    o = b.if(t, f); return o;
+  }
+}
+class True extends Bool { Object if(Object t, Object f) { return t; } }
+class False extends Bool { Object if(Object t, Object f) { return f; } }
+class Or extends Bool {
+  Bool l; Bool r;
+  Object force() {
+    Bool b; Bool t; Bool r; Object o;
+    b = this.l; t = new True(); r = this.r;
+    o = b.if(t, r); return o;
+  }
+}
+class Main extends Object {
+  Object main() {
+    Bool t; Bool f; Bool x; Bool y; Object o;
+    t = new True(); f = new False();
+    x = new Or(); x.l = t; x.r = f;
+    y = new Or(); y.l = x; y.r = x;
+    o = y.force(); return o;
+  }
+}
+\end{minted}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+\end{enumerate}
+
+\section*{Список литературы}
+\printbibliography[heading=none]
+
+\end{document}

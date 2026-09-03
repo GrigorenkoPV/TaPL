@@ -1,0 +1,122 @@
+\documentclass[dvipsnames]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{unicode-math}
+\usepackage{csquotes}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+\setmainfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
+% \setmathfont{Latin Modern Math}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{bussproofs}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[backend=biber]{biblatex}
+\usepackage{xcolor}
+
+\usepackage{minted2}
+\usemintedstyle{xcode}
+\setminted{escapeinside=||}
+\newminted[stella]{cpp}{escapeinside=||,frame=single}
+\newmintinline[haskell]{haskell}{fontsize=\scriptsize}
+\newmintinline[java]{java}{fontsize=\scriptsize}
+\newmintinline[python]{python}{fontsize=\scriptsize}
+\newmintinline[code]{c}{fontsize=\small}
+\newmintinline[smallcode]{c}{fontsize=\small}
+\let\smallcodeOrig\smallcode
+\renewcommand{\smallcode}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \smallcodeOrig[#1]{#2}%
+  \fi}
+\let\codeOrig\code
+\renewcommand{\code}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \codeOrig[#1]{#2}%
+  \fi}
+
+\usepackage{sourcecodepro}
+\usepackage{mdframed}
+
+\DeclareMathOperator{\xor}{\mathsf{xor}}
+\DeclareMathOperator{\tru}{\mathsf{tru}}
+\DeclareMathOperator{\fls}{\mathsf{fls}}
+
+\addbibresource{../references.bib}
+
+\begin{document}
+
+\pagestyle{fancy}
+\fancyhf{}
+\chead{Задание выполнил \textcolor{blue}{Бенжамин Пирс (замените на своё имя)}}
+\cfoot{Языки программирования. Семантика и системы типов (весна 2026, Университет ИТМО)}
+
+\section*{Тема 5. Теоретическое задание \textcolor{blue}{(выполнил Бенжамин Пирс)}}%
+
+Расширьте доказательство теоремы о нормализации простого типизированного $\lambda$-исчисления,
+добавив поддержку \code{let}-связываний~\cite[Рис.~11.4]{TaPL-ru}, типов-записей~\cite[Рис.~11.7]{TaPL-ru} и типов-сумм~\cite[Рис.~11.9]{TaPL-ru}:
+
+\begin{enumerate}
+  \item Расширьте определение $R_{\smallcode{T}}(\code{t})$ для случаев
+  \begin{itemize}
+    \item $\code{T} = \{\code{l$_1$ : T$_1$, …, l$_n$ : T$_n$}\}$
+    \item $\code{T} = \code{T}_1\code{ + T}_2$
+  \end{itemize}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Расширьте доказательство леммы о сохранении свойства $R_{\smallcode{T}}$~\cite[Лемма~12.1.4]{TaPL-ru}.
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Расширьте доказательство леммы о нормализации открытых термов~\cite[Лемма~12.1.5]{TaPL-ru},
+  рассмотрев следующие правила типизации:
+  \begin{itemize}
+    \item \textsc{T-Rcd}, \textsc{T-Proj},
+    \item \textsc{T-Inl}, \textsc{T-Inr}, \textsc{T-Case}
+    \item \textsc{T-Let}
+  \end{itemize}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+\end{enumerate}
+
+\section*{Список литературы}
+\printbibliography[heading=none]
+
+\end{document}
+

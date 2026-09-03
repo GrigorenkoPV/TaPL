@@ -1,0 +1,136 @@
+\documentclass[dvipsnames]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{unicode-math}
+\usepackage{csquotes}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+\setmainfont[SmallCapsFont=Latin Modern Roman Caps]{CMU Serif}
+\setsansfont[SmallCapsFont=Latin Modern Roman Caps]{CMU Sans Serif}
+\setmonofont[SmallCapsFont=Latin Modern Roman Caps]{CMU Typewriter Text}
+% \setmathfont{Latin Modern Math}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{bussproofs}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[backend=biber]{biblatex}
+\usepackage{xcolor}
+
+\usepackage{minted2}
+\usemintedstyle{xcode}
+\setminted{escapeinside=||}
+\newminted[stella]{cpp}{escapeinside=||,frame=single,texcomments,fontsize=\small}
+\newmintinline[haskell]{haskell}{fontsize=\scriptsize}
+\newmintinline[java]{java}{fontsize=\scriptsize}
+\newmintinline[python]{python}{fontsize=\scriptsize}
+\newmintinline[code]{c}{fontsize=\small}
+\newmintinline[smallcode]{c}{fontsize=\small}
+\let\smallcodeOrig\smallcode
+\renewcommand{\smallcode}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \smallcodeOrig[#1]{#2}%
+  \fi}
+\let\codeOrig\code
+\renewcommand{\code}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \codeOrig[#1]{#2}%
+  \fi}
+
+\usepackage{sourcecodepro}
+\usepackage{mdframed}
+
+\DeclareMathOperator{\xor}{\mathsf{xor}}
+\DeclareMathOperator{\tru}{\mathsf{tru}}
+\DeclareMathOperator{\fls}{\mathsf{fls}}
+
+\addbibresource{../references.bib}
+
+\begin{document}
+
+\thispagestyle{fancy}
+\lhead{\includegraphics[height=1cm]{../images/itmo_logo}}
+\rhead{\includegraphics[height=1cm]{../images/stella-logo}}
+\cfoot{Языки программирования. Семантика и системы типов (весна 2026, Университет ИТМО)}
+
+\section*{Тема 11. Теоретическое задание \textcolor{blue}{(выполнил Бенжамин Пирс)}}%
+
+\begin{enumerate}
+  \item Предложите правила типизации на основе ограничений (см. \cite[\S 22.3]{TaPL-ru})
+  для типов-произведений~\cite[\S 11.6]{TaPL-ru} и типов-сумм~\cite[\S 11.9]{TaPL-ru}.
+  Затем, используя эти правила, выведите тип следующего терма в пустом контексте:
+
+  \begin{center}
+  \code{λy. λz. ((λx. case x of inl l ⇒ {l, y} | inr r ⇒ r) (inl z)).1}
+  \end{center}
+
+  А именно:
+  \begin{enumerate}
+    \item постройте дерево вывода типа с ограничениями для этого терма; в корне должно быть суждение вида $\cdot \vdash \code{t} : \code{S} \mid C$ для некоторых \code{S} и $C$;
+    \item выпишите главный унификатор для множества ограничений $C$;
+    \item выпишите главный тип терма \code{t}, используя полученный главный унификатор.
+  \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Рассмотрите следующие подстановки типовых переменных:
+  \begin{align*}
+    \xi &= [ \code{A} \mapsto \code{(B+Nat)→(C+Unit)},\; \code{C} \mapsto \code{(Nat→A)+Bool} ] \\
+    \zeta &= [ \code{A} \mapsto \code{((Bool→Nat)+Nat)→(Nat+Unit)},\; \code{B} \mapsto \code{Bool→Nat},\; \code{C} \mapsto \code{(Nat→Unit)+Bool} ]
+  \end{align*}
+
+  Верно ли, что $\xi \sqsubseteq \zeta$? Верно ли, что $\zeta \sqsubseteq \xi$?
+  Обоснуйте ваши ответы.
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Покажите, что типы-суммы~\cite[\S 11.9]{TaPL-ru} можно представить в виде производной формы над Системой~F~\cite[\S 23.4]{TaPL-ru}:
+  \begin{enumerate}
+    \item покажите, как тип \code{A + B} можно заменить типом в Системе F (без расширений);
+    \item выпишите раскрытие сокращений для термов \code{inl t} и \code{inr t}; при необходимости, используйте раскрытие сокращений для дерева вывода типа этого терма;
+    \item выпишите раскрытие сокращений для терма \code{case t|$_1$| of inl x⇒t|$_2$| |$\mid$| inr x⇒t|$_3$|}; при необходимости, используйте раскрытие сокращений для дерева вывода типа;
+    \item докажите, что раскрытие сокращений сохраняет семантику исходных правил типизации (\textsc{T-Inl}, \textsc{T-Inr} и \textsc{T-Case});
+    \item докажите, что раскрытие сокращений сохраняет семантику исходных правил вычисления (\textsc{E-Inl}, \textsc{E-Inr}, \textsc{E-Case}, \textsc{E-CaseInl} и \textsc{E-CaseInr}).
+  \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+\end{enumerate}
+
+\section*{Список литературы}
+\printbibliography[heading=none]
+
+\end{document}

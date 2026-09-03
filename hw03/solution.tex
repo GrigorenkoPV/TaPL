@@ -1,0 +1,135 @@
+\documentclass[dvipsnames]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{unicode-math}
+\usepackage{csquotes}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+\setmainfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
+% \setmathfont{Latin Modern Math}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{bussproofs}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[backend=biber]{biblatex}
+\usepackage{xcolor}
+
+\usepackage{minted2}
+\usemintedstyle{xcode}
+\setminted{escapeinside=||}
+\newmintinline[stella]{c}{fontsize=\scriptsize}
+\newmintinline[haskell]{haskell}{fontsize=\scriptsize}
+\newmintinline[java]{java}{fontsize=\scriptsize}
+\newmintinline[python]{python}{fontsize=\scriptsize}
+\newmintinline[code]{c}{fontsize=\small}
+\let\codeOrig\code
+\renewcommand{\code}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \codeOrig[#1]{#2}%
+  \fi}
+
+\usepackage{sourcecodepro}
+\usepackage{mdframed}
+
+\DeclareMathOperator{\xor}{\mathsf{xor}}
+\DeclareMathOperator{\tru}{\mathsf{tru}}
+\DeclareMathOperator{\fls}{\mathsf{fls}}
+
+\addbibresource{../references.bib}
+
+\begin{document}
+
+\pagestyle{fancy}
+\fancyhf{}
+\chead{Задание выполнил \textcolor{blue}{Бенжамин Пирс (замените на своё имя)}}
+\cfoot{Языки программирования. Семантика и системы типов (весна 2026, Университет ИТМО)}
+
+\section*{Тема 3. Теоретическое задание \textcolor{blue}{(выполнил Бенжамин Пирс)}}%
+
+В следующих заданиях рассматривается простое типизированное $\lambda$-исчисление с единичным типом, \code{let}-связыванием, парами (кортежами), записями и последовательным исполнением (\code{t|$_1$| ; t|$_2$|}). Напоминание: последовательное исполнение задаётся как производная форма
+\[
+  \code{t$_1$ ; t$_2$} ::= \code{(λ x : Unit. t$_2$) t$_1$}
+\]
+с правилами вычисления E-Seq, E-SeqNext и типизации T-Seq~\cite[\S 11.3]{TaPL-ru}.
+
+\begin{enumerate}
+
+  \item Проставьте явные аннотации типа для аргументов $\lambda$-абстракций и постройте дерево вывода типа для замкнутого терма (см. описание пар и записей в~\cite[§§11.6--11.8]{TaPL-ru}):
+  \[
+  \code{let g = λt. \{ a = t.1, b = t.2 \} in (λf. (f \{ succ 0, iszero (f \{ 0, false \}).a \}).b) g}
+  \]
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+  \item
+  Представьте расширение языка выражений \emph{ленивым} логическим оператором ИЛИ: (\code{t|$_1$| or t|$_2$|}).
+  Правила вычисления:
+  \begin{prooftree}
+    \AxiomC{$\code{t$_1$} \longrightarrow \code{t$_1'$}$}
+    \RightLabel{E-Or}
+    \UnaryInfC{$\code{t$_1$ or t$_2$} \longrightarrow \code{t$_1'$ or t$_2$}$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{}
+    \RightLabel{E-OrFalse}
+    \UnaryInfC{$\code{false or t$_2$} \longrightarrow \code{t$_2$}$}
+    \DisplayProof\quad
+    \AxiomC{}
+    \RightLabel{E-OrTrue}
+    \UnaryInfC{$\code{true or t$_2$} \longrightarrow \code{true}$}
+  \end{prooftree}
+  Правило типизации:
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash \code{t$_1$} : \code{Bool}$}
+    \AxiomC{$\Gamma \vdash \code{t$_2$} : \code{Bool}$}
+    \RightLabel{T-Or}
+    \BinaryInfC{$\Gamma \vdash \code{t$_1$ or t$_2$} : \code{Bool}$}
+  \end{prooftree}
+  Представьте этот оператор как \emph{производную форму} над простым типизированным $\lambda$-исчислением с логическими и арифметическими выражениями (типы \code{Bool}, \code{Nat}, конструкция \code{if}~\cite[§§8.2--8.3]{TaPL-ru}): выпишите функцию раскрытия сокращений $e$ для термов, содержащих \code{or}, и докажите аналог теоремы~11.3.1~\cite{TaPL-ru} — сохранение вычисления и сохранение типизации при раскрытии.
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+  \item
+  Рассмотрите типы функций:
+  \begin{enumerate}
+  \item \code{(A × B → C) → ((A → C) × (B → C))};
+  \item \code{((A → C) × (B → C)) → (A × B → C)}.
+  \end{enumerate}
+  Выпишите терм, соответствующий каждому функциональному типу выше, предполагая, что $A$, $B$ и $C$ — неинтерпретируемые базовые типы. Можно использовать возможности типизированного $\lambda$-исчисления с логическими и арифметическими выражениями~\cite[§§8.2--8.3]{TaPL-ru}, единичным типом и последовательным исполнением~\cite[§11.3]{TaPL-ru}, \code{let}-связыванием и приписыванием типа~\cite[§§11.4--11.5]{TaPL-ru}, а также парами, кортежами и записями~\cite[§§11.6--11.8]{TaPL-ru}. Если терм построить невозможно, поясните почему.
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+\end{enumerate}
+
+\section*{Список литературы}
+\printbibliography[heading=none]
+
+\end{document}

@@ -1,0 +1,130 @@
+\documentclass[dvipsnames]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{unicode-math}
+\usepackage{csquotes}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+\setmainfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
+% \setmathfont{Latin Modern Math}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{bussproofs}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[backend=biber]{biblatex}
+\usepackage{xcolor}
+
+\usepackage{minted2}
+\usemintedstyle{xcode}
+\setminted{escapeinside=||}
+\newminted[stella]{cpp}{escapeinside=||,frame=single}
+\newmintinline[haskell]{haskell}{fontsize=\scriptsize}
+\newmintinline[java]{java}{fontsize=\scriptsize}
+\newmintinline[python]{python}{fontsize=\scriptsize}
+\newmintinline[code]{c}{fontsize=\small}
+\newmintinline[smallcode]{c}{fontsize=\small}
+\let\smallcodeOrig\smallcode
+\renewcommand{\smallcode}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \smallcodeOrig[#1]{#2}%
+  \fi}
+\let\codeOrig\code
+\renewcommand{\code}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \codeOrig[#1]{#2}%
+  \fi}
+
+\usepackage{sourcecodepro}
+\usepackage{mdframed}
+
+\DeclareMathOperator{\xor}{\mathsf{xor}}
+\DeclareMathOperator{\tru}{\mathsf{tru}}
+\DeclareMathOperator{\fls}{\mathsf{fls}}
+
+\addbibresource{../references.bib}
+
+\begin{document}
+
+\pagestyle{fancy}
+\fancyhf{}
+\chead{Задание выполнил \textcolor{blue}{Бенжамин Пирс (замените на своё имя)}}
+\cfoot{Языки программирования. Семантика и системы типов (весна 2026, Университет ИТМО)}
+
+\section*{Тема 8. Теоретическое задание \textcolor{blue}{(выполнил Бенжамин Пирс)}}%
+
+\begin{enumerate}
+  \item Для каждого из следующих типов выпишите \textbf{все} подтипы\footnote{В случае программной генерации подтипов, программа должна быть написана вами и прикреплена к решению.}:
+    \begin{enumerate}
+      \item $\code{\{ a : <b : Nat> → Nat \} → <e : <f : Bool> >}$
+      \item $\code{List[\{a : Nat, b : Bool\}] → List[<a : Nat, b : Bool>]}$
+      \item $\code{(<a : Ref \{b : Top\} → Bot> → Top) → Bot}$
+    \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Докажите \cite[Лемма~16.1.2]{TaPL-ru} для типизированного $\lambda$-исчисления с подтипами~\cite[\S 15]{TaPL-ru}, записями
+    (используя правило \textsc{S-Rcd} вместо трёх отдельных правил),
+    списками, ссылками и типом \code{Top} (без \code{Bot}):
+    \begin{enumerate}
+      \item $\code{S <: S}$ можно вывести без использования \textsc{S-Refl};
+      \item если $\code{S <: T}$ выводимо, то оно выводимо без использования \textsc{S-Trans}.
+    \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Покажите \cite[Лемма~16.3.2]{TaPL-ru}, что для любых двух типов $\code{T$_1$}$ и $\code{T$_2$}$
+    в типизированном $\lambda$-исчислении с подтипами~\cite[\S 15]{TaPL-ru}, записями (правило \textsc{S-Rcd}~\cite[\S 16.1,~стр.~227]{TaPL-ru} вместо трёх отдельных правил) и типом \code{Top}
+    (без \code{Bot}):
+    \begin{enumerate}
+      \item возможно построение объединения $\code{J(T$_1$, T$_2$)}$, такого что
+      $\code{T$_1$ <: J}$, $\code{T$_2$ <: J}$ и для всех типов $\code{U}$, если $\code{T$_1$ <: U}$ и $\code{T$_2$ <: U}$,
+      то $\code{J <: U}$;
+      \item возможно построение пересечения $\code{M(T$_1$, T$_2$)}$, такого что
+      $\code{M <: T$_1$}$, $\code{M <: T$_2$}$ и для всех типов $\code{U}$, если $\code{U <: T$_1$}$ и $\code{U <: T$_2$}$,
+      то $\code{U <: M}$.
+    \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+\end{enumerate}
+
+\section*{Список литературы}
+\printbibliography[heading=none]
+
+\end{document}
+

@@ -1,0 +1,148 @@
+\documentclass[dvipsnames]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{unicode-math}
+\usepackage{csquotes}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+\setmainfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
+% \setmathfont{Latin Modern Math}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{bussproofs}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[backend=biber]{biblatex}
+\usepackage{xcolor}
+
+\usepackage{minted2}
+\usemintedstyle{xcode}
+\setminted{escapeinside=||}
+\newminted[stella]{cpp}{escapeinside=||,frame=single}
+\newmintinline[haskell]{haskell}{fontsize=\scriptsize}
+\newmintinline[java]{java}{fontsize=\scriptsize}
+\newmintinline[python]{python}{fontsize=\scriptsize}
+\newmintinline[code]{c}{fontsize=\small}
+\let\codeOrig\code
+\renewcommand{\code}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \codeOrig[#1]{#2}%
+  \fi}
+
+\usepackage{sourcecodepro}
+\usepackage{mdframed}
+
+\DeclareMathOperator{\xor}{\mathsf{xor}}
+\DeclareMathOperator{\tru}{\mathsf{tru}}
+\DeclareMathOperator{\fls}{\mathsf{fls}}
+
+\addbibresource{../references.bib}
+
+\begin{document}
+
+\pagestyle{fancy}
+\fancyhf{}
+\chead{Задание выполнил \textcolor{blue}{Бенжамин Пирс (замените на своё имя)}}
+\cfoot{Языки программирования. Семантика и системы типов (весна 2026, Университет ИТМО)}
+
+\section*{Тема 4. Теоретическое задание \textcolor{blue}{(выполнил Бенжамин Пирс)}}%
+
+Представьте следующий вариант обобщённого цикла \code{for}:
+  \begin{enumerate}
+    \item[\textbf{Синтаксис}] \quad \\
+      \begin{stella}
+t ::= ...
+      for/result[E, T] (x=t; t; t) do t
+      \end{stella}
+    \item[\textbf{Семантика}] \quad \\ Цикл \code{for/result[E, T] (x=t|$_1$|; t|$_2$|; t|$_3$|) do t|$_4$|}
+    инициализирует локальную переменную \code{x} типа \code{T} значением выражения \code{t|$_1$|},
+    после чего следует неограниченное число итераций; на каждой итерации проверяется
+    условие \code{t|$_2$|} (может содержать \code{x}); если условие верно, то
+    выполняется тело цикла \code{t|$_4$|} (может содержать \code{x}), которое возвращает
+    значение варианта типа \code{E + Unit}:
+    либо \code{inl v|$_\mathsf{err}$|}, означающее ошибку, либо \code{inr unit}, означающее успешное продолжение.
+    Если \code{t|$_4$|} на некоторой итерации возвращает \code{inl v|$_\mathsf{err}$|}, то выполнение цикла немедленно
+    останавливается, и результатом всего цикла становится \code{inl v|$_\mathsf{err}$|}.
+    Если же \code{t|$_4$|} на всех итерациях возвращает \code{inr unit}, то после каждого успешного выполнения тела
+    выполняется обновление \code{x} через выражение \code{t|$_3$|} (может содержать \code{x}) и начинается следующая итерация.
+    Когда в некоторый момент условие \code{t|$_2$|} становится ложным, цикл завершается и результатом всего цикла
+    становится \code{inr x}, где \code{x} — последнее значение аккумулятора.
+    Семантика этой версии цикла \code{for/result} примерно соответствует семантике следующего блока кода на языке Python:
+    \begin{minted}[escapeinside=||,texcomments]{python}
+x = t|$_1$|               # инициализируем переменную x
+while t|$_2$|:            # пока верно условие t$_2$
+  res = t|$_4$|           # выполняем тело цикла t$_4$
+  match res:
+    case inl(v_err):      # если произошла ошибка, немедленно выходим
+      return inl(v_err)
+    case inr(unit):   # иначе продолжаем цикл
+      x = t|$_3$|          # обновляем x (возможно, используя текущее значение x)
+return inr(x)        |$\phantom{_1}$|# возвращаем успешный результат с последним значением x
+    \end{minted}
+    \item[\textbf{Типизация}] \quad \\
+    \begin{prooftree}
+      \AxiomC{$\Gamma \vdash \code{t}_1\code{ : T}$}
+      \AxiomC{$\Gamma, \code{x : T} \vdash \code{t}_2\code{ : Bool}$}
+      \AxiomC{$\Gamma, \code{x : T} \vdash \code{t}_3\code{ : T}$}
+      \AxiomC{$\Gamma, \code{x : T} \vdash \code{t}_4\code{ : E + Unit}$}
+      \RightLabel{T-For}
+      \QuaternaryInfC{$\Gamma \vdash$ \code{for/result[E, T] (x=t|$_1$|; t|$_2$|; t|$_3$|) do t|$_4$| : E + T}}
+    \end{prooftree}
+  \end{enumerate}
+
+  \clearpage
+\begin{enumerate}
+
+  \item Выпишите функцию раскрытия сокращений, соответствующую такому варианту цикла \code{for/result},
+  для простого типизированного $\lambda$-исчисления~\cite[Рис.~9.1]{TaPL-ru} с логическими выражениями~\cite[Рис.~8.1]{TaPL-ru},
+  комбинатором неподвижной точки~\cite[Рис.~11.12]{TaPL-ru} (исключая \texttt{letrec}!)
+  и вариантами~\cite[Рис.~11.11]{TaPL-ru} (типы-суммы в базовое исчисление не добавляются!).
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Покажите, что функция раскрытия сокращений сохраняет типизацию, если возможно.
+  Иначе — продемонстрируйте на контрпримере, почему сохранение типизации невозможно.
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Можно ли убрать явную аннотацию типов \code{for/result[E, T]}? В любых выражениях или только в некоторых?
+  Аргументируйте свой ответ.
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+\end{enumerate}
+
+\section*{Список литературы}
+\printbibliography[heading=none]
+
+\end{document}
+

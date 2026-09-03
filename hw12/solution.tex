@@ -1,0 +1,178 @@
+\documentclass[dvipsnames]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{unicode-math}
+\usepackage{csquotes}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+\setmainfont[SmallCapsFont=Latin Modern Roman Caps]{CMU Serif}
+\setsansfont[SmallCapsFont=Latin Modern Roman Caps]{CMU Sans Serif}
+\setmonofont[SmallCapsFont=Latin Modern Roman Caps]{CMU Typewriter Text}
+% \setmathfont{Latin Modern Math}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{bussproofs}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[backend=biber]{biblatex}
+\usepackage{xcolor}
+
+\usepackage{minted2}
+\usemintedstyle{xcode}
+\setminted{escapeinside=||}
+\newminted[stella]{haskell}{escapeinside=||,frame=single,texcomments,fontsize=\small}
+\newmintinline[haskell]{haskell}{fontsize=\scriptsize}
+\newmintinline[java]{java}{fontsize=\scriptsize}
+\newmintinline[python]{python}{fontsize=\scriptsize}
+\newmintinline[code]{c}{fontsize=\small}
+\newmintinline[smallcode]{c}{fontsize=\small}
+\let\smallcodeOrig\smallcode
+\renewcommand{\smallcode}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \smallcodeOrig[#1]{#2}%
+  \fi}
+\let\codeOrig\code
+\renewcommand{\code}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \codeOrig[#1]{#2}%
+  \fi}
+
+\usepackage{sourcecodepro}
+\usepackage{mdframed}
+
+\DeclareMathOperator{\xor}{\mathsf{xor}}
+\DeclareMathOperator{\tru}{\mathsf{tru}}
+\DeclareMathOperator{\fls}{\mathsf{fls}}
+\DeclareMathOperator{\gen}{gen}
+\DeclareMathOperator{\inst}{inst}
+
+\begin{filecontents*}{\jobname.bib}
+@article{Milner1978,
+  title   = {A Theory of Type Polymorphism in Programming},
+  author  = {Milner, Robin},
+  journal = {Journal of Computer and System Sciences},
+  volume  = {17},
+  number  = {3},
+  pages   = {348--375},
+  year    = {1978},
+  doi     = {10.1016/0022-0000(78)90014-4}
+}
+
+@inproceedings{ClementDespeyrouxKahnDespeyroux1986,
+  title     = {A Simple Applicative Language: Mini-ML},
+  author    = {Clement, Dominique and Despeyroux, Jo{\"e}lle and Kahn, Gilles and Despeyroux, Thierry},
+  booktitle = {Proceedings of the 1986 ACM Conference on LISP and Functional Programming},
+  pages     = {13--27},
+  year      = {1986},
+  publisher = {ACM},
+  doi       = {10.1145/319838.319848}
+}
+\end{filecontents*}
+
+\addbibresource{\jobname.bib}
+
+\begin{document}
+
+\thispagestyle{fancy}
+\lhead{\includegraphics[height=1cm]{../images/itmo_logo}}
+\rhead{\includegraphics[height=1cm]{../images/stella-logo}}
+\cfoot{Языки программирования. Семантика и системы типов (весна 2026, Университет ИТМО)}
+
+\section*{Тема 12. Теоретическое задание \textcolor{blue}{(выполнил Бенжамин Пирс)}}%
+
+\begin{enumerate}
+  \item Определите, какие из следующих утверждений о специализации верны.
+  Если специализация верна, явно выпишите подстановку, которая её задаёт:
+  \begin{enumerate}
+    \item \code{∀α.∀β.α→β} $\sqsubseteq$ \code{(Nat→Bool)→Bool}
+    \item \code{∀α.∀β.(α→β)→α} $\sqsubseteq$ \code{∀α.(α→α)→α}
+    \item \code{∀α.∀β.∀γ.β→α→β→γ} $\sqsubseteq$ \code{∀α.β→(α→(α→Bool))→(β→Bool)}
+    \item \code{∀α.∀β.∀γ.∀δ.(γ→β)→(γ→δ)→α} $\sqsubseteq$ \code{∀α.∀β.∀γ.∀δ.∀ε.∀ζ.∀η.(ε→ζ)→(ε→η)→(α→β→γ→δ→Bool)}
+  \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Вычислите $\gen(\Gamma, \code{τ})$ для следующих пар контекста $\Gamma$ и типа \code{τ}:
+  \begin{enumerate}
+    \item $\Gamma = \smallcode{x : α→δ,\; h : ∀β.β→(γ→β)}$, \smallcode{τ = (α→(γ→Nat))→(δ→(Bool→γ))}
+    \item $\Gamma = \smallcode{u : ∀α.(α→β)→α,\; v : (β→ζ)→η}$, \smallcode{τ = ((β→(η→Nat))→α)→(ζ→(α→Bool))}
+    \item $\Gamma = \smallcode{g : ∀δ.∀β.(δ→β)→(β→α),\; k : (α→θ)→ι}$, \smallcode{τ = ((β→α)→θ)→(ι→β)}
+    \item $\Gamma = \smallcode{p : ∀α.(α→β)→α,\; q : ∀β.(β→α)→(α→β),\; r : γ→δ}$, \smallcode{τ = ((β→(γ→Bool))→δ)→(α→(δ→Nat))}
+    \item $\Gamma = \smallcode{m : ∀β.(β→α)→β,\; n : ∀β.(β→γ)→(θ→β),\; s : α→θ}$, \smallcode{τ = ((γ→α)→θ)→(β→γ)}
+  \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Постройте дерево вывода типов в системе Хиндли--Милнера (декларативные синтаксические правила типизации~\cite{ClementDespeyrouxKahnDespeyroux1986}) для следующего замкнутого терма:
+\begin{stella}
+let h = λf.λg.λx. f (g x) in h h h
+\end{stella}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Примените алгоритм J~\cite{Milner1978} к следующему замкнутому терму:
+\begin{stella}
+let not = λx. if x then false else true in
+let arezero = λx. if iszero x then (λx. iszero x) else (λx. false) in
+let h = λf. λg. λx. f (g x) in
+h h h not arezero
+\end{stella}
+  Выпишите:
+  \begin{enumerate}
+    \item итоговый тип терма;
+    \item список всех свежих типовых переменных, созданных в процессе работы алгоритма;
+    \item для каждой свежей переменной:
+    \begin{enumerate}
+      \item где она была создана (вызов \code{inst} или правило типизации, и для какого подвыражения);
+      \item где она была устранена:
+      во время унификации (укажите \code{app}-терм) или
+      во время обобщения (укажите \code{let}-терм).
+    \end{enumerate}
+  \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+\end{enumerate}
+
+\section*{Список литературы}
+\printbibliography[heading=none]
+
+\end{document}

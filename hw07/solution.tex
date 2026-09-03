@@ -1,0 +1,140 @@
+\documentclass[dvipsnames]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\usepackage{unicode-math}
+\usepackage{csquotes}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+\setmainfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
+% \setmathfont{Latin Modern Math}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{bussproofs}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[backend=biber]{biblatex}
+\usepackage{xcolor}
+
+\usepackage{minted2}
+\usemintedstyle{xcode}
+\setminted{escapeinside=||}
+\newminted[stella]{cpp}{escapeinside=||,frame=single}
+\newmintinline[haskell]{haskell}{fontsize=\scriptsize}
+\newmintinline[java]{java}{fontsize=\scriptsize}
+\newmintinline[python]{python}{fontsize=\scriptsize}
+\newmintinline[code]{c}{fontsize=\small}
+\newmintinline[smallcode]{c}{fontsize=\small}
+\let\smallcodeOrig\smallcode
+\renewcommand{\smallcode}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \smallcodeOrig[#1]{#2}%
+  \fi}
+\let\codeOrig\code
+\renewcommand{\code}[2][]{%
+  \ifmmode
+    \if\relax\detokenize{#1}\relax
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \else
+      \mathchoice{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}{\mbox{\normalfont\small\ttfamily #2}}%
+    \fi
+  \else
+    \codeOrig[#1]{#2}%
+  \fi}
+
+\usepackage{sourcecodepro}
+\usepackage{mdframed}
+
+\DeclareMathOperator{\xor}{\mathsf{xor}}
+\DeclareMathOperator{\tru}{\mathsf{tru}}
+\DeclareMathOperator{\fls}{\mathsf{fls}}
+
+\addbibresource{../references.bib}
+
+\begin{document}
+
+\pagestyle{fancy}
+\fancyhf{}
+\chead{Задание выполнил \textcolor{blue}{Бенжамин Пирс (замените на своё имя)}}
+\cfoot{Языки программирования. Семантика и системы типов (весна 2026, Университет ИТМО)}
+
+\section*{Тема 7. Теоретическое задание \textcolor{blue}{(выполнил Бенжамин Пирс)}}%
+
+\begin{enumerate}
+  \item Рассмотрите \code{error} и \code{try}-\code{with} как \emph{производную форму}, реализующую обработку ошибок через типы-суммы~\cite[\S~11.9]{TaPL-ru}.
+    \begin{itemize}
+      \item \code{error} ведёт себя как \code{inl unit};
+      \item константы (например, \code{0}) оборачиваются в \code{inr} (например, \code{inr 0});
+      \item все прочие конструкции явно обрабатывают тип \code{Unit + T} вместо выражения типа \code{T}; например, для применения $\textcolor{red}{e}(\code{t$_1$ t$_2$})$:
+        \begin{minted}[escapeinside=??,frame=single]{text}
+case t?$_1$? of
+  inl u => inl u
+| inr t?$_1'$? =>
+    case t?$_2$? of
+      inl u => inl u
+    | inr t?$_2'$? => inr (?$\textcolor{red}{e}($?t?$_1')$? ?$\textcolor{red}{e}($?t?$_2')$?)
+        \end{minted}
+    \end{itemize}
+    \begin{enumerate}
+      \item Выпишите явно функцию раскрытия сокращений для $\lambda$-исчисления
+        с логическими и арифметическими выражениями~\cite[\S\S~8--9]{TaPL-ru}
+        и со \emph{всеми} простыми расширениями из~\cite[\S~11]{TaPL-ru}.
+        Если для какого-то расширения \textbf{невозможно} раскрытие, сохраняющее семантику исходных правил вычисления
+        для \code{error} и \code{try}-\code{with}~\cite[\S~14.1]{TaPL-ru}, то кратко объясните, почему.
+      \item Покажите, что раскрытие сохраняет семантику исходных правил вычисления для \code{error} и \code{try}-\code{with}~\cite[\S~14.1]{TaPL-ru}.
+      Для доказательства достаточно рассмотреть только простое типизированное $\lambda$-исчисление с логическими~\cite[\S\S~8--9]{TaPL-ru}, без арифметических выражений и дополнительных расширений.
+    \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+
+  \clearpage
+
+  \item Рассмотрите расширение простого типизированного $\lambda$-исчисления с обработкой ошибок со значениями~\cite[\S~14.3]{TaPL-ru} конструкцией
+    \[
+      \code{with exception}~\mathcal{E}~\code{do}~t_1~\code{catch}~x \Rightarrow t_2.
+    \]
+    Эта конструкция:
+    \begin{itemize}
+      \item вводит тип исключений $\code{T}_\mathsf{exn} = \mathcal{E}$ \emph{временно}, только на время вычисления $t_1$;
+      \item при возникновении ошибки (\code{raise}) управление передаётся ветке
+        $\code{catch}~x \Rightarrow t_2$, где $x$~--- переменная, с которой связывается значение ошибки типа $\mathcal{E}$;
+      \item в $t_2$ допускается использование переменной $x$.
+    \end{itemize}
+    \begin{enumerate}
+      \item Выпишите явно правила вычисления для этой конструкции.
+      \item Предложите правила типизации для этой конструкции, а также новые (уточнённые) правила типизации \code{raise} и \code{try}-\code{catch},
+        принимающие во внимание локальный тип исключений. При необходимости расширьте отношение типизации
+        (например, добавьте текущий тип исключений в контекст или введите суждение вида $\Gamma \vdash_{\mathcal{E}} t : T$).
+      \item Аргументируйте, почему предложенные правила сохраняют безопасность типизации,
+        или укажите причину, по которой предложенная конструкция не может быть безопасной для системы типов.
+        Подробное доказательство безопасности типизации не требуется.
+    \end{enumerate}
+
+  \color{blue}
+  \textbf{Решение.}
+  \emph{место для решения}
+  \color{black}
+\end{enumerate}
+
+\section*{Список литературы}
+\printbibliography[heading=none]
+
+\end{document}
