@@ -67,4 +67,7 @@ pkgs.mkShellNoCC {
     texenv
     python3Packages.pygments
   ];
+
+  # HACK: preserve font srcs in the shell closure
+  env.FONTS_SRC = lib.concatStringsSep "\n" (lib.concatMap (font: font.srcs or [ font.src ]) fonts);
 }
