@@ -8,8 +8,10 @@
 *.fls
 *.log
 *.out
+*.pyg
 *.run.xml
 *.synctex.gz
+*.synctex(busy)
 *.xdv
 _minted*/
 
