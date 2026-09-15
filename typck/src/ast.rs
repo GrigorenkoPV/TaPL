@@ -3,9 +3,38 @@ use std::{borrow::Cow, collections::btree_set::BTreeSet};
 #[derive(Debug)]
 pub(crate) struct Program<'src> {
     pub extensions: BTreeSet<&'src str>,
+    pub decls: Vec<Decl<'src>>,
 }
 
 pub(crate) type Ident<'src> = Cow<'src, str>;
+
+#[derive(Debug)]
+pub(crate) enum Decl<'src> {
+    Function {
+        annotations: Vec<Annotation>,
+        name: Ident<'src>,
+        generics: Vec<Ident<'src>>,
+        params: Vec<(Ident<'src>, Type<'src>)>,
+        ret_ty: Option<Type<'src>>,
+        throws: Vec<Type<'src>>,
+        decls: Vec<Self>,
+        ret: Expr<'src>,
+    },
+    TypeAlias {
+        name: Ident<'src>,
+        ty: Type<'src>,
+    },
+    ExceptionType(Type<'src>),
+    ExceptionVariant {
+        name: Ident<'src>,
+        ty: Type<'src>,
+    },
+}
+
+#[derive(Debug)]
+pub(crate) enum Annotation {
+    Inline,
+}
 
 #[derive(Debug)]
 pub(crate) enum Type<'src> {
@@ -36,5 +65,10 @@ pub(crate) enum Type<'src> {
     Top,
     Bot,
     Auto,
+    Var(Ident<'src>),
+}
+
+#[derive(Debug)]
+pub(crate) enum Expr<'src> {
     Var(Ident<'src>),
 }

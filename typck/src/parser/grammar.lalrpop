@@ -102,16 +102,6 @@ match {
     r"[_a-zA-Z][_a-zA-Z0-9!\-:?_]*" => IDENT,
 }
 
-// Parser
-pub(in crate::parser) Program: Program<'input> = {
-    LanguageDecl <extensions: FlattenExtensions> => Program { <> }
-}
-
-// HACK: this is a bit inefficient, collecting to BTreeSet directly would be better
-FlattenExtensions: BTreeSet<&'input str> = ExtendWith* => flatten(<>);
-
-ExtendWith = "extend" "with" <SepWith1<",", EXTENSION>> ";";
-
 SepWith1<Sep, T>: Vec<T> = {
     <mut v:(<T> Sep)*> <e:T> => {
         v.push(e);
@@ -129,28 +119,81 @@ SepWith0<Sep, T>: Vec<T> = {
     }
 }
 
+Box<T>: Box<T> = T => Box::new(<>);
+
+// Parser
+pub(in crate::parser) Program: Program<'input> = {
+    LanguageDecl <extensions: FlattenExtensions> <decls: Decl*> => Program { <> }
+}
+
+// HACK: this is a bit inefficient, collecting to BTreeSet directly would be better
+FlattenExtensions: BTreeSet<&'input str> = ExtendWith* => flatten(<>);
+
+ExtendWith = "extend" "with" <SepWith1<",", EXTENSION>> ";";
+
 LanguageDecl = "language" "core" ";" ;
 
-Box<T>: Box<T> = T => Box::new(<>);
+FnParams: Vec<(Ident<'input>, Type<'input>)> = SepWith0<",", (<Ident> ":" <Type>)>;
+
+Decl: Decl<'input> = {
+    <annotations: Annotation*> "fn" <name: Ident>
+        "(" <params: FnParams> ")"
+        <ret_ty: ReturnType> <throws: ThrowsTy>
+        "{" <decls: Decl*> "return" <ret: Expr> "}"
+        => Decl::Function { generics: vec![], <> },
+    <annotations: Annotation*> "generic" "fn" <name: Ident>
+        "[" <generics: SepWith0<",", Ident>> "]"
+        "(" <params: FnParams> ")"
+        <ret_ty: ReturnType> <throws: ThrowsTy>
+        "{" <decls: Decl*> "return" <ret: Expr> "}"
+        => Decl::Function { <> },
+    "type" <name: Ident> "=" <ty: Type> => Decl::TypeAlias { <> },
+    "exception" "type" "=" <Type> => Decl::ExceptionType(<>),
+    "exception" "variant" <name: Ident> ":" <ty: Type> => Decl::ExceptionVariant { <> },
+}
+
+ReturnType: Option<Type<'input>> = ("->" <Type>)?;
+
+ThrowsTy: Vec<Type<'input>> = ("throws" <SepWith1<",", Type>>)? => (<>).unwrap_or_default();
+
+Annotation: Annotation = {
+    "inline" => Annotation::Inline,
+}
 
 Ident: Ident<'input> = IDENT => (<>).into();
 
 Type: Type<'input> = {
-    "Bool" => Type::Bool,
-    "Nat" => Type::Nat,
-    "&" <Box<Type>> => Type::Ref(<>),
-    <left: Box<Type>> "+" <right: Box<Type>> => Type::Sum { <> },
+    "auto" => Type::Auto,
     "fn" "(" <args: SepWith0<",", Type>> ")" "->" <ret: Box<Type>> => Type::Fn { <> },
     "forall" <binders: Ident*> "." <ty: Box<Type>> => Type::Forall { <> },
     "µ" <var: Ident> "." <ty: Box<Type>> => Type::Rec { <> },
+    Type1
+}
+
+Type1: Type<'input> = {
+    <left: Box<Type2>> "+" <right: Box<Type2>> => Type::Sum { <> },
+    Type2
+}
+
+Type2: Type<'input> = {
     "{" <SepWith0<",", Type>> "}" => Type::Tuple(<>),
     "{" <SepWith1<",", (<Ident> ":" <Type>)>> "}" => Type::Record(<>),
     "<|" <SepWith0<",", (Ident (":" <Type>)?)>> "|>" => Type::Variant(<>),
     "[" <Box<Type>> "]" => Type::List(<>),
+    Type3
+}
+
+Type3: Type<'input> = {
+    "Bool" => Type::Bool,
+    "Nat" => Type::Nat,
     "Unit" => Type::Unit,
     "Top" => Type::Top,
     "Bot" => Type::Bot,
-    "auto" => Type::Auto,
+    "&" <Box<Type2>> => Type::Ref(<>),
     Ident => Type::Var(<>),
     "(" <Type> ")",
+}
+
+Expr: Expr<'input> = {
+    Ident => Expr::Var(<>),
 }
