@@ -103,16 +103,23 @@ match {
 }
 
 // Parser
-pub(in crate::parser) Program : Program<'input>
-    = LanguageDecl <extensions : FlattenExtensions>
-    => Program { <> };
+pub(in crate::parser) Program: Program<'input> = {
+    LanguageDecl <extensions: FlattenExtensions> => Program { <> }
+}
 
 // HACK: this is a bit inefficient, collecting to BTreeSet directly would be better
-FlattenExtensions : BTreeSet<&'input str> = ExtendWith* => flatten(<>);
+FlattenExtensions: BTreeSet<&'input str> = ExtendWith* => flatten(<>);
 
-ExtendWith = "extend" "with" <SepWith<",", EXTENSION>> ";";
+ExtendWith = "extend" "with" <SepWith1<",", EXTENSION>> ";";
 
-SepWith<Sep, T>: Vec<T> = {
+SepWith1<Sep, T>: Vec<T> = {
+    <mut v:(<T> Sep)*> <e:T> => {
+        v.push(e);
+        v
+    }
+}
+
+SepWith0<Sep, T>: Vec<T> = {
     <mut v:(<T> Sep)*> <e:T?> => match e {
         None => v,
         Some(e) => {
@@ -123,3 +130,27 @@ SepWith<Sep, T>: Vec<T> = {
 }
 
 LanguageDecl = "language" "core" ";" ;
+
+Box<T>: Box<T> = T => Box::new(<>);
+
+Ident: Ident<'input> = IDENT => (<>).into();
+
+Type: Type<'input> = {
+    "Bool" => Type::Bool,
+    "Nat" => Type::Nat,
+    "&" <Box<Type>> => Type::Ref(<>),
+    <left: Box<Type>> "+" <right: Box<Type>> => Type::Sum { <> },
+    "fn" "(" <args: SepWith0<",", Type>> ")" "->" <ret: Box<Type>> => Type::Fn { <> },
+    "forall" <binders: Ident*> "." <ty: Box<Type>> => Type::Forall { <> },
+    "µ" <var: Ident> "." <ty: Box<Type>> => Type::Rec { <> },
+    "{" <SepWith0<",", Type>> "}" => Type::Tuple(<>),
+    "{" <SepWith1<",", (<Ident> ":" <Type>)>> "}" => Type::Record(<>),
+    "<|" <SepWith0<",", (Ident (":" <Type>)?)>> "|>" => Type::Variant(<>),
+    "[" <Box<Type>> "]" => Type::List(<>),
+    "Unit" => Type::Unit,
+    "Top" => Type::Top,
+    "Bot" => Type::Bot,
+    "auto" => Type::Auto,
+    Ident => Type::Var(<>),
+    "(" <Type> ")",
+}
