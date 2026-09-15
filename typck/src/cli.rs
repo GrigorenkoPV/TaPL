@@ -1,10 +1,13 @@
+use std::path::PathBuf;
+
 use clap::Parser;
 
-#[derive(Parser)]
-#[command(author, about)]
-#[command(arg_required_else_help = true, help_expected = true)]
-#[derive(Debug)]
-pub(crate) enum Args {}
+#[derive(Debug, Parser)]
+#[command(author, about, help_expected = true)]
+pub(crate) struct Args {
+    /// Path to the file with the source code
+    pub input_file: PathBuf,
+}
 
 impl Args {
     #[must_use]

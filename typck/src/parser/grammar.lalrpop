@@ -103,10 +103,17 @@ match {
 }
 
 // Parser
-pub(in crate::parser) Program = LanguageDecl;
+pub(in crate::parser) Program : Program<'input>
+    = LanguageDecl <extensions : FlattenExtensions>
+    => Program { <> };
+
+// HACK: this is a bit inefficient, collecting to BTreeSet directly would be better
+FlattenExtensions : BTreeSet<&'input str> = ExtendWith* => flatten(<>);
+
+ExtendWith = "extend" "with" <SepWith<",", EXTENSION>> ";";
 
 SepWith<Sep, T>: Vec<T> = {
-    Sep* <mut v:(<T> Sep+)*> <e:T?> => match e {
+    <mut v:(<T> Sep)*> <e:T?> => match e {
         None => v,
         Some(e) => {
             v.push(e);
@@ -115,4 +122,4 @@ SepWith<Sep, T>: Vec<T> = {
     }
 }
 
-LanguageDecl : () = "language" "core" ";" ;
+LanguageDecl = "language" "core" ";" ;
