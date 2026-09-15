@@ -168,7 +168,7 @@ Annotation: Annotation = {
 
 Ident: Ident<'input> = IDENT => (<>).into();
 
-CommaTypes =SepWith0<",", Type>;
+CommaTypes = SepWith0<",", Type>;
 
 Type: Type<'input> = {
     "auto" => Type::Auto,
@@ -202,10 +202,41 @@ Type3: Type<'input> = {
     "(" <Type> ")"
 }
 
+Patterns = SepWith0<",", Pattern>;
+
+Pattern: Pattern<'input> = {
+    <pat: Box<Pattern>> "cast" "as" <ty: Type> => Pattern::CastAs { <> },
+    <pat: Box<Pattern>> "as" <ty: Type> => Pattern::Asc { <> },
+    "<|" <label: Ident> <pat: ("=" <Box<Pattern>>)?> "|>" => Pattern::Variant { <> },
+    "inl" "(" <Box<Pattern>> ")" => Pattern::Inl(<>),
+    "inr" "(" <Box<Pattern>> ")" => Pattern::Inr(<>),
+    "{" <Patterns> "}" => Pattern::Tuple(<>),
+    "{" <SepWith1<",", (<Ident> "=" <Pattern>)>> "}" => Pattern::Record(<>),
+    "[" <Patterns> "]" => Pattern::List(<>),
+    "cons"? "(" <Pattern> "," <Pattern> ")" => Pattern::Cons(Box::new([<>])),
+    "false" => Pattern::False,
+    "true" => Pattern::True,
+    "unit" => Pattern::Unit,
+    Integer => Pattern::Int(<>),
+    "succ" "(" <Box<Pattern>> ")" => Pattern::Succ(<>),
+    Ident => Pattern::Var(<>),
+    "(" <Pattern> ")"
+}
+
+PatternBinding: PatternBinding<'input> = <lhs: Pattern> "=" <rhs: Expr> => PatternBinding { <> };
+Binding: Binding<'input> = <lhs: Ident> "=" <rhs: Expr> => Binding { <> };
+
+Bindings = SepWith1<",", Binding>;
+PatternBindings = SepWith1<",", PatternBinding>;
+
+LetOrLetRec: bool = {
+    "let" => false,
+    "letrec" => true,
+}
+
 Expr: Expr<'input> = {
     <Expr1> ";" <Expr> => Expr::Seq(Box::new([<>])),
-    // TODO: Let.          Expr ::= "let" [PatternBinding] "in" Expr ;
-    // TODO: LetRec.       Expr ::= "letrec" [PatternBinding] "in" Expr ;
+    <rec: LetOrLetRec> <bindings: PatternBindings> "in" <body: Box<Expr>> => Expr::Let { <> },
     "generic" "[" <generics: Generics> "]" <expr: Box<Expr>> => Expr::Generic { <> },
     Expr1
 }
@@ -240,12 +271,14 @@ AddSubOr: BinOp = {
 
 CommaExprs = SepWith0<",", Expr>;
 
+MatchCase = <Pattern> "=>" <Expr>;
+
 Expr3: Expr<'input> = {
     <expr: Box<Expr3>> "as" <ty: Type2> => Expr::Ascription { <> },
     <expr: Box<Expr3>> "cast" "as" <ty: Type2> => Expr::Cast { <> },
     "fn" "(" <params: FnParams> ")" "{" "return" <ret: Box<Expr>> "}" => Expr::Fn { <> },
     "<|" <lhs: Ident> <rhs: ("=" <Box<Expr>>)?> "|>" => Expr::Variant { <> },
-    // TODO: Match.        Expr3 ::= "match" Expr2 "{" [MatchCase] "}" ;
+    "match" <switch: Box<Expr2>> "{" <cases: SepWith0<"|", MatchCase>> "}" => Expr::Match { <> },
     "[" <CommaExprs> "]" => Expr::List(<>),
 
     BinOp<Expr3, AddSubOr, Expr4>,
@@ -269,6 +302,9 @@ Expr5: Expr<'input> = {
     Expr6
 }
 
+Catch = "{" <Pattern> "=>" <Box<Expr>> "}";
+With = "with" "{" <Box<Expr>> "}";
+
 Expr6: Expr<'input> = {
     <lhs: Box<Expr6>> "(" <args: CommaExprs> ")" => Expr::Application { <> },
     <lhs: Box<Expr6>> "[" <types: CommaTypes> "]" => Expr::TypeApplication { <> },
@@ -276,7 +312,7 @@ Expr6: Expr<'input> = {
     <lhs: Box<Expr6>> "." <field: Ident> => Expr::DotRecord { <> },
     <lhs: Box<Expr6>> "." <field: Integer> => Expr::DotTuple { <> },
     "{" <CommaExprs> "}" => Expr::Tuple(<>),
-    // TODO: Record.       Expr6 ::= "{" [Binding] "}" ;
+    "{" <Bindings> "}" => Expr::Record(<>),
     "cons" "(" <Expr> "," <Expr> ")" => Expr::Cons(Box::new([<>])),
     "List::head" "(" <Box<Expr>> ")" => Expr::ListHead(<>),
     "List::isempty" "(" <Box<Expr>> ")" => Expr::ListIsEmpty(<>),
@@ -284,9 +320,9 @@ Expr6: Expr<'input> = {
 
     "panic!" => Expr::Panic,
     "throw" "(" <Box<Expr>> ")" => Expr::Throw(<>),
-    // TODO: TryCatch.     Expr6 ::= "try" "{" Expr "}" "catch" "{" Pattern "=>" Expr "}" ;
-    "try" "{" <r#try: Box<Expr>> "}" "with" "{" <with: Box<Expr>> "}" => Expr::TryWith { <> },
-    // TODO: TryCastAs.    Expr6 ::= "try" "{" Expr "}" "cast" "as" Type "{" Pattern "=>" Expr "}" "with"  "{" Expr "}" ;
+    "try" "{" <r#try: Box<Expr>> "}" "catch" <catch: Catch> => Expr::TryCatch { <> },
+    "try" "{" <r#try: Box<Expr>> "}" <with: With> => Expr::TryWith { <> },
+    "try" "{" <r#try: Box<Expr>> "}" "cast" "as" <r#as: Type> <catch: Catch> <with: With> => Expr::TryCastAs { <> },
 
     "inl" "(" <Box<Expr>> ")" => Expr::Inl(<>),
     "inr" "(" <Box<Expr>> ")" => Expr::Inr(<>),

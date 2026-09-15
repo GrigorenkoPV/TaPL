@@ -10,6 +10,18 @@ pub(crate) type Integer = u128;
 pub(crate) type Ident<'src> = Cow<'src, str>;
 
 #[derive(Debug)]
+pub(crate) struct PatternBinding<'src> {
+    pub lhs: Pattern<'src>,
+    pub rhs: Expr<'src>,
+}
+
+#[derive(Debug)]
+pub(crate) struct Binding<'src> {
+    pub lhs: Ident<'src>,
+    pub rhs: Expr<'src>,
+}
+
+#[derive(Debug)]
 pub(crate) enum Decl<'src> {
     Function {
         annotations: Vec<Annotation>,
@@ -70,8 +82,43 @@ pub(crate) enum Type<'src> {
 }
 
 #[derive(Debug)]
+pub(crate) enum Pattern<'src> {
+    CastAs {
+        pat: Box<Self>,
+        ty: Type<'src>,
+    },
+    Asc {
+        pat: Box<Self>,
+        ty: Type<'src>,
+    },
+    Variant {
+        label: Ident<'src>,
+        pat: Option<Box<Self>>,
+    },
+    Inl(Box<Self>),
+    Inr(Box<Self>),
+    Tuple(Vec<Self>),
+    Record(Vec<(Ident<'src>, Self)>),
+    List(Vec<Self>),
+    Cons(Box<[Self; 2]>),
+    False,
+    True,
+    Unit,
+    Int(Integer),
+    Succ(Box<Self>),
+    Var(Ident<'src>),
+}
+
+pub(crate) type Catch<'src> = (Pattern<'src>, Box<Expr<'src>>);
+
+#[derive(Debug)]
 pub(crate) enum Expr<'src> {
     Seq(Box<[Self; 2]>),
+    Let {
+        rec: bool,
+        bindings: Vec<PatternBinding<'src>>,
+        body: Box<Self>,
+    },
     Assign {
         lhs: Box<Self>,
         rhs: Box<Self>,
@@ -104,8 +151,14 @@ pub(crate) enum Expr<'src> {
         params: Vec<(Ident<'src>, Type<'src>)>,
         ret: Box<Self>,
     },
-    // TODO: Variant.      Expr3 ::= "<|" StellaIdent ExprData "|>" ;
-    // TODO: Match.        Expr3 ::= "match" Expr2 "{" [MatchCase] "}" ;
+    Variant {
+        lhs: Ident<'src>,
+        rhs: Option<Box<Self>>,
+    },
+    Match {
+        switch: Box<Self>,
+        cases: Vec<(Pattern<'src>, Self)>,
+    },
     List(Vec<Self>),
     New(Box<Self>),
     Deref(Box<Self>),
@@ -129,7 +182,7 @@ pub(crate) enum Expr<'src> {
     },
     Tuple(Vec<Self>),
     Cons(Box<[Self; 2]>),
-    // TODO: Record.       Expr6 ::= "{" [Binding] "}" ;
+    Record(Vec<Binding<'src>>),
     ListHead(Box<Self>),
     ListIsEmpty(Box<Self>),
     ListTail(Box<Self>),
@@ -137,12 +190,21 @@ pub(crate) enum Expr<'src> {
     Panic,
     Throw(Box<Self>),
 
-    // TODO: TryCatch.     Expr6 ::= "try" "{" Expr "}" "catch" "{" Pattern "=>" Expr "}" ;
+    TryCatch {
+        r#try: Box<Self>,
+        catch: Catch<'src>,
+    },
+
     TryWith {
         r#try: Box<Self>,
         with: Box<Self>,
     },
-    // TODO: TryCastAs.    Expr6 ::= "try" "{" Expr "}" "cast" "as" Type "{" Pattern "=>" Expr "}" "with"  "{" Expr "}" ;
+    TryCastAs {
+        r#try: Box<Self>,
+        r#as: Type<'src>,
+        catch: Catch<'src>,
+        with: Box<Self>,
+    },
     Inl(Box<Self>),
     Inr(Box<Self>),
     Succ(Box<Self>),
