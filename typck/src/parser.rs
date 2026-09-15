@@ -42,6 +42,13 @@ fn immortalize_parse_error<L, E>(error: ParseError<L, Token<'_>, E>) -> ParseErr
     error.map_token(|token| format!("{:?}", token.1))
 }
 
+fn parse_int(int: &str) -> crate::ast::Integer {
+    match int.parse() {
+        Ok(int) => int,
+        Err(e) => todo!("Report: {e:?}"),
+    }
+}
+
 pub(super) fn parse(input: &str) -> Result<Program<'_>, ParseError<usize, String, anyhow::Error>> {
     let parser = ProgramParser::new();
     parser.parse(input).map_err(immortalize_parse_error)

@@ -6,6 +6,7 @@ pub(crate) struct Program<'src> {
     pub decls: Vec<Decl<'src>>,
 }
 
+pub(crate) type Integer = u128;
 pub(crate) type Ident<'src> = Cow<'src, str>;
 
 #[derive(Debug)]
@@ -70,5 +71,128 @@ pub(crate) enum Type<'src> {
 
 #[derive(Debug)]
 pub(crate) enum Expr<'src> {
+    Seq(Box<[Self; 2]>),
+    Assign {
+        lhs: Box<Self>,
+        rhs: Box<Self>,
+    },
+    If {
+        cond: Box<Self>,
+        on_true: Box<Self>,
+        on_false: Box<Self>,
+    },
     Var(Ident<'src>),
+    Generic {
+        generics: Vec<Ident<'src>>,
+        expr: Box<Self>,
+    },
+    BinOp {
+        lhs: Box<Self>,
+        op: BinOp,
+        rhs: Box<Self>,
+    },
+    Ascription {
+        expr: Box<Self>,
+        ty: Type<'src>,
+    },
+    Cast {
+        expr: Box<Self>,
+        ty: Type<'src>,
+    },
+
+    Fn {
+        params: Vec<(Ident<'src>, Type<'src>)>,
+        ret: Box<Self>,
+    },
+    // TODO: Variant.      Expr3 ::= "<|" StellaIdent ExprData "|>" ;
+    // TODO: Match.        Expr3 ::= "match" Expr2 "{" [MatchCase] "}" ;
+    List(Vec<Self>),
+    New(Box<Self>),
+    Deref(Box<Self>),
+
+    Application {
+        lhs: Box<Self>,
+        args: Vec<Self>,
+    },
+    TypeApplication {
+        lhs: Box<Self>,
+        types: Vec<Type<'src>>,
+    },
+
+    DotRecord {
+        lhs: Box<Self>,
+        field: Ident<'src>,
+    },
+    DotTuple {
+        lhs: Box<Self>,
+        field: Integer,
+    },
+    Tuple(Vec<Self>),
+    Cons(Box<[Self; 2]>),
+    // TODO: Record.       Expr6 ::= "{" [Binding] "}" ;
+    ListHead(Box<Self>),
+    ListIsEmpty(Box<Self>),
+    ListTail(Box<Self>),
+
+    Panic,
+    Throw(Box<Self>),
+
+    // TODO: TryCatch.     Expr6 ::= "try" "{" Expr "}" "catch" "{" Pattern "=>" Expr "}" ;
+    TryWith {
+        r#try: Box<Self>,
+        with: Box<Self>,
+    },
+    // TODO: TryCastAs.    Expr6 ::= "try" "{" Expr "}" "cast" "as" Type "{" Pattern "=>" Expr "}" "with"  "{" Expr "}" ;
+    Inl(Box<Self>),
+    Inr(Box<Self>),
+    Succ(Box<Self>),
+
+    Not(Box<Self>),
+    NatPred(Box<Self>),
+    NatIsZero(Box<Self>),
+    Fix(Box<Self>),
+    NatRec(Box<[Self; 3]>),
+
+    Fold {
+        ty: Type<'src>,
+        expr: Box<Self>,
+    },
+    Unfold {
+        ty: Type<'src>,
+        expr: Box<Self>,
+    },
+
+    True,
+    False,
+    Unit,
+    Integer(Integer),
+    Address(&'src str),
+}
+
+#[derive(Debug)]
+pub(crate) enum BinOp {
+    /// `<`
+    LT,
+    /// `<=`
+    LE,
+    /// `>`
+    GT,
+    /// `>=`
+    GE,
+    /// `==`
+    EQ,
+    /// `!=`
+    NE,
+    /// `+`
+    Plus,
+    /// `-`
+    Minus,
+    /// `or`
+    Or,
+    /// `*`
+    Mul,
+    /// `/`
+    Div,
+    /// `and`
+    And,
 }

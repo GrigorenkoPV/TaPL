@@ -103,6 +103,7 @@ match {
     r"#([\-_0-9A-Za-z])+" => EXTENSION,
     r"<0x[0-9a-fA-F]+>" => ADDRESS,
     r"[_a-zA-Z][_a-zA-Z0-9!\-:?_]*" => IDENT,
+    r"[0-9]" => INTEGER,
 }
 
 SepWith1<Sep, T>: Vec<T> = {
@@ -138,6 +139,8 @@ LanguageDecl = "language" "core" ";" ;
 
 FnParams: Vec<(Ident<'input>, Type<'input>)> = SepWith0<",", (<Ident> ":" <Type>)>;
 
+Generics = SepWith0<",", Ident>;
+
 Decl: Decl<'input> = {
     <annotations: Annotation*> "fn" <name: Ident>
         "(" <params: FnParams> ")"
@@ -145,7 +148,7 @@ Decl: Decl<'input> = {
         "{" <decls: Decl*> "return" <ret: Expr> "}"
         => Decl::Function { generics: vec![], <> },
     <annotations: Annotation*> "generic" "fn" <name: Ident>
-        "[" <generics: SepWith0<",", Ident>> "]"
+        "[" <generics: Generics> "]"
         "(" <params: FnParams> ")"
         <ret_ty: ReturnType> <throws: ThrowsTy>
         "{" <decls: Decl*> "return" <ret: Expr> "}"
@@ -165,9 +168,11 @@ Annotation: Annotation = {
 
 Ident: Ident<'input> = IDENT => (<>).into();
 
+CommaTypes =SepWith0<",", Type>;
+
 Type: Type<'input> = {
     "auto" => Type::Auto,
-    "fn" "(" <args: SepWith0<",", Type>> ")" "->" <ret: Box<Type>> => Type::Fn { <> },
+    "fn" "(" <args: CommaTypes> ")" "->" <ret: Box<Type>> => Type::Fn { <> },
     "forall" <binders: Ident*> "." <ty: Box<Type>> => Type::Forall { <> },
     "µ" <var: Ident> "." <ty: Box<Type>> => Type::Rec { <> },
     Type1
@@ -179,7 +184,7 @@ Type1: Type<'input> = {
 }
 
 Type2: Type<'input> = {
-    "{" <SepWith0<",", Type>> "}" => Type::Tuple(<>),
+    "{" <CommaTypes> "}" => Type::Tuple(<>),
     "{" <SepWith1<",", (<Ident> ":" <Type>)>> "}" => Type::Record(<>),
     "<|" <SepWith0<",", (Ident (":" <Type>)?)>> "|>" => Type::Variant(<>),
     "[" <Box<Type>> "]" => Type::List(<>),
@@ -194,9 +199,119 @@ Type3: Type<'input> = {
     "Bot" => Type::Bot,
     "&" <Box<Type2>> => Type::Ref(<>),
     Ident => Type::Var(<>),
-    "(" <Type> ")",
+    "(" <Type> ")"
 }
 
 Expr: Expr<'input> = {
+    <Expr1> ";" <Expr> => Expr::Seq(Box::new([<>])),
+    // TODO: Let.          Expr ::= "let" [PatternBinding] "in" Expr ;
+    // TODO: LetRec.       Expr ::= "letrec" [PatternBinding] "in" Expr ;
+    "generic" "[" <generics: Generics> "]" <expr: Box<Expr>> => Expr::Generic { <> },
+    Expr1
+}
+
+Expr1: Expr<'input> = {
+    <lhs: Box<Expr2>> ":=" <rhs: Box<Expr1>> => Expr::Assign { <> },
+    "if" <cond: Box<Expr1>> "then" <on_true: Box<Expr1>> "else" <on_false: Box<Expr1>> => Expr::If { <> },
+    Expr2
+}
+
+Comparison: BinOp = {
+    "<" => BinOp::LT,
+    "<=" => BinOp::LE,
+    ">" => BinOp::GT,
+    ">=" => BinOp::GE,
+    "==" => BinOp::EQ,
+    "!=" => BinOp::NE,
+}
+
+BinOp<Lhs, Op, Rhs> : Expr<'input> = <lhs: Box<Lhs>> <op: Op> <rhs: Box<Rhs>> => Expr::BinOp { <> };
+
+Expr2: Expr<'input> = {
+    BinOp<Expr3, Comparison, Expr3>,
+    Expr3
+}
+
+AddSubOr: BinOp = {
+    "+" => BinOp::Plus,
+    "-" => BinOp::Minus,
+    "or" => BinOp::Or,
+}
+
+CommaExprs = SepWith0<",", Expr>;
+
+Expr3: Expr<'input> = {
+    <expr: Box<Expr3>> "as" <ty: Type2> => Expr::Ascription { <> },
+    <expr: Box<Expr3>> "cast" "as" <ty: Type2> => Expr::Cast { <> },
+    "fn" "(" <params: FnParams> ")" "{" "return" <ret: Box<Expr>> "}" => Expr::Fn { <> },
+    "<|" <lhs: Ident> <rhs: ("=" <Box<Expr>>)?> "|>" => Expr::Variant { <> },
+    // TODO: Match.        Expr3 ::= "match" Expr2 "{" [MatchCase] "}" ;
+    "[" <CommaExprs> "]" => Expr::List(<>),
+
+    BinOp<Expr3, AddSubOr, Expr4>,
+    Expr4
+}
+
+MulDivAnd: BinOp = {
+    "*" => BinOp::Mul,
+    "/" => BinOp::Div,
+    "and" => BinOp::And,
+}
+
+Expr4: Expr<'input> = {
+    BinOp<Expr4, MulDivAnd, Expr5>,
+    Expr5
+}
+
+Expr5: Expr<'input> = {
+    "new" "(" <Box<Expr>> ")" => Expr::New(<>),
+    "*" <Box<Expr5>> => Expr::Deref(<>),
+    Expr6
+}
+
+Expr6: Expr<'input> = {
+    <lhs: Box<Expr6>> "(" <args: CommaExprs> ")" => Expr::Application { <> },
+    <lhs: Box<Expr6>> "[" <types: CommaTypes> "]" => Expr::TypeApplication { <> },
+
+    <lhs: Box<Expr6>> "." <field: Ident> => Expr::DotRecord { <> },
+    <lhs: Box<Expr6>> "." <field: Integer> => Expr::DotTuple { <> },
+    "{" <CommaExprs> "}" => Expr::Tuple(<>),
+    // TODO: Record.       Expr6 ::= "{" [Binding] "}" ;
+    "cons" "(" <Expr> "," <Expr> ")" => Expr::Cons(Box::new([<>])),
+    "List::head" "(" <Box<Expr>> ")" => Expr::ListHead(<>),
+    "List::isempty" "(" <Box<Expr>> ")" => Expr::ListIsEmpty(<>),
+    "List::tail" "(" <Box<Expr>> ")" => Expr::ListTail(<>),
+
+    "panic!" => Expr::Panic,
+    "throw" "(" <Box<Expr>> ")" => Expr::Throw(<>),
+    // TODO: TryCatch.     Expr6 ::= "try" "{" Expr "}" "catch" "{" Pattern "=>" Expr "}" ;
+    "try" "{" <r#try: Box<Expr>> "}" "with" "{" <with: Box<Expr>> "}" => Expr::TryWith { <> },
+    // TODO: TryCastAs.    Expr6 ::= "try" "{" Expr "}" "cast" "as" Type "{" Pattern "=>" Expr "}" "with"  "{" Expr "}" ;
+
+    "inl" "(" <Box<Expr>> ")" => Expr::Inl(<>),
+    "inr" "(" <Box<Expr>> ")" => Expr::Inr(<>),
+    "succ" "(" <Box<Expr>> ")" => Expr::Succ(<>),
+    "not" "(" <Box<Expr>> ")" => Expr::Not(<>),
+    "Nat::pred" "(" <Box<Expr>> ")" => Expr::NatPred(<>),
+    "Nat::iszero" "(" <Box<Expr>> ")" => Expr::NatIsZero(<>),
+
+    "fix" "(" <Box<Expr>> ")" => Expr::Fix(<>),
+    "Nat::rec" "(" <Expr> "," <Expr> "," <Expr> ")" => Expr::NatRec(Box::new([<>])),
+
+    "fold" "[" <ty: Type> "]" <expr: Box<Expr7>> => Expr::Fold { <> },
+    "unfold" "[" <ty: Type> "]" <expr: Box<Expr7>> => Expr::Unfold { <> },
+
+    Expr7
+}
+
+Integer: Integer = INTEGER => parse_int(<>);
+
+Expr7: Expr<'input> = {
     Ident => Expr::Var(<>),
+    "true" => Expr::True,
+    "false" => Expr::False,
+    "unit" => Expr::Unit,
+    Integer => Expr::Integer(<>),
+    ADDRESS => Expr::Address(<>),
+    "(" <Expr> ")"
 }
