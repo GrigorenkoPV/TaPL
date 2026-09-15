@@ -1,3 +1,6 @@
+#![expect(clippy::unnecessary_box_returns, reason = "Box<T> macro")]
+#![allow(clippy::wildcard_imports, reason = "No autocomplete")]
+
 use lalrpop_util::ParseError;
 
 use crate::ast::*;
