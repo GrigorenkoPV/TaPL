@@ -1,6 +1,8 @@
+mod ast;
 mod cli;
+mod parser;
 
 fn main() {
-    let cli::Args {} = cli::Args::parse();
-    println!("Hello, world!")
+    let args = cli::Args::parse();
+    match args {}
 }

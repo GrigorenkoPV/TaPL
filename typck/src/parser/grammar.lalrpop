@@ -1,0 +1,118 @@
+use lalrpop_util::ParseError;
+
+use crate::ast::*;
+use super::*;
+
+grammar;
+
+extern {
+    type Error = anyhow::Error;
+}
+
+// Lexer
+match {
+    r"//[^\n]*" => { }, // Skip comments
+    r"/\*.*\*/" => { }, // Skip comments
+    r"[ \t\r\n]+" => { }, // Skip whitespace
+} else {
+    ",",
+    ";",
+    "(",
+    ")",
+    "{",
+    "}",
+    "=",
+    ":",
+    "->",
+    "=>",
+    "|",
+    "<|",
+    "|>",
+    "[",
+    "]",
+    "<",
+    "<=",
+    ">",
+    ">=",
+    "==",
+    "!=",
+    "+",
+    "-",
+    "*",
+    "/",
+    ".",
+    "List::head",
+    "List::isempty",
+    "List::tail",
+    "Nat::pred",
+    "Nat::iszero",
+    "Nat::rec",
+    "Bool",
+    "Nat",
+    "Unit",
+    "and",
+    "as",
+    "cons",
+    "core",
+    "else",
+    "extend",
+    "false",
+    "fix",
+    "fn",
+    "fold",
+    "if",
+    "in",
+    "inl",
+    "inline",
+    "inr",
+    "language",
+    "let",
+    "letrec",
+    "match",
+    "not",
+    "or",
+    "return",
+    "succ",
+    "then",
+    "throws",
+    "true",
+    "type",
+    "unfold",
+    "unit",
+    "with",
+    "µ",
+    "exception",
+    "variant",
+    "cast",
+    ":=",
+    "&",
+    "new",
+    "panic!",
+    "throw",
+    "try",
+    "catch",
+    "Top",
+    "Bot",
+    "auto",
+    "generic",
+    "forall",
+} else {
+    r"#([\-_0-9A-Za-z])+" => EXTENSION,
+    r"<0x[0-9a-fA-F]+>" => ADDRESS,
+    r"[_a-zA-Z][_a-zA-Z0-9!\-:?_]*" => IDENT,
+}
+
+// Parser
+pub(in crate::parser) Program = LanguageDecl;
+
+SepWith<Sep, T>: Vec<T> = {
+    Sep* <mut v:(<T> Sep+)*> <e:T?> => match e {
+        None => v,
+        Some(e) => {
+            v.push(e);
+            v
+        }
+    }
+}
+
+LanguageDecl : () = "language" "core" ";" ;
