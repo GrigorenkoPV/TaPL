@@ -1,0 +1,17 @@
+[formatter.keep-sorted]
+command = "keep-sorted"
+includes = ["*"]
+
+[formatter.typos]
+command = "typos"
+options = ["--color", "always", "--force-exclude"]
+includes = ["*"]
+
+[formatter.nix]
+command = "nixfmt"
+includes = ["*.nix"]
+
+[formatter.rustfmt]
+command = "rustfmt"
+options = ["--edition", "2024"]
+includes = ["*.rs"]
