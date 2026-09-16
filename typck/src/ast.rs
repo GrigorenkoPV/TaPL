@@ -1,8 +1,10 @@
-use std::{borrow::Cow, collections::btree_set::BTreeSet};
+use std::borrow::Cow;
+
+use crate::extension::Extensions;
 
 #[derive(Debug)]
 pub(crate) struct Program<'src> {
-    pub extensions: BTreeSet<&'src str>,
+    pub extensions: Extensions,
     pub decls: Vec<Decl<'src>>,
 }
 

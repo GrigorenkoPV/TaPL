@@ -8,6 +8,7 @@ use crate::parser::parse;
 mod ast;
 mod parser;
 mod typck;
+mod extension;
 
 #[throws]
 fn main() -> ExitCode {
