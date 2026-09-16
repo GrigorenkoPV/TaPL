@@ -1,6 +1,7 @@
 use std::{borrow::Cow, collections::btree_set::BTreeSet};
 
 #[derive(Debug)]
+#[expect(dead_code, reason = "WIP")]
 pub(crate) struct Program<'src> {
     pub extensions: BTreeSet<&'src str>,
     pub decls: Vec<Decl<'src>>,
@@ -10,18 +11,21 @@ pub(crate) type Integer = u128;
 pub(crate) type Ident<'src> = Cow<'src, str>;
 
 #[derive(Debug)]
+#[expect(dead_code, reason = "WIP")]
 pub(crate) struct PatternBinding<'src> {
     pub lhs: Pattern<'src>,
     pub rhs: Expr<'src>,
 }
 
 #[derive(Debug)]
+#[expect(dead_code, reason = "WIP")]
 pub(crate) struct Binding<'src> {
     pub lhs: Ident<'src>,
     pub rhs: Expr<'src>,
 }
 
 #[derive(Debug)]
+#[expect(dead_code, reason = "WIP")]
 pub(crate) struct Function<'src> {
     pub annotations: Vec<Annotation>,
     pub name: Ident<'src>,
@@ -34,6 +38,7 @@ pub(crate) struct Function<'src> {
 }
 
 #[derive(Debug)]
+#[expect(dead_code, reason = "WIP")]
 pub(crate) enum Decl<'src> {
     Function(
         // Boxed to reduce `Decl` size from 336 to 72 bytes
@@ -56,6 +61,7 @@ pub(crate) enum Annotation {
 }
 
 #[derive(Debug)]
+#[expect(dead_code, reason = "WIP")]
 pub(crate) enum Type<'src> {
     Bool,
     Nat,
@@ -88,6 +94,7 @@ pub(crate) enum Type<'src> {
 }
 
 #[derive(Debug)]
+#[expect(dead_code, reason = "WIP")]
 pub(crate) enum Pattern<'src> {
     CastAs {
         pat: Box<Self>,
@@ -118,6 +125,7 @@ pub(crate) enum Pattern<'src> {
 pub(crate) type Catch<'src> = (Pattern<'src>, Box<Expr<'src>>);
 
 #[derive(Debug)]
+#[expect(dead_code, reason = "WIP")]
 pub(crate) enum Expr<'src> {
     Seq(Box<[Self; 2]>),
     Let {
