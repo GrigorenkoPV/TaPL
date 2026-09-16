@@ -55,6 +55,17 @@ pub(crate) enum Decl<'src> {
     },
 }
 
+impl<'src> Decl<'src> {
+    #[must_use]
+    pub(crate) fn name(&self) -> Option<&Ident<'src>> {
+        match self {
+            Self::Function(fun) => Some(&fun.name),
+            Self::TypeAlias { name, .. } | Self::ExceptionVariant { name, .. } => Some(name),
+            Self::ExceptionType(_) => None,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub(crate) enum Annotation {
     Inline,

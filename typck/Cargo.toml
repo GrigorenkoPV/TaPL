@@ -9,6 +9,7 @@ publish = false
 anyhow = { version = "1.0.104", features = ["backtrace"] }
 culpa = "1.0.2"
 lalrpop-util = "0.23.1"
+strum = { version = "0.28.0", features = ["derive"] }
 
 [build-dependencies]
 lalrpop = "0.23.1"
