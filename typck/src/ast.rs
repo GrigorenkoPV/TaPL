@@ -22,17 +22,23 @@ pub(crate) struct Binding<'src> {
 }
 
 #[derive(Debug)]
+pub(crate) struct Function<'src> {
+    pub annotations: Vec<Annotation>,
+    pub name: Ident<'src>,
+    pub generics: Vec<Ident<'src>>,
+    pub params: Vec<(Ident<'src>, Type<'src>)>,
+    pub ret_ty: Option<Type<'src>>,
+    pub throws: Vec<Type<'src>>,
+    pub decls: Vec<Decl<'src>>,
+    pub ret: Expr<'src>,
+}
+
+#[derive(Debug)]
 pub(crate) enum Decl<'src> {
-    Function {
-        annotations: Vec<Annotation>,
-        name: Ident<'src>,
-        generics: Vec<Ident<'src>>,
-        params: Vec<(Ident<'src>, Type<'src>)>,
-        ret_ty: Option<Type<'src>>,
-        throws: Vec<Type<'src>>,
-        decls: Vec<Self>,
-        ret: Expr<'src>,
-    },
+    Function(
+        // Boxed to reduce `Decl` size from 336 to 72 bytes
+        Box<Function<'src>>,
+    ),
     TypeAlias {
         name: Ident<'src>,
         ty: Type<'src>,

@@ -141,18 +141,23 @@ FnParams: Vec<(Ident<'input>, Type<'input>)> = SepWith0<",", (<Ident> ":" <Type>
 
 Generics = SepWith0<",", Ident>;
 
-Decl: Decl<'input> = {
+// No idea why they need the `generic` keyword here
+Function: Function<'input> = {
     <annotations: Annotation*> "fn" <name: Ident>
         "(" <params: FnParams> ")"
         <ret_ty: ReturnType> <throws: ThrowsTy>
         "{" <decls: Decl*> "return" <ret: Expr> "}"
-        => Decl::Function { generics: vec![], <> },
+        => Function { generics: vec![], <> },
     <annotations: Annotation*> "generic" "fn" <name: Ident>
         "[" <generics: Generics> "]"
         "(" <params: FnParams> ")"
         <ret_ty: ReturnType> <throws: ThrowsTy>
         "{" <decls: Decl*> "return" <ret: Expr> "}"
-        => Decl::Function { <> },
+        => Function { <> },
+}
+
+Decl: Decl<'input> = {
+    Box<Function> => Decl::Function(<>),
     "type" <name: Ident> "=" <ty: Type> => Decl::TypeAlias { <> },
     "exception" "type" "=" <Type> => Decl::ExceptionType(<>),
     "exception" "variant" <name: Ident> ":" <ty: Type> => Decl::ExceptionVariant { <> },
