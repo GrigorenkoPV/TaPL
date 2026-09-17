@@ -97,7 +97,10 @@ pub(crate) enum Type<'src> {
     },
     Tuple(Vec<Self>),
     Record(Vec<(Ident<'src>, Self)>),
-    Variant(Vec<(Ident<'src>, Option<Self>)>),
+    Variant(
+        // TODO: separate type?
+        Vec<(Ident<'src>, Option<Self>)>,
+    ),
     List(Box<Self>),
     Unit,
     Top,

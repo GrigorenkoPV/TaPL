@@ -2,8 +2,8 @@ use core::mem;
 
 use crate::{
     ast::{
-        Address, Annotation, BinOp, Binding, Catch, Decl, Expr, Function, HasVisitable, Integer,
-        Pattern, PatternBinding, Program, Type, Visitor,
+        Annotation, Binding, Catch, Decl, Expr, Function, HasVisitable, Pattern, PatternBinding,
+        Program, Type, Visitor,
     },
     extensions::{Extension, Extensions},
 };
@@ -24,71 +24,133 @@ impl GateCollector {
     fn require(&mut self, extension: Extension) {
         let _: bool = self.required.insert(extension);
     }
-}
 
-impl<'ctx> Visitor<'ctx> for GateCollector {
-    fn visit_function(&mut self, function: &Function<'ctx>) {
-        let Function { params, .. } = function;
-
-        match params.len() {
+    fn require_fn_arity(&mut self, arity: usize) {
+        match arity {
             0 => self.require(Extension::NullaryFunctions),
             1 => {}
             _ => self.require(Extension::MultiparameterFunctions),
         }
-        // TODO: more checks
+    }
+}
+
+impl<'ctx> Visitor<'ctx> for GateCollector {
+    fn visit_function(&mut self, function: &Function<'ctx>) {
+        let Function {
+            annotations: _,
+            name: _,
+            generics,
+            params,
+            ret_ty,
+            throws,
+            decls: _,
+            body: _,
+        } = function;
+
+        if !generics.is_empty() {
+            todo!()
+        }
+        self.require_fn_arity(params.len());
+        if ret_ty.is_none() {
+            todo!()
+        }
+        if !throws.is_empty() {
+            todo!()
+        }
 
         let was_in_global_scope = mem::replace(&mut self.is_in_global_scope, false);
-        if !was_in_global_scope {
-            self.require(Extension::NestedFunctionDeclarations)
-        }
         function.visit_inner_with(self);
         self.is_in_global_scope = was_in_global_scope;
     }
 
-    fn visit_int(&mut self, int: &Integer) {
-        if *int != 0 {
-            todo!()
+    fn visit_annotation(&mut self, annotation: &Annotation) {
+        match annotation {
+            Annotation::Inline => todo!(),
         }
     }
 
-    fn visit_annotation(&mut self, _: &Annotation) {
-        todo!()
-    }
-
-    fn visit_bin_op(&mut self, _: &BinOp) {
-        todo!()
-    }
-
-    fn visit_extension(&mut self, _: &Extension) {
-        todo!()
-    }
-
-    fn visit_addr(&mut self, _: &Address<'ctx>) {
-        todo!()
-    }
-
     fn visit_pattern_binding(&mut self, pattern_binding: &PatternBinding<'ctx>) {
-        todo!();
+        let PatternBinding { lhs, rhs: _ } = pattern_binding;
+        if let Pattern::Var(_) = lhs {
+        } else {
+            self.require(Extension::LetPatterns);
+        }
         pattern_binding.visit_inner_with(self)
     }
 
     fn visit_binding(&mut self, binding: &Binding<'ctx>) {
-        todo!();
+        self.require(Extension::Records);
         binding.visit_inner_with(self)
     }
 
     fn visit_decl(&mut self, decl: &Decl<'ctx>) {
-        todo!();
+        match decl {
+            Decl::Function(_) => {
+                if !self.is_in_global_scope {
+                    self.require(Extension::NestedFunctionDeclarations)
+                }
+            }
+            Decl::TypeAlias { name, ty } => todo!(),
+            Decl::ExceptionType(_) => todo!(),
+            Decl::ExceptionVariant { name, ty } => todo!(),
+        }
         decl.visit_inner_with(self)
     }
 
     fn visit_ty(&mut self, ty: &Type<'ctx>) {
-        todo!();
+        match ty {
+            Type::Bool | Type::Nat => {}
+            Type::Fn { args, ret: _ } => self.require_fn_arity(args.len()),
+            Type::Unit => self.require(Extension::UnitType),
+            Type::Tuple(_) => todo!("Is this `pairs` or `tuples`?"),
+            Type::Record(_) => self.require(Extension::Records),
+            Type::Sum { .. } => self.require(Extension::SumTypes),
+            Type::List(_) => self.require(Extension::Lists),
+            Type::Variant(variants) => {
+                self.require(Extension::Variants);
+                for (_, ty) in variants {
+                    if ty.is_none() {
+                        self.require(Extension::NullaryVariantLabels);
+                    }
+                }
+            }
+
+            Type::Ref(_) => todo!(),
+            Type::Forall { binders, ty } => todo!(),
+            Type::Rec { var, ty } => todo!(),
+            Type::Top => todo!(),
+            Type::Bot => todo!(),
+            Type::Auto => todo!(),
+            Type::Var(cow) => todo!(),
+        }
         ty.visit_inner_with(self)
     }
 
     fn visit_pat(&mut self, pat: &Pattern<'ctx>) {
-        todo!();
+        match pat {
+            Pattern::Var(_) => {
+                todo!("`let-bindings` or `some-types`")
+            }
+            Pattern::Inl(_) | Pattern::Inr(_) => self.require(Extension::SumTypes),
+            Pattern::Variant { label: _, pat } => {
+                self.require(Extension::Variants);
+                if pat.is_none() {
+                    self.require(Extension::NullaryVariantLabels);
+                }
+            }
+            Pattern::Tuple(_)
+            | Pattern::Record(_)
+            | Pattern::List(_)
+            | Pattern::Cons(_)
+            | Pattern::Int(_)
+            | Pattern::Succ(_)
+            | Pattern::False
+            | Pattern::True
+            | Pattern::Unit => self.require(Extension::StructuralPatterns),
+            Pattern::Asc { .. } => self.require(Extension::PatternAscriptions),
+
+            Pattern::CastAs { pat, ty } => todo!(),
+        }
         pat.visit_inner_with(self)
     }
 
@@ -98,13 +160,74 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
     }
 
     fn visit_expr(&mut self, expr: &Expr<'ctx>) {
-        todo!();
-        expr.visit_inner_with(self)
-    }
+        match expr {
+            Expr::True
+            | Expr::False
+            | Expr::If { .. }
+            | Expr::Succ(_)
+            | Expr::NatIsZero(_)
+            | Expr::NatRec(_)
+            | Expr::Var(_) => {}
+            &Expr::Integer(i) => {
+                if i != 0 {
+                    self.require(Extension::NaturalLiterals)
+                }
+            }
+            Expr::Abstraction { params, ret: _ } => self.require_fn_arity(params.len()),
+            Expr::Application { lhs: _, args } => self.require_fn_arity(args.len()),
+            Expr::Unit => self.require(Extension::UnitType),
+            Expr::DotTuple { .. } | Expr::Tuple(_) => todo!("Is this `pairs` or `tuples`?"),
+            Expr::Record(_) | Expr::DotRecord { .. } => self.require(Extension::Records),
+            &Expr::Let {
+                rec,
+                bindings: _,
+                body: _,
+            } => self.require(if rec {
+                Extension::LetrecBindings
+            } else {
+                Extension::LetBindings
+            }),
+            Expr::Ascription { .. } => self.require(Extension::TypeAscriptions),
+            Expr::Inl(_) | Expr::Inr(_) | Expr::Match { .. } => self.require(Extension::SumTypes),
+            Expr::List(_)
+            | Expr::Cons(_)
+            | Expr::ListHead(_)
+            | Expr::ListIsEmpty(_)
+            | Expr::ListTail(_) => self.require(Extension::Lists),
+            Expr::Variant { lhs: _, rhs } => {
+                self.require(Extension::Variants);
+                if rhs.is_none() {
+                    self.require(Extension::NullaryVariantLabels);
+                }
+            }
+            Expr::Fix(_) => self.require(Extension::FixpointCombinators),
 
-    fn visit_program(&mut self, program: &Program<'ctx>) {
-        todo!();
-        program.visit_inner_with(self)
+            Expr::Seq(_) => todo!(),
+            Expr::Assign { lhs, rhs } => todo!(),
+            Expr::Generic { generics, expr } => todo!(),
+            Expr::BinOp { lhs, op, rhs } => todo!(),
+            Expr::Cast { expr, ty } => todo!(),
+
+            Expr::New(expr) => todo!(),
+            Expr::Deref(expr) => todo!(),
+            Expr::TypeApplication { lhs, types } => todo!(),
+            Expr::Panic => todo!(),
+            Expr::Throw(expr) => todo!(),
+            Expr::TryCatch { r#try, catch } => todo!(),
+            Expr::TryWith { r#try, with } => todo!(),
+            Expr::TryCastAs {
+                r#try,
+                r#as,
+                catch,
+                with,
+            } => todo!(),
+            Expr::Not(expr) => todo!(),
+            Expr::NatPred(expr) => todo!(),
+            Expr::Fold { ty, expr } => todo!(),
+            Expr::Unfold { ty, expr } => todo!(),
+            Expr::Address(_) => todo!(),
+        }
+        expr.visit_inner_with(self)
     }
 }
 

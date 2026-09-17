@@ -21,6 +21,7 @@ pub(crate) enum Extension {
     NullaryVariantLabels,
     LetrecBindings,
     PatternAscriptions,
+    LetPatterns,
 }
 
 pub(crate) type Extensions = BTreeSet<Extension>;
