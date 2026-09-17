@@ -10,6 +10,7 @@ use culpa::throws;
 use crate::parser::parse;
 
 mod ast;
+mod extensions;
 mod parser;
 mod typck;
 

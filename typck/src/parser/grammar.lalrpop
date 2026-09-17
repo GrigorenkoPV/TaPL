@@ -130,10 +130,12 @@ pub(in crate::parser) Program: Program<'input> = {
     LanguageDecl <extensions: FlattenExtensions> <decls: Decl*> => Program { <> }
 }
 
-// HACK: this is a bit inefficient, collecting to BTreeSet directly would be better
-FlattenExtensions: BTreeSet<&'input str> = ExtendWith* => flatten(<>);
+// HACK: this is a bit inefficient, collecting to a set directly would be better
+FlattenExtensions: Extensions = ExtendWith* => flatten(<>);
 
-ExtendWith = "extend" "with" <SepWith1<",", EXTENSION>> ";";
+Extension: Extension = EXTENSION => parse_extension(<>);
+
+ExtendWith = "extend" "with" <SepWith1<",", Extension>> ";";
 
 LanguageDecl = "language" "core" ";" ;
 

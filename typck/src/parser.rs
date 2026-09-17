@@ -1,5 +1,3 @@
-use std::collections::btree_set::BTreeSet;
-
 use lalrpop_util::{ParseError, lexer::Token};
 
 #[allow(
@@ -28,11 +26,14 @@ use lalrpop_util::{ParseError, lexer::Token};
 )]
 mod grammar;
 
-use crate::ast::Program;
+use crate::{
+    ast::{Integer, Program},
+    extensions::{Extension, Extensions},
+};
 
 use self::grammar::ProgramParser;
 
-fn flatten<T: Ord>(v: Vec<Vec<T>>) -> BTreeSet<T> {
+fn flatten(v: Vec<Vec<Extension>>) -> Extensions {
     v.into_iter().flatten().collect()
 }
 
@@ -42,11 +43,31 @@ fn immortalize_parse_error<L, E>(error: ParseError<L, Token<'_>, E>) -> ParseErr
     error.map_token(|token| format!("{:?}", token.1))
 }
 
-fn parse_int(int: &str) -> crate::ast::Integer {
+fn parse_int(int: &str) -> Integer {
     match int.parse() {
         Ok(int) => int,
         Err(e) => todo!("Report: {e:?}"),
     }
+}
+
+fn parse_extension(extension: &str) -> Extension {
+    match extension.strip_prefix("#") {
+        None => unreachable!(),
+        Some(extension) => match extension.parse() {
+            Err(e) => todo!("Report: {e:?}"),
+            Ok(extension) => extension,
+        },
+    }
+}
+
+#[expect(clippy::tests_outside_test_module, reason = "sanity check")]
+#[test]
+fn parse_extensions() {
+    let e = Extension::UnitType;
+    let s = "unit-type";
+    assert_eq!(<&'static str>::from(&e), s);
+    assert_eq!(parse_extension(&format!("#{s}")), e);
+    assert_eq!(s.parse(), Ok(e));
 }
 
 pub(super) fn parse(input: &str) -> Result<Program<'_>, ParseError<usize, String, anyhow::Error>> {

@@ -1,13 +1,20 @@
-use std::{borrow::Cow, collections::btree_set::BTreeSet};
+use std::borrow::Cow;
+
+use crate::extensions::Extensions;
+
+mod visitor;
+
+pub(crate) use self::visitor::{HasVisitable, Visitor};
 
 #[derive(Debug)]
 #[expect(dead_code, reason = "WIP")]
 pub(crate) struct Program<'src> {
-    pub extensions: BTreeSet<&'src str>,
+    pub extensions: Extensions,
     pub decls: Vec<Decl<'src>>,
 }
 
 pub(crate) type Integer = u128;
+pub(crate) type Address<'src> = &'src str;
 pub(crate) type Ident<'src> = Cow<'src, str>;
 
 #[derive(Debug)]
@@ -253,7 +260,7 @@ pub(crate) enum Expr<'src> {
     False,
     Unit,
     Integer(Integer),
-    Address(&'src str),
+    Address(Address<'src>),
 }
 
 #[derive(Debug)]
