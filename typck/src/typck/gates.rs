@@ -90,9 +90,14 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
                     self.require(Extension::NestedFunctionDeclarations)
                 }
             }
+
+            Decl::ExceptionType(_) => {
+                self.require(Extension::Exceptions);
+                self.require(Extension::ExceptionTypeDeclaration)
+            }
+            Decl::ExceptionVariant { .. } => self.require(Extension::OpenVariantExceptions),
+
             Decl::TypeAlias { name, ty } => todo!(),
-            Decl::ExceptionType(_) => todo!(),
-            Decl::ExceptionVariant { name, ty } => todo!(),
         }
         decl.visit_inner_with(self)
     }
@@ -115,11 +120,12 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
                 }
             }
 
-            Type::Ref(_) => todo!(),
+            Type::Ref(_) => self.require(Extension::References),
+            Type::Top => self.require(Extension::TopType),
+            Type::Bot => self.require(Extension::BottomType),
+
             Type::Forall { binders, ty } => todo!(),
             Type::Rec { var, ty } => todo!(),
-            Type::Top => todo!(),
-            Type::Bot => todo!(),
             Type::Auto => todo!(),
             Type::Var(cow) => todo!(),
         }
@@ -149,7 +155,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
             | Pattern::Unit => self.require(Extension::StructuralPatterns),
             Pattern::Asc { .. } => self.require(Extension::PatternAscriptions),
 
-            Pattern::CastAs { pat, ty } => todo!(),
+            Pattern::CastAs { .. } => self.require(Extension::TypeCastPatterns),
         }
         pat.visit_inner_with(self)
     }
@@ -197,35 +203,30 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
             Expr::Variant { lhs: _, rhs } => {
                 self.require(Extension::Variants);
                 if rhs.is_none() {
-                    self.require(Extension::NullaryVariantLabels);
+                    self.require(Extension::NullaryVariantLabels)
                 }
             }
             Expr::Fix(_) => self.require(Extension::FixpointCombinators),
 
-            Expr::Seq(_) => todo!(),
-            Expr::Assign { lhs, rhs } => todo!(),
+            Expr::Seq(_) => self.require(Extension::Sequencing),
+            Expr::Assign { .. } | Expr::New(_) | Expr::Deref(_) | Expr::Address(_) => {
+                self.require(Extension::References)
+            }
+            Expr::Panic => self.require(Extension::Panic),
+            Expr::Throw(_) => self.require(Extension::Exceptions),
+            Expr::TryWith { .. } | Expr::TryCatch { .. } => {
+                todo!("#exceptions or #exception-type-declaration")
+            }
+            Expr::Cast { .. } => self.require(Extension::TypeCast),
+            Expr::TryCastAs { .. } => self.require(Extension::TryCastAs),
+
             Expr::Generic { generics, expr } => todo!(),
             Expr::BinOp { lhs, op, rhs } => todo!(),
-            Expr::Cast { expr, ty } => todo!(),
-
-            Expr::New(expr) => todo!(),
-            Expr::Deref(expr) => todo!(),
             Expr::TypeApplication { lhs, types } => todo!(),
-            Expr::Panic => todo!(),
-            Expr::Throw(expr) => todo!(),
-            Expr::TryCatch { r#try, catch } => todo!(),
-            Expr::TryWith { r#try, with } => todo!(),
-            Expr::TryCastAs {
-                r#try,
-                r#as,
-                catch,
-                with,
-            } => todo!(),
             Expr::Not(expr) => todo!(),
             Expr::NatPred(expr) => todo!(),
             Expr::Fold { ty, expr } => todo!(),
             Expr::Unfold { ty, expr } => todo!(),
-            Expr::Address(_) => todo!(),
         }
         expr.visit_inner_with(self)
     }
