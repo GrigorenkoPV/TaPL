@@ -1,5 +1,7 @@
-use core::fmt;
-use std::{collections::btree_set::BTreeSet, process::ExitCode};
+use core::{fmt, num::NonZero};
+use std::collections::btree_set::BTreeSet;
+
+use culpa::throws;
 
 use crate::{
     ast::Decl,
@@ -101,7 +103,7 @@ pub(crate) enum Error<'src> {
     // Stage 1 extra 3:
     //
     /// Функция main объявлена с `n` параметрами, где `n != 1`.
-    IncorrectArityOfMain,
+    IncorrectArityOfMain(usize),
     /// Вызов функции (`Application`) происходит с некорректным количеством аргументов.
     IncorrectNumberOfArguments,
     /// Количество параметров анонимной функции (`Abstraction`)
@@ -186,81 +188,113 @@ pub(crate) enum Error<'src> {
 impl core::error::Error for Error<'_> {}
 
 impl fmt::Display for Error<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    #[throws(fmt::Error)]
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) {
         writeln!(f, "ERROR_{}", <&'static str>::from(self))?;
 
         #[expect(clippy::wildcard_enum_match_arm, reason = "WIP")]
         match self {
-            Self::MissingMain => write!(f, "`main` is missing or is not a function"),
+            Self::MissingMain => writeln!(f, "`main` is missing or is not a function")?,
 
-            _ => todo!(),
+            Self::MissingExtensions(extensions) => {
+                writeln!(f, "the following extensions are required but not enabled:")?;
+                for ext in extensions {
+                    writeln!(f, "\t{ext}")?
+                }
+            }
+            Self::UnsupportedExtensions(extensions) => {
+                writeln!(f, "the following unsupported extensions are enabled:")?;
+                for ext in extensions {
+                    writeln!(f, "\t{ext}")?
+                }
+            }
+
+            &Self::IncorrectArityOfMain(arity) => {
+                const EXPECTED: usize = 1;
+                debug_assert_ne!(
+                    arity, EXPECTED,
+                    "Arity of {EXPECTED} is not incorrect for `main`"
+                );
+                writeln!(
+                    f,
+                    "`main` has {arity} arguments, but is expected to have {EXPECTED}"
+                )?
+            }
+
+            other => todo!("format {other:?}"),
         }
     }
 }
 
-impl From<Error<'_>> for ExitCode {
-    fn from(err: Error<'_>) -> ExitCode {
-        match err {
-            Error::MissingMain => 1,
-            Error::UndefinedVariable => 2,
-            Error::UnexpectedTypeForExpression => 3,
-            Error::NotAFunction => 4,
-            Error::NotATuple => 5,
-            Error::NotARecord => 6,
-            Error::NotAList => 7,
-            Error::UnexpectedLambda => 8,
-            Error::UnexpectedTypeForParameter => 9,
-            Error::UnexpectedTuple => 10,
-            Error::UnexpectedRecord => 11,
-            Error::UnexpectedVariant => 12,
-            Error::UnexpectedList => 13,
-            Error::UnexpectedInjection => 14,
-            Error::MissingRecordFields => 15,
-            Error::UnexpectedRecordFields => 16,
-            Error::UnexpectedFieldAccess => 17,
-            Error::UnexpectedVariantLabel => 18,
-            Error::TupleIndexOutOfBounds => 19,
-            Error::UnexpectedTupleLength => 20,
-            Error::AmbiguousSumType => 21,
-            Error::AmbiguousVariantType => 22,
-            Error::AmbiguousList => 23,
-            Error::IllegalEmptyMatching => 24,
-            Error::NonexhaustiveMatchPatterns => 25,
-            Error::UnexpectedPatternForType => 26,
-            Error::DuplicateRecordFields => 27,
-            Error::DuplicateRecordTypeFields => 28,
-            Error::DuplicateVariantTypeFields => 29,
-            Error::DuplicateFunctionDeclaration(_) => 30,
+macro_rules! nz {
+    ($l:literal) => {
+        const { NonZero::new($l).unwrap() }
+    };
+}
 
-            Error::IncorrectArityOfMain
+impl Error<'_> {
+    #[must_use]
+    pub(crate) const fn code(&self) -> NonZero<u8> {
+        match self {
+            Error::MissingMain => nz!(1),
+            Error::UndefinedVariable => nz!(2),
+            Error::UnexpectedTypeForExpression => nz!(3),
+            Error::NotAFunction => nz!(4),
+            Error::NotATuple => nz!(5),
+            Error::NotARecord => nz!(6),
+            Error::NotAList => nz!(7),
+            Error::UnexpectedLambda => nz!(8),
+            Error::UnexpectedTypeForParameter => nz!(9),
+            Error::UnexpectedTuple => nz!(10),
+            Error::UnexpectedRecord => nz!(11),
+            Error::UnexpectedVariant => nz!(12),
+            Error::UnexpectedList => nz!(13),
+            Error::UnexpectedInjection => nz!(14),
+            Error::MissingRecordFields => nz!(15),
+            Error::UnexpectedRecordFields => nz!(16),
+            Error::UnexpectedFieldAccess => nz!(17),
+            Error::UnexpectedVariantLabel => nz!(18),
+            Error::TupleIndexOutOfBounds => nz!(19),
+            Error::UnexpectedTupleLength => nz!(20),
+            Error::AmbiguousSumType => nz!(21),
+            Error::AmbiguousVariantType => nz!(22),
+            Error::AmbiguousList => nz!(23),
+            Error::IllegalEmptyMatching => nz!(24),
+            Error::NonexhaustiveMatchPatterns => nz!(25),
+            Error::UnexpectedPatternForType => nz!(26),
+            Error::DuplicateRecordFields => nz!(27),
+            Error::DuplicateRecordTypeFields => nz!(28),
+            Error::DuplicateVariantTypeFields => nz!(29),
+            Error::DuplicateFunctionDeclaration(_) => nz!(30),
+
+            Error::IncorrectArityOfMain(_)
             | Error::IncorrectNumberOfArguments
-            | Error::UnexpectedNumberOfParametersInLambda => 113,
-            Error::DuplicateRecordPatternFields => 114,
+            | Error::UnexpectedNumberOfParametersInLambda => nz!(113),
+            Error::DuplicateRecordPatternFields => nz!(114),
             Error::UnexpectedDataForNullaryLabel
             | Error::MissingDataForLabel
             | Error::UnexpectedNonNullaryVariantPattern
-            | Error::UnexpectedNullaryVariantPattern => 115,
+            | Error::UnexpectedNullaryVariantPattern => nz!(115),
             Error::DuplicateFunctionParameter
             | Error::DuplicateLetBinding
-            | Error::DuplicateTypeParameter => 117,
+            | Error::DuplicateTypeParameter => nz!(117),
 
-            Error::ExceptionTypeNotDeclared => 31,
-            Error::AmbiguousThrowType => 32,
-            Error::AmbiguousReferenceType => 33,
-            Error::AmbiguousPanicType => 34,
-            Error::NotAReference => 35,
-            Error::UnexpectedMemoryAddress => 36,
-            Error::UnexpectedReference => 37,
-            Error::UnexpectedSubtype => 38,
+            Error::ExceptionTypeNotDeclared => nz!(31),
+            Error::AmbiguousThrowType => nz!(32),
+            Error::AmbiguousReferenceType => nz!(33),
+            Error::AmbiguousPanicType => nz!(34),
+            Error::NotAReference => nz!(35),
+            Error::UnexpectedMemoryAddress => nz!(36),
+            Error::UnexpectedReference => nz!(37),
+            Error::UnexpectedSubtype => nz!(38),
 
-            Error::OccursCheckInfiniteType => 39,
-            Error::NotAGenericFunction => 40,
-            Error::IncorrectNumberOfTypeArguments => 41,
-            Error::UndefinedTypeVariable => 42,
+            Error::OccursCheckInfiniteType => nz!(39),
+            Error::NotAGenericFunction => nz!(40),
+            Error::IncorrectNumberOfTypeArguments => nz!(41),
+            Error::UndefinedTypeVariable => nz!(42),
 
-            Error::UnsupportedExtensions(_) => 253,
-            Error::MissingExtensions(_) => 254,
+            Error::UnsupportedExtensions(_) => nz!(253),
+            Error::MissingExtensions(_) => nz!(254),
         }
-        .into()
     }
 }

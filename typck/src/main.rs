@@ -1,3 +1,4 @@
+use core::num::NonZero;
 use std::{
     io,
     panic::{self, PanicHookInfo},
@@ -14,14 +15,17 @@ mod extensions;
 mod parser;
 mod typck;
 
+#[cfg(test)]
+mod tests;
+
 #[throws]
-fn run_typck() -> Result<(), ExitCode> {
+fn run_typck() -> Result<(), NonZero<u8>> {
     let input = io::read_to_string(io::stdin()).context("Error reading input from stdin")?;
     let program = parse(&input).context("parser error")?;
     dbg!(&program);
     typck::typck(&program).map_err(|e| {
         println!("{e}");
-        e.into()
+        e.code()
     })
 }
 
@@ -37,14 +41,7 @@ fn main() -> ExitCode {
     add_panic_hook(|_| eprintln!("Internal error:"));
     match run_typck() {
         Ok(Ok(())) => ExitCode::SUCCESS,
-        Ok(Err(exit_code)) => {
-            debug_assert_ne!(
-                exit_code,
-                ExitCode::SUCCESS,
-                "Typecheck should not fail with {exit_code:?}"
-            );
-            exit_code
-        }
+        Ok(Err(exit_code)) => ExitCode::from(exit_code.get()),
         Err(internal_err) => {
             eprintln!("Internal error:\n{internal_err:#?}");
             ExitCode::from(u8::MAX)

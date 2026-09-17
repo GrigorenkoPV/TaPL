@@ -1,3 +1,4 @@
+use core::fmt::{self, Write};
 use std::collections::btree_set::BTreeSet;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, strum::IntoStaticStr, strum::EnumString)]
@@ -52,10 +53,19 @@ pub(crate) enum Extension {
 
 pub(crate) type Extensions = BTreeSet<Extension>;
 
+impl fmt::Display for Extension {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_char('#')?;
+        f.write_str(self.into())
+    }
+}
+
 impl Extension {
     #[must_use]
     pub(crate) const fn supported(&self) -> bool {
         match self {
+            Self::NullaryFunctions | Self::MultiparameterFunctions => true,
+
             Self::UnitType
             | Self::Pairs
             | Self::Tuples
@@ -68,8 +78,6 @@ impl Extension {
             | Self::FixpointCombinators
             | Self::NaturalLiterals
             | Self::NestedFunctionDeclarations
-            | Self::NullaryFunctions
-            | Self::MultiparameterFunctions
             | Self::StructuralPatterns
             | Self::NullaryVariantLabels
             | Self::LetrecBindings

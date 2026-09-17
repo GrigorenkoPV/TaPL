@@ -38,10 +38,18 @@ impl<'ctx> Context<'ctx> {
 
     #[throws(Error<'ctx>)]
     fn check_main(&self) {
-        let main = self
+        let Function { params, .. } = self
             .find_global_function(&"main".into())?
             .ok_or(Error::MissingMain)?;
-        todo!("Check {main:?}")
+        let arity = params.len();
+        if arity != 1 {
+            throw!(Error::IncorrectArityOfMain(arity))
+        }
+    }
+
+    #[throws(Error<'ctx>)]
+    fn check_global_decl(&self, decl: &Decl<'ctx>) {
+        todo!("Check {decl:?}")
     }
 }
 
@@ -50,5 +58,7 @@ pub(crate) fn typck<'ctx>(program: &'ctx Program<'ctx>) {
     gates::check_extensions(program)?;
     let ctx = Context { program };
     ctx.check_main()?;
-    todo!()
+    for decl in &program.decls {
+        ctx.check_global_decl(decl)?
+    }
 }
