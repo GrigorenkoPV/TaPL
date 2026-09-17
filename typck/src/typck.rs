@@ -3,6 +3,7 @@ use culpa::{throw, throws};
 use crate::ast::{Decl, Function, Ident, Program};
 
 mod error;
+mod gates;
 
 pub(crate) use self::error::Error;
 
@@ -46,6 +47,10 @@ impl<'ctx> Context<'ctx> {
 
 #[throws(Error<'ctx>)]
 pub(crate) fn typck<'ctx>(program: &'ctx Program<'ctx>) {
+    let missing_extensions = gates::missing_extensions(program);
+    if !missing_extensions.is_empty() {
+        throw!(Error::MissingExtensions(missing_extensions))
+    }
     let ctx = Context { program };
     ctx.check_main()?;
     todo!()

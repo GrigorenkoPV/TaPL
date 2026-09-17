@@ -7,7 +7,6 @@ mod visitor;
 pub(crate) use self::visitor::{HasVisitable, Visitor};
 
 #[derive(Debug)]
-#[expect(dead_code, reason = "WIP")]
 pub(crate) struct Program<'src> {
     pub extensions: Extensions,
     pub decls: Vec<Decl<'src>>,
@@ -18,21 +17,18 @@ pub(crate) type Address<'src> = &'src str;
 pub(crate) type Ident<'src> = Cow<'src, str>;
 
 #[derive(Debug)]
-#[expect(dead_code, reason = "WIP")]
 pub(crate) struct PatternBinding<'src> {
     pub lhs: Pattern<'src>,
     pub rhs: Expr<'src>,
 }
 
 #[derive(Debug)]
-#[expect(dead_code, reason = "WIP")]
 pub(crate) struct Binding<'src> {
     pub lhs: Ident<'src>,
     pub rhs: Expr<'src>,
 }
 
 #[derive(Debug)]
-#[expect(dead_code, reason = "WIP")]
 pub(crate) struct Function<'src> {
     pub annotations: Vec<Annotation>,
     pub name: Ident<'src>,
@@ -45,7 +41,6 @@ pub(crate) struct Function<'src> {
 }
 
 #[derive(Debug)]
-#[expect(dead_code, reason = "WIP")]
 pub(crate) enum Decl<'src> {
     Function(
         // Boxed to reduce `Decl` size from 336 to 72 bytes

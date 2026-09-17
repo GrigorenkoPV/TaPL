@@ -1,7 +1,7 @@
 use core::fmt;
 use std::process::ExitCode;
 
-use crate::ast::Decl;
+use crate::{ast::Decl, extensions::Extensions};
 
 #[expect(dead_code, reason = "WIP")]
 #[derive(Debug, strum::IntoStaticStr)]
@@ -173,6 +173,10 @@ pub(crate) enum Error<'src> {
     IncorrectNumberOfTypeArguments,
     /// В типе содержится необъявленная типовая переменная (только для `#universal-types`)
     UndefinedTypeVariable,
+
+    // Custom:
+    //
+    MissingExtensions(Extensions),
 }
 
 impl core::error::Error for Error<'_> {}
@@ -249,6 +253,8 @@ impl From<Error<'_>> for ExitCode {
             Error::NotAGenericFunction => 40,
             Error::IncorrectNumberOfTypeArguments => 41,
             Error::UndefinedTypeVariable => 42,
+
+            Error::MissingExtensions(_) => 254,
         }
         .into()
     }
