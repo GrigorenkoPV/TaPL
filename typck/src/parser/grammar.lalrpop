@@ -148,13 +148,13 @@ Function: Function<'input> = {
     <annotations: Annotation*> "fn" <name: Ident>
         "(" <params: FnParams> ")"
         <ret_ty: ReturnType> <throws: ThrowsTy>
-        "{" <decls: Decl*> "return" <ret: Expr> "}"
+        "{" <decls: Decl*> "return" <body: Expr> "}"
         => Function { generics: vec![], <> },
     <annotations: Annotation*> "generic" "fn" <name: Ident>
         "[" <generics: Generics> "]"
         "(" <params: FnParams> ")"
         <ret_ty: ReturnType> <throws: ThrowsTy>
-        "{" <decls: Decl*> "return" <ret: Expr> "}"
+        "{" <decls: Decl*> "return" <body: Expr> "}"
         => Function { <> },
 }
 
@@ -283,7 +283,7 @@ MatchCase = <Pattern> "=>" <Expr>;
 Expr3: Expr<'input> = {
     <expr: Box<Expr3>> "as" <ty: Type2> => Expr::Ascription { <> },
     <expr: Box<Expr3>> "cast" "as" <ty: Type2> => Expr::Cast { <> },
-    "fn" "(" <params: FnParams> ")" "{" "return" <ret: Box<Expr>> "}" => Expr::Fn { <> },
+    "fn" "(" <params: FnParams> ")" "{" "return" <ret: Box<Expr>> "}" => Expr::Abstraction { <> },
     "<|" <lhs: Ident> <rhs: ("=" <Box<Expr>>)?> "|>" => Expr::Variant { <> },
     "match" <switch: Box<Expr2>> "{" <cases: SepWith0<"|", MatchCase>> "}" => Expr::Match { <> },
     "[" <CommaExprs> "]" => Expr::List(<>),

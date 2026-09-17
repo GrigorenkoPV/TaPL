@@ -105,7 +105,7 @@ impl<'src> HasVisitable<'src> for Function<'src> {
             ret_ty,
             throws,
             decls,
-            ret,
+            body,
         } = self;
         v.visit_ident(name);
         visit_all!(v.visit_annotation, annotations);
@@ -117,7 +117,7 @@ impl<'src> HasVisitable<'src> for Function<'src> {
         visit_opt!(v.visit_ty, ret_ty);
         visit_all!(v.visit_ty, throws);
         visit_all!(v.visit_decl, decls);
-        v.visit_expr(ret)
+        v.visit_expr(body)
     }
 }
 
@@ -279,7 +279,7 @@ impl<'src> HasVisitable<'src> for Expr<'src> {
                 v.visit_ty(ty);
                 v.visit_expr(expr);
             }
-            Self::Fn { params, ret } => {
+            Self::Abstraction { params, ret } => {
                 for (name, ty) in params {
                     v.visit_ident(name);
                     v.visit_ty(ty);

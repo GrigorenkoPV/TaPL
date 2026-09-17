@@ -37,7 +37,7 @@ pub(crate) struct Function<'src> {
     pub ret_ty: Option<Type<'src>>,
     pub throws: Vec<Type<'src>>,
     pub decls: Vec<Decl<'src>>,
-    pub ret: Expr<'src>,
+    pub body: Expr<'src>,
 }
 
 #[derive(Debug)]
@@ -174,7 +174,7 @@ pub(crate) enum Expr<'src> {
         ty: Type<'src>,
     },
 
-    Fn {
+    Abstraction {
         params: Vec<(Ident<'src>, Type<'src>)>,
         ret: Box<Self>,
     },
