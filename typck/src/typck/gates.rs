@@ -48,7 +48,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
         } = function;
 
         if !generics.is_empty() {
-            todo!()
+            self.require(Extension::UniversalTypes)
         }
         self.require_fn_arity(params.len());
         if ret_ty.is_none() {
@@ -97,7 +97,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
             }
             Decl::ExceptionVariant { .. } => self.require(Extension::OpenVariantExceptions),
 
-            Decl::TypeAlias { name, ty } => todo!(),
+            Decl::TypeAlias { .. } => todo!(),
         }
         decl.visit_inner_with(self)
     }
@@ -124,10 +124,10 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
             Type::Top => self.require(Extension::TopType),
             Type::Bot => self.require(Extension::BottomType),
 
-            Type::Forall { binders, ty } => todo!(),
-            Type::Rec { var, ty } => todo!(),
-            Type::Auto => todo!(),
-            Type::Var(cow) => todo!(),
+            Type::Auto => self.require(Extension::TypeReconstruction),
+            Type::Var(_) | Type::Forall { .. } => self.require(Extension::UniversalTypes),
+
+            Type::Rec { .. } => todo!(),
         }
         ty.visit_inner_with(self)
     }
@@ -160,9 +160,8 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
         pat.visit_inner_with(self)
     }
 
-    fn visit_catch(&mut self, catch: &Catch<'ctx>) {
-        todo!();
-        catch.visit_inner_with(self)
+    fn visit_catch(&mut self, _: &Catch<'ctx>) {
+        todo!()
     }
 
     fn visit_expr(&mut self, expr: &Expr<'ctx>) {
@@ -220,19 +219,22 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
             Expr::Cast { .. } => self.require(Extension::TypeCast),
             Expr::TryCastAs { .. } => self.require(Extension::TryCastAs),
 
-            Expr::Generic { generics, expr } => todo!(),
-            Expr::BinOp { lhs, op, rhs } => todo!(),
-            Expr::TypeApplication { lhs, types } => todo!(),
-            Expr::Not(expr) => todo!(),
-            Expr::NatPred(expr) => todo!(),
-            Expr::Fold { ty, expr } => todo!(),
-            Expr::Unfold { ty, expr } => todo!(),
+            Expr::Generic { .. } | Expr::TypeApplication { .. } => {
+                self.require(Extension::UniversalTypes)
+            }
+
+            Expr::BinOp { .. }
+            | Expr::Not(..)
+            | Expr::NatPred(..)
+            | Expr::Fold { .. }
+            | Expr::Unfold { .. } => todo!(),
         }
         expr.visit_inner_with(self)
     }
 }
 
 pub(super) fn missing_extensions(program: &Program<'_>) -> Extensions {
+    // TODO: also check for supported extensions
     let mut collector = GateCollector::new();
     collector.visit_program(program);
     let GateCollector {

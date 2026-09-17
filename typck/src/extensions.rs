@@ -44,6 +44,10 @@ pub(crate) enum Extension {
     OpenVariantExceptions,
     TryCastAs,
     TypeCastPatterns,
+
+    // Stage 3
+    TypeReconstruction,
+    UniversalTypes,
 }
 
 pub(crate) type Extensions = BTreeSet<Extension>;
