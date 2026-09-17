@@ -1,7 +1,10 @@
 use core::fmt;
-use std::process::ExitCode;
+use std::{collections::btree_set::BTreeSet, process::ExitCode};
 
-use crate::{ast::Decl, extensions::Extensions};
+use crate::{
+    ast::Decl,
+    extensions::{Extension, Extensions},
+};
 
 #[expect(dead_code, reason = "WIP")]
 #[derive(Debug, strum::IntoStaticStr)]
@@ -176,6 +179,7 @@ pub(crate) enum Error<'src> {
 
     // Custom:
     //
+    UnsupportedExtensions(BTreeSet<&'src Extension>),
     MissingExtensions(Extensions),
 }
 
@@ -254,6 +258,7 @@ impl From<Error<'_>> for ExitCode {
             Error::IncorrectNumberOfTypeArguments => 41,
             Error::UndefinedTypeVariable => 42,
 
+            Error::UnsupportedExtensions(_) => 253,
             Error::MissingExtensions(_) => 254,
         }
         .into()

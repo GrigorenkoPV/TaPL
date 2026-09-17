@@ -47,10 +47,7 @@ impl<'ctx> Context<'ctx> {
 
 #[throws(Error<'ctx>)]
 pub(crate) fn typck<'ctx>(program: &'ctx Program<'ctx>) {
-    let missing_extensions = gates::missing_extensions(program);
-    if !missing_extensions.is_empty() {
-        throw!(Error::MissingExtensions(missing_extensions))
-    }
+    gates::check_extensions(program)?;
     let ctx = Context { program };
     ctx.check_main()?;
     todo!()

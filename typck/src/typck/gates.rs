@@ -1,28 +1,43 @@
 use core::mem;
+use std::collections::btree_set::BTreeSet;
+
+use culpa::{throw, throws};
 
 use crate::{
     ast::{
-        Annotation, Binding, Catch, Decl, Expr, Function, HasVisitable, Pattern, PatternBinding,
-        Program, Type, Visitor,
+        Annotation, Binding, Decl, Expr, Function, HasVisitable, Pattern, PatternBinding, Program,
+        Type, Visitor,
     },
     extensions::{Extension, Extensions},
+    typck::Error,
 };
 
-struct GateCollector {
-    required: Extensions,
+struct GateCollector<'a> {
+    enabled: &'a Extensions,
+    missing: Extensions,
     is_in_global_scope: bool,
 }
 
-impl GateCollector {
-    #[must_use]
-    const fn new() -> Self {
-        Self {
-            required: Extensions::new(),
-            is_in_global_scope: true,
+impl GateCollector<'_> {
+    fn require(&mut self, extension: Extension) {
+        if !self.enabled.contains(&extension) {
+            let _: bool = self.missing.insert(extension);
         }
     }
-    fn require(&mut self, extension: Extension) {
-        let _: bool = self.required.insert(extension);
+    fn require_one_of<const N: usize>(&mut self, extensions: [Extension; N]) {
+        const { assert!(N != 0, "Cannot require one of 0 extensions to be enabled") }
+        const { assert!(N != 1, "Just use `require` instead") }
+        for ext in &extensions {
+            if self.enabled.contains(ext) {
+                return;
+            }
+        }
+        for ext in &self.missing {
+            if extensions.contains(ext) {
+                return;
+            }
+        }
+        todo!()
     }
 
     fn require_fn_arity(&mut self, arity: usize) {
@@ -32,9 +47,21 @@ impl GateCollector {
             _ => self.require(Extension::MultiparameterFunctions),
         }
     }
+
+    fn require_pairs_or_tuples(&mut self) {
+        self.require_one_of([Extension::Pairs, Extension::Tuples])
+    }
+
+    fn require_tuple_arity(&mut self, arity: usize) {
+        if arity == 2 {
+            self.require_pairs_or_tuples()
+        } else {
+            self.require(Extension::Tuples)
+        }
+    }
 }
 
-impl<'ctx> Visitor<'ctx> for GateCollector {
+impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
     fn visit_function(&mut self, function: &Function<'ctx>) {
         let Function {
             annotations: _,
@@ -52,12 +79,13 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
         }
         self.require_fn_arity(params.len());
         if ret_ty.is_none() {
-            todo!()
+            unimplemented!(
+                "Function declarations without an explicit return type are not supported"
+            )
         }
         if !throws.is_empty() {
-            todo!()
+            unimplemented!("Functions that throw exceptions are not supported")
         }
-
         let was_in_global_scope = mem::replace(&mut self.is_in_global_scope, false);
         function.visit_inner_with(self);
         self.is_in_global_scope = was_in_global_scope;
@@ -65,15 +93,14 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
 
     fn visit_annotation(&mut self, annotation: &Annotation) {
         match annotation {
-            Annotation::Inline => todo!(),
+            Annotation::Inline => unimplemented!("Inline functions are not supported"),
         }
     }
 
     fn visit_pattern_binding(&mut self, pattern_binding: &PatternBinding<'ctx>) {
         let PatternBinding { lhs, rhs: _ } = pattern_binding;
-        if let Pattern::Var(_) = lhs {
-        } else {
-            self.require(Extension::LetPatterns);
+        if !matches!(lhs, Pattern::Var(_)) {
+            self.require(Extension::LetPatterns)
         }
         pattern_binding.visit_inner_with(self)
     }
@@ -97,7 +124,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
             }
             Decl::ExceptionVariant { .. } => self.require(Extension::OpenVariantExceptions),
 
-            Decl::TypeAlias { .. } => todo!(),
+            Decl::TypeAlias { .. } => unimplemented!("Type aliases are not supported"),
         }
         decl.visit_inner_with(self)
     }
@@ -107,7 +134,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
             Type::Bool | Type::Nat => {}
             Type::Fn { args, ret: _ } => self.require_fn_arity(args.len()),
             Type::Unit => self.require(Extension::UnitType),
-            Type::Tuple(_) => todo!("Is this `pairs` or `tuples`?"),
+            Type::Tuple(inner) => self.require_tuple_arity(inner.len()),
             Type::Record(_) => self.require(Extension::Records),
             Type::Sum { .. } => self.require(Extension::SumTypes),
             Type::List(_) => self.require(Extension::Lists),
@@ -115,7 +142,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
                 self.require(Extension::Variants);
                 for (_, ty) in variants {
                     if ty.is_none() {
-                        self.require(Extension::NullaryVariantLabels);
+                        self.require(Extension::NullaryVariantLabels)
                     }
                 }
             }
@@ -127,7 +154,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
             Type::Auto => self.require(Extension::TypeReconstruction),
             Type::Var(_) | Type::Forall { .. } => self.require(Extension::UniversalTypes),
 
-            Type::Rec { .. } => todo!(),
+            Type::Rec { .. } => unimplemented!("`μ` types are not supported"),
         }
         ty.visit_inner_with(self)
     }
@@ -135,13 +162,13 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
     fn visit_pat(&mut self, pat: &Pattern<'ctx>) {
         match pat {
             Pattern::Var(_) => {
-                todo!("`let-bindings` or `some-types`")
+                self.require_one_of([Extension::LetBindings, Extension::SumTypes]);
             }
             Pattern::Inl(_) | Pattern::Inr(_) => self.require(Extension::SumTypes),
             Pattern::Variant { label: _, pat } => {
                 self.require(Extension::Variants);
                 if pat.is_none() {
-                    self.require(Extension::NullaryVariantLabels);
+                    self.require(Extension::NullaryVariantLabels)
                 }
             }
             Pattern::Tuple(_)
@@ -160,16 +187,13 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
         pat.visit_inner_with(self)
     }
 
-    fn visit_catch(&mut self, _: &Catch<'ctx>) {
-        todo!()
-    }
-
     fn visit_expr(&mut self, expr: &Expr<'ctx>) {
         match expr {
             Expr::True
             | Expr::False
             | Expr::If { .. }
             | Expr::Succ(_)
+            | Expr::NatPred(_)
             | Expr::NatIsZero(_)
             | Expr::NatRec(_)
             | Expr::Var(_) => {}
@@ -181,7 +205,8 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
             Expr::Abstraction { params, ret: _ } => self.require_fn_arity(params.len()),
             Expr::Application { lhs: _, args } => self.require_fn_arity(args.len()),
             Expr::Unit => self.require(Extension::UnitType),
-            Expr::DotTuple { .. } | Expr::Tuple(_) => todo!("Is this `pairs` or `tuples`?"),
+            Expr::DotTuple { .. } => self.require_pairs_or_tuples(),
+            Expr::Tuple(inner) => self.require_tuple_arity(inner.len()),
             Expr::Record(_) | Expr::DotRecord { .. } => self.require(Extension::Records),
             &Expr::Let {
                 rec,
@@ -212,9 +237,8 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
                 self.require(Extension::References)
             }
             Expr::Panic => self.require(Extension::Panic),
-            Expr::Throw(_) => self.require(Extension::Exceptions),
-            Expr::TryWith { .. } | Expr::TryCatch { .. } => {
-                todo!("#exceptions or #exception-type-declaration")
+            Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. } => {
+                self.require(Extension::Exceptions)
             }
             Expr::Cast { .. } => self.require(Extension::TypeCast),
             Expr::TryCastAs { .. } => self.require(Extension::TryCastAs),
@@ -223,26 +247,49 @@ impl<'ctx> Visitor<'ctx> for GateCollector {
                 self.require(Extension::UniversalTypes)
             }
 
-            Expr::BinOp { .. }
-            | Expr::Not(..)
-            | Expr::NatPred(..)
-            | Expr::Fold { .. }
-            | Expr::Unfold { .. } => todo!(),
+            Expr::BinOp { .. } => unimplemented!("Binary operations are not supported"),
+            Expr::Not(..) => unimplemented!("Logical negation is not supported"),
+            Expr::Fold { .. } | Expr::Unfold { .. } => {
+                unimplemented!("fold/unfold are not supported")
+            }
         }
         expr.visit_inner_with(self)
     }
 }
 
-pub(super) fn missing_extensions(program: &Program<'_>) -> Extensions {
-    // TODO: also check for supported extensions
-    let mut collector = GateCollector::new();
+#[throws(Error<'src>)]
+pub(super) fn check_extensions<'src>(program: &'src Program<'src>) {
+    let enabled = &program.extensions;
+    {
+        let mut unsupported = BTreeSet::<&'src Extension>::new();
+        for ext in enabled {
+            if !ext.supported() {
+                let inserted = unsupported.insert(ext);
+                debug_assert!(inserted, "We're iterating over a set")
+            }
+        }
+        if !unsupported.is_empty() {
+            throw!(Error::UnsupportedExtensions(unsupported))
+        }
+    }
+    let mut collector = GateCollector {
+        enabled,
+        missing: Extensions::new(),
+        is_in_global_scope: true,
+    };
     collector.visit_program(program);
     let GateCollector {
-        mut required,
+        enabled,
+        missing,
         is_in_global_scope: _,
     } = collector;
-    for extension in &program.extensions {
-        let _: bool = required.remove(extension);
+    if !missing.is_empty() {
+        for ext in &missing {
+            debug_assert!(
+                !enabled.contains(ext),
+                "\"Missing\" extension {ext:?} is actually enabled"
+            )
+        }
+        throw!(Error::MissingExtensions(missing))
     }
-    required
 }
