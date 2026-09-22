@@ -247,8 +247,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
                 self.require(Extension::UniversalTypes)
             }
 
-            Expr::BinOp { .. } => unimplemented!("Binary operations are not supported"),
-            Expr::Not(..) => unimplemented!("Logical negation is not supported"),
+            Expr::BinOp { .. } | Expr::Not(..) => self.require(Extension::ArithmeticOperators),
             Expr::Fold { .. } | Expr::Unfold { .. } => {
                 unimplemented!("fold/unfold are not supported")
             }

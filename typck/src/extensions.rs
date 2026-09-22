@@ -49,6 +49,9 @@ pub(crate) enum Extension {
     // Stage 3
     TypeReconstruction,
     UniversalTypes,
+
+    // Never mentioned
+    ArithmeticOperators,
 }
 
 pub(crate) type Extensions = BTreeSet<Extension>;
@@ -97,6 +100,7 @@ impl Extension {
             | Self::TryCastAs
             | Self::TypeCastPatterns
             | Self::TypeReconstruction
+            | Self::ArithmeticOperators
             | Self::UniversalTypes => false,
         }
     }

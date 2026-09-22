@@ -258,7 +258,14 @@ include_str!("../tests/Examples/pass/01.stella")
 
 basic_02
 include_str!("../tests/Examples/pass/02.stella")
-=> expect![]
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+    	#natural-literals
+    	#arithmetic-operators
+"#]]
 
 ascription2
 include_str!("../tests/Examples/pass/ascription.stella")
@@ -310,7 +317,23 @@ include_str!("../tests/Examples/pass/exception01.stella")
 
 letrec
 include_str!("../tests/Examples/pass/letrec.stella")
-=> expect![]
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#lists
+    	#natural-literals
+    	#nested-function-declarations
+    	#structural-patterns
+    	#letrec-bindings
+    	#pattern-ascriptions
+    	#let-patterns
+    	#sequencing
+    	#references
+    	#arithmetic-operators
+"#]]
 
 r#match
 include_str!("../tests/Examples/pass/match.stella")
@@ -1605,7 +1628,20 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
 
 sub_stack_bad
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-stack.stella")
-=> expect![]
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#records
+    	#variants
+    	#natural-literals
+    	#sequencing
+    	#references
+    	#panic
+    	#bottom-type
+    	#arithmetic-operators
+"#]]
 
 sub_sum_stack_bad
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-sum-stack.stella")
@@ -1630,7 +1666,20 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
 
 sub_var_stack_bad
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-var-stack.stella")
-=> expect![]
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#records
+    	#variants
+    	#natural-literals
+    	#sequencing
+    	#references
+    	#panic
+    	#bottom-type
+    	#arithmetic-operators
+"#]]
 
 deref
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/deref.stella")
@@ -1757,7 +1806,21 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-rec-stack.stella")
 
 sub_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
-=> expect![]
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#records
+    	#variants
+    	#natural-literals
+    	#sequencing
+    	#references
+    	#panic
+    	#structural-subtyping
+    	#bottom-type
+    	#arithmetic-operators
+"#]]
 
 sub_sum_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-sum-stack.stella")
@@ -1784,7 +1847,21 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-tuple-stack.stella")
 
 sub_var_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
-=> expect![]
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#records
+    	#variants
+    	#natural-literals
+    	#sequencing
+    	#references
+    	#panic
+    	#structural-subtyping
+    	#bottom-type
+    	#arithmetic-operators
+"#]]
 
 sum_type
 include_str!("../tests/ThatDraenGuy/stage3/extra/additional-error-codes/ill-typed/ambiguous_type/sum-type.stella")
