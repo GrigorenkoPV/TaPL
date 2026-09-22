@@ -1,0 +1,25 @@
+language core;
+
+extend with #structural-subtyping;
+extend with #references;
+extend with #top-type;
+extend with #bottom-type;
+extend with #let-bindings;
+extend with #let-patterns;
+extend with #records;
+extend with #unit-type;
+extend with #lists;
+extend with #sequencing;
+
+
+fn consume(a : &Nat) -> Nat {
+  return *a
+}
+
+fn supply(a : Nat) -> &Top {
+  return new(a)
+}
+
+fn main(n : Nat) -> Nat {
+  return consume(supply(n))
+}

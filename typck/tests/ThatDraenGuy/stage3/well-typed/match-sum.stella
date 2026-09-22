@@ -1,0 +1,10 @@
+language core;
+
+extend with #type-reconstruction, #sum-types;
+
+fn main(n : auto) -> Nat {
+  return match n {
+    inl(l) => succ(l)
+    | inr(r) => if r then 0 else succ(0)
+  }
+}

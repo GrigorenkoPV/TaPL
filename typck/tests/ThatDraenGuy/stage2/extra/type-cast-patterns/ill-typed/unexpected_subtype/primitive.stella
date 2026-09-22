@@ -1,0 +1,14 @@
+language core;
+extend with #type-cast-patterns;
+extend with #top-type;
+extend with #structural-patterns;
+extend with #structural-subtyping;
+
+
+fn main(t : Nat) -> Bool {
+  return match t {
+    succ(n) cast as Nat => Nat::iszero(n)
+    | b cast as Bool => b
+    | t => false
+  }
+}

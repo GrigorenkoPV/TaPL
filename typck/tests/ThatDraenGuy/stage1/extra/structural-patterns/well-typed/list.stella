@@ -1,0 +1,14 @@
+language core;
+extend with #structural-patterns, #sum-types, #natural-literals, #tuples;
+extend with #records, #lists, #unit-type, #variants;
+
+fn main(input : [Nat]) -> Nat {
+ return
+   match input {
+    [] => 0
+    | [a, 0] => succ(0)
+    | cons(a, []) => a
+    | cons(_1, cons(_2, cons(a, rest))) => a
+    | cons(a, cons(succ(n), rest)) => n
+  }
+}

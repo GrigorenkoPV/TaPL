@@ -23,7 +23,7 @@ fn run_typck(input: &str) -> String {
 macro_rules! tests {
     ($(
         $name:ident
-        $input:literal
+        $input:expr =>
         $output:expr
     )+) => {
         $(
@@ -39,7 +39,7 @@ tests! {
 
 empty
 ""
-expect![[r#"
+=> expect![[r#"
     -1
     Parser error:
     Unrecognized EOF found at 0
@@ -49,7 +49,7 @@ expect![[r#"
 
 no_main
 "language core;"
-expect![[r#"
+=> expect![[r#"
     1
     ERROR_MISSING_MAIN
     `main` is missing or is not a function
@@ -64,7 +64,7 @@ fn main() -> Nat {
   return 0
 }
 "
-expect![[r#"
+=> expect![[r#"
     254
     ERROR_MISSING_EXTENSIONS
     the following extensions are required but not enabled:
@@ -81,7 +81,7 @@ fn main() -> Nat {
   return 0
 }
 "
-expect![[r#"
+=> expect![[r#"
     113
     ERROR_INCORRECT_ARITY_OF_MAIN
     `main` has 0 arguments, but is expected to have 1
@@ -101,6 +101,1802 @@ fn main(n : Nat) -> Nat {
   return increment_twice(n)
 }
 "
-expect![]
+=> expect![]
+
+
+ambigous_list
+include_str!("../tests/Examples/fail/ambigous-list.stella")
+=> expect![]
+
+ambitious_injection_on_top
+include_str!("../tests/Examples/fail/ambitious-injection-on-top.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#let-bindings
+    	#sum-types
+    	#lists
+    	#variants
+    	#exceptions
+    	#structural-subtyping
+    	#top-type
+    	#open-variant-exceptions
+"#]]
+
+duplicate_func
+include_str!("../tests/Examples/fail/duplicate-func.stella")
+=> expect![]
+
+malformed_fix
+include_str!("../tests/Examples/fail/malformed-fix.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 70:71
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+no_main_nat_add
+include_str!("../tests/Examples/fail/no-main.stella")
+=> expect![[r#"
+    1
+    ERROR_MISSING_MAIN
+    `main` is missing or is not a function
+"#]]
+
+not_a_function_01
+include_str!("../tests/Examples/fail/not-a-function-01.stella")
+=> expect![[r#"
+    254
+    ERROR_MISSING_EXTENSIONS
+    the following extensions are required but not enabled:
+    	#multiparameter-functions
+"#]]
+
+not_a_function_02
+include_str!("../tests/Examples/fail/not-a-function-02.stella")
+=> expect![[r#"
+    254
+    ERROR_MISSING_EXTENSIONS
+    the following extensions are required but not enabled:
+    	#fixpoint-combinators
+"#]]
+
+not_a_list_01
+include_str!("../tests/Examples/fail/not-a-list-01.stella")
+=> expect![[r#"
+    254
+    ERROR_MISSING_EXTENSIONS
+    the following extensions are required but not enabled:
+    	#tuples
+    	#lists
+"#]]
+
+not_a_record_01
+include_str!("../tests/Examples/fail/not-a-record-01.stella")
+=> expect![[r#"
+    254
+    ERROR_MISSING_EXTENSIONS
+    the following extensions are required but not enabled:
+    	#tuples
+    	#records
+"#]]
+
+not_a_tuple_01
+include_str!("../tests/Examples/fail/not-a-tuple-01.stella")
+=> expect![]
+
+not_a_tuple_02
+include_str!("../tests/Examples/fail/not-a-tuple-02.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 88:89
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+undefined_var_01
+include_str!("../tests/Examples/fail/undefined-var-01.stella")
+=> expect![]
+
+undefined_var_02
+include_str!("../tests/Examples/fail/undefined-var-02.stella")
+=> expect![]
+
+unexpected_field_01
+include_str!("../tests/Examples/fail/unexpected-field-01.stella")
+=> expect![[r#"
+    254
+    ERROR_MISSING_EXTENSIONS
+    the following extensions are required but not enabled:
+    	#records
+    	#natural-literals
+    	#nullary-functions
+"#]]
+
+unexpected_lambda_01
+include_str!("../tests/Examples/fail/unexpected-lambda-01.stella")
+=> expect![]
+
+unexpected_lambda_02
+include_str!("../tests/Examples/fail/unexpected-lambda-02.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 54:55
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+unexpected_param_type_01
+include_str!("../tests/Examples/fail/unexpected-param-type-01.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 70:71
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+unexpected_tuple_2
+include_str!("../tests/Examples/fail/unexpected-tuple.stella")
+=> expect![[r#"
+    254
+    ERROR_MISSING_EXTENSIONS
+    the following extensions are required but not enabled:
+    	#tuples
+    	#natural-literals
+    	#nullary-functions
+"#]]
+
+wrong_arity_main
+include_str!("../tests/Examples/fail/wrong_arity_main.stella")
+=> expect![]
+
+basic_01
+include_str!("../tests/Examples/pass/01.stella")
+=> expect![]
+
+basic_02
+include_str!("../tests/Examples/pass/02.stella")
+=> expect![]
+
+ascription2
+include_str!("../tests/Examples/pass/ascription.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 91:92
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+empty_list
+include_str!("../tests/Examples/pass/empty-list.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#let-bindings
+    	#lists
+    	#variants
+    	#exceptions
+    	#structural-subtyping
+    	#ambiguous-type-as-bottom
+    	#open-variant-exceptions
+"#]]
+
+exception01
+include_str!("../tests/Examples/pass/exception01.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+    	#records
+    	#let-bindings
+    	#type-ascriptions
+    	#sum-types
+    	#variants
+    	#structural-patterns
+    	#let-patterns
+    	#exceptions
+    	#exception-type-declaration
+    	#structural-subtyping
+    	#bottom-type
+    	#open-variant-exceptions
+"#]]
+
+letrec
+include_str!("../tests/Examples/pass/letrec.stella")
+=> expect![]
+
+r#match
+include_str!("../tests/Examples/pass/match.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#type-ascriptions
+    	#sum-types
+    	#natural-literals
+"#]]
+
+sub_asc
+include_str!("../tests/Examples/pass/sub-asc.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#records
+    	#let-bindings
+    	#type-ascriptions
+    	#let-patterns
+    	#structural-subtyping
+"#]]
+
+sub_match
+include_str!("../tests/Examples/pass/sub-match.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 322:323
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+func
+include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-typed/duplicate_function_parameter/func.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 117:118
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+lambda
+include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-typed/duplicate_function_parameter/lambda.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 148:149
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+r#let
+include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-typed/duplicate_let_binding/let.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 187:188
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+letrec_bad
+include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-typed/duplicate_let_binding/letrec.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 274:275
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+tuple_of_funcs_bad
+include_str!("../tests/ThatDraenGuy/stage1/extra/letrec-bindings/ill-typed/unexpected_type_for_expression/tuple-of-funcs.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 489:490
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+tuple_of_funcs
+include_str!("../tests/ThatDraenGuy/stage1/extra/letrec-bindings/well-typed/tuple-of-funcs.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 488:489
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+tuple_of_funcs2
+include_str!("../tests/ThatDraenGuy/stage1/extra/letrec-bindings/well-typed/tuple-of-funcs2.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 488:489
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+multiparameter_incorrect_arity_of_main
+include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-typed/incorrect_arity_of_main/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 103:104
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+multiparameter_incorrect_number_of_arguments_fix
+include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-typed/incorrect_number_of_arguments/fix.stella")
+=> expect![]
+
+multiparameter_incorrect_number_of_arguments
+include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-typed/incorrect_number_of_arguments/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 120:121
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+multiparameter_functions
+include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/well-typed/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 120:121
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+natural_literals_bad
+include_str!("../tests/ThatDraenGuy/stage1/extra/natural-literals/ill-typed/unexpected_type_for_expression/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"5"` found at 85:86
+    Expected one of "!=", "(", "*", "+", "-", ".", "/", ":=", ";", "<", "<=", "==", ">", ">=", "[", "and", "as", "cast", "or" or "}"
+"#]]
+
+natural_literals
+include_str!("../tests/ThatDraenGuy/stage1/extra/natural-literals/well-typed/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"5"` found at 551:552
+    Expected one of "!=", "(", ")", "*", "+", ",", "-", ".", "/", ":=", ";", "<", "<=", "==", ">", ">=", "[", "and", "as", "cast" or "or"
+"#]]
+
+nested_factorial_bad
+include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/ill-typed/undefined_variable/factorial.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#nested-function-declarations
+"#]]
+
+nested_function_declarations_bad
+include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/ill-typed/undefined_variable/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 223:224
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+nested_factorial
+include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/well-typed/factorial.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#nested-function-declarations
+"#]]
+
+nested_function_declarations
+include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/well-typed/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 169:170
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+nullary_incorrect_arity_of_main
+include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-functions/ill-typed/incorrect_arity_of_main/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 79:80
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+nullary_incorrect_number_of_arguments
+include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-functions/ill-typed/incorrect_number_of_arguments/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 86:87
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+nullary_functions
+include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-functions/well-typed/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 79:80
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+missing_data_for_label
+include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-typed/missing_data_for_label/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 130:131
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+unexpected_data_for_nullary_label
+include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-typed/unexpected_data_for_nullary_label/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 128:129
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+unexpected_non_nullary_variant_pattern
+include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-typed/unexpected_non_nullary_variant_pattern/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 225:226
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+unexpected_nullary_variant_pattern
+include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-typed/unexpected_nullary_variant_pattern/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 227:228
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+nullary_variant_labels_match
+include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/well-typed/match.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 221:222
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+nullary_variant_labels
+include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/well-typed/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 128:129
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+duplicate_record_pattern_fields
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/duplicate_record_pattern_fields/record.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+nonexhaustive_match_patterns_bool
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/nonexhaustive_match_patterns/bool.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+nonexhaustive_match_patterns_hell
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/nonexhaustive_match_patterns/hell.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+list1
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/nonexhaustive_match_patterns/list1.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+list2
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/nonexhaustive_match_patterns/list2.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+nonexhaustive_match_patterns_nat
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/nonexhaustive_match_patterns/nat.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"0"` found at 447:448
+    Expected one of "=>", "as" or "cast"
+"#]]
+
+nonexhaustive_match_patterns_nat2
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/nonexhaustive_match_patterns/nat2.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#structural-patterns
+"#]]
+
+nonexhaustive_match_patterns_record
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/nonexhaustive_match_patterns/record.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+nonexhaustive_match_patterns_tuple
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/nonexhaustive_match_patterns/tuple.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+unexpected_pattern_for_type_bool
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/unexpected_pattern_for_type/bool.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+unexpected_pattern_for_type_record
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/unexpected_pattern_for_type/record.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+unexpected_pattern_for_type_unit
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/unexpected_pattern_for_type/unit.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+structural_patterns_bool
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/bool.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+structural_patterns_hell
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/hell.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+structural_patterns_list
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/list.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+structural_patterns_nat
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/nat.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"0"` found at 445:446
+    Expected one of "=>", "as" or "cast"
+"#]]
+
+structural_patterns_nat2
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/nat2.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#structural-patterns
+"#]]
+
+structural_patterns_record
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/record.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+structural_patterns_tuple
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/tuple.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+structural_patterns_unit
+include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/unit.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#natural-literals
+    	#structural-patterns
+"#]]
+
+ambiguous_list
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/ambiguous_list/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#lists
+"#]]
+
+ambiguous_sum_type
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/ambiguous_sum_type/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#sum-types
+"#]]
+
+ambiguous_variant_type
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/ambiguous_variant_type/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
+    	#structural-patterns
+"#]]
+
+duplicate_function_declaration
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_function_declaration/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 59:60
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+duplicate_record_fields
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_record_fields/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+"#]]
+
+duplicate_record_type_fields
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_record_type_fields/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+"#]]
+
+duplicate_variant_type_fields
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_variant_type_fields/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
+"#]]
+
+illegal_empty_matching
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/illegal_empty_matching/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#sum-types
+"#]]
+
+missing_main
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/missing_main/primitive.stella")
+=> expect![[r#"
+    1
+    ERROR_MISSING_MAIN
+    `main` is missing or is not a function
+"#]]
+
+missing_record_fields
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/missing_record_fields/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+"#]]
+
+nonexhaustive_match_patterns
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/nonexhaustive_match_patterns/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#sum-types
+"#]]
+
+fix
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/fix.stella")
+=> expect![]
+
+if_funcs_bad
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/if-funcs.stella")
+=> expect![]
+
+not_a_function
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/primitive.stella")
+=> expect![]
+
+triple
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/triple.stella")
+=> expect![]
+
+not_a_list
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_list/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#lists
+"#]]
+
+not_a_record
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_record/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+"#]]
+
+not_a_tuple
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_tuple/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+"#]]
+
+tuple_index_out_of_bounds
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/tuple_index_out_of_bounds/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+"#]]
+
+undefined_variable
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/undefined_variable/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 54:55
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+unexpected_field_access
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_field_access/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 106:107
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+unexpected_injection
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_injection/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 83:84
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+unexpected_lambda
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_lambda/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 105:106
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+unexpected_list
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_list/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 85:86
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+unexpected_pattern_for_type
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_pattern_for_type/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#sum-types
+    	#variants
+"#]]
+
+unexpected_record
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_record/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+"#]]
+
+unexpected_record_fields
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_record_fields/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+"#]]
+
+unexpected_tuple
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_tuple/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+"#]]
+
+unexpected_tuple_length
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_tuple_length/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+"#]]
+
+unexpected_type_for_expression
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_expression/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 58:59
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+unexpected_type_for_parameter
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_parameter/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 99:100
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+unexpected_variant
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_variant/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 93:94
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+unexpected_variant_label
+include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_variant_label/primitive.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 113:114
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+abstraction
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/abstraction.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 119:120
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+ascription
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/ascription.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#type-ascriptions
+    	#sum-types
+"#]]
+
+factorial
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/factorial.stella")
+=> expect![]
+
+fix_primitive
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/fix-primitive.stella")
+=> expect![]
+
+func_chain
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/func-chain.stella")
+=> expect![]
+
+func_chain2
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/func-chain2.stella")
+=> expect![]
+
+if_funcs
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/if-funcs.stella")
+=> expect![]
+
+lists
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/lists.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#lists
+"#]]
+
+logic
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/logic.stella")
+=> expect![]
+
+math
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/math.stella")
+=> expect![]
+
+pairs
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/pairs.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 82:83
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+records
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/records.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+"#]]
+
+sample
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/sample.stella")
+=> expect![]
+
+shadowing
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/shadowing.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 96:97
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+square
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/square.stella")
+=> expect![]
+
+sum_types
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/sum-types.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#sum-types
+"#]]
+
+tuples
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/tuples.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+"#]]
+
+unit
+include_str!("../tests/ThatDraenGuy/stage1/well-typed/unit.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+"#]]
+
+conflicting_exception_declarations
+include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/conflicting_exception_declarations/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
+    	#nested-function-declarations
+    	#exception-type-declaration
+    	#open-variant-exceptions
+"#]]
+
+duplicate_exception_type
+include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/duplicate_exception_type/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
+    	#exception-type-declaration
+"#]]
+
+duplicate_exception_variant
+include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/duplicate_exception_variant/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
+    	#exception-type-declaration
+    	#open-variant-exceptions
+"#]]
+
+illegal_local_exception_type
+include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/illegal_local_exception_type/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
+    	#nested-function-declarations
+    	#exception-type-declaration
+"#]]
+
+illegal_local_open_variant_exception
+include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/illegal_local_open_variant_exception/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
+    	#nested-function-declarations
+    	#exception-type-declaration
+    	#open-variant-exceptions
+"#]]
+
+open_variant_exceptions
+include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/well-typed/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
+    	#exceptions
+    	#exception-type-declaration
+    	#open-variant-exceptions
+"#]]
+
+try_cast_as_bad
+include_str!("../tests/ThatDraenGuy/stage2/extra/try-cast-as/ill-typed/unexpected_type_for_expression/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#try-cast-as
+"#]]
+
+try_cast_as
+include_str!("../tests/ThatDraenGuy/stage2/extra/try-cast-as/well-typed/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#try-cast-as
+"#]]
+
+type_cast_patterns_bad
+include_str!("../tests/ThatDraenGuy/stage2/extra/type-cast-patterns/ill-typed/unexpected_subtype/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#structural-patterns
+    	#structural-subtyping
+    	#top-type
+    	#type-cast-patterns
+"#]]
+
+type_cast_patterns
+include_str!("../tests/ThatDraenGuy/stage2/extra/type-cast-patterns/well-typed/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#structural-patterns
+    	#structural-subtyping
+    	#top-type
+    	#type-cast-patterns
+"#]]
+
+ambiguous_panic_type
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_panic_type/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#let-bindings
+    	#let-patterns
+    	#panic
+"#]]
+
+ambiguous_reference_type
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_reference_type/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#let-bindings
+    	#let-patterns
+    	#references
+"#]]
+
+subtyping
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/missing_record_fields/subtyping.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+    	#let-bindings
+    	#let-patterns
+    	#structural-subtyping
+"#]]
+
+not_a_reference
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/not_a_reference/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#references
+"#]]
+
+unexpected_memory_address
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_memory_address/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#let-bindings
+    	#let-patterns
+    	#references
+"#]]
+
+unexpected_reference
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_reference/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#references
+"#]]
+
+invariant_ref_with_bot
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invariant-ref-with-bot.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+    	#let-bindings
+    	#let-patterns
+    	#references
+    	#structural-subtyping
+    	#top-type
+    	#bottom-type
+"#]]
+
+invariant_ref_with_top_in_ctx
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invariant-ref-with-top-in-ctx.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+    	#let-bindings
+    	#let-patterns
+    	#references
+    	#structural-subtyping
+    	#top-type
+    	#bottom-type
+"#]]
+
+invariant_ref_with_top
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invariant-ref-with-top.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+    	#let-bindings
+    	#let-patterns
+    	#references
+    	#structural-subtyping
+    	#top-type
+    	#bottom-type
+"#]]
+
+unexpected_subtype
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#structural-subtyping
+"#]]
+
+ref_chain
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/ref-chain.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#records
+    	#let-bindings
+    	#lists
+    	#let-patterns
+    	#sequencing
+    	#references
+    	#structural-subtyping
+    	#top-type
+    	#bottom-type
+"#]]
+
+sub_fn_stack_bad
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-fn-stack.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+    	#sequencing
+    	#panic
+    	#bottom-type
+"#]]
+
+sub_list_stack_bad
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-list-stack.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+"#]]
+
+sub_rec_stack_bad
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-rec-stack.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+"#]]
+
+sub_stack_bad
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-stack.stella")
+=> expect![]
+
+sub_sum_stack_bad
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-sum-stack.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+    	#sum-types
+"#]]
+
+sub_tuple_stack_bad
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-tuple-stack.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+    	#records
+    	#sum-types
+"#]]
+
+sub_var_stack_bad
+include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-var-stack.stella")
+=> expect![]
+
+deref
+include_str!("../tests/ThatDraenGuy/stage2/well-typed/deref.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#records
+    	#let-bindings
+    	#lists
+    	#let-patterns
+    	#sequencing
+    	#references
+    	#structural-subtyping
+    	#top-type
+    	#bottom-type
+"#]]
+
+inferred_mem
+include_str!("../tests/ThatDraenGuy/stage2/well-typed/inferred-mem.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#references
+"#]]
+
+invariant_ref_with_bot_in_ctx
+include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref-with-bot-in-ctx.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+    	#let-bindings
+    	#let-patterns
+    	#references
+    	#structural-subtyping
+    	#top-type
+    	#bottom-type
+"#]]
+
+invariant_ref
+include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+    	#let-bindings
+    	#let-patterns
+    	#references
+    	#structural-subtyping
+    	#top-type
+    	#bottom-type
+"#]]
+
+ref_assign
+include_str!("../tests/ThatDraenGuy/stage2/well-typed/ref-assign.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#records
+    	#let-bindings
+    	#lists
+    	#let-patterns
+    	#sequencing
+    	#references
+    	#structural-subtyping
+    	#top-type
+    	#bottom-type
+"#]]
+
+refs
+include_str!("../tests/ThatDraenGuy/stage2/well-typed/refs.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#let-bindings
+    	#sequencing
+    	#references
+"#]]
+
+sub_fn_stack
+include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-fn-stack.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+    	#sequencing
+    	#panic
+    	#structural-subtyping
+    	#bottom-type
+"#]]
+
+sub_list_stack
+include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-list-stack.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#structural-subtyping
+"#]]
+
+sub_rec_stack
+include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-rec-stack.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+    	#structural-subtyping
+"#]]
+
+sub_stack
+include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
+=> expect![]
+
+sub_sum_stack
+include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-sum-stack.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
+    	#sum-types
+    	#structural-subtyping
+"#]]
+
+sub_tuple_stack
+include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-tuple-stack.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+    	#records
+    	#sum-types
+    	#structural-subtyping
+"#]]
+
+sub_var_stack
+include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
+=> expect![]
+
+sum_type
+include_str!("../tests/ThatDraenGuy/stage3/extra/additional-error-codes/ill-typed/ambiguous_type/sum-type.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#pairs
+    	#records
+    	#sum-types
+    	#type-reconstruction
+"#]]
+
+duplicate_type_parameter
+include_str!("../tests/ThatDraenGuy/stage3/extra/additional-error-codes/ill-typed/duplicate_type_parameter/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#universal-types
+"#]]
+
+nested_generic
+include_str!("../tests/ThatDraenGuy/stage3/extra/additional-error-codes/well-typed/nested-generic.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#universal-types
+"#]]
+
+incorrect_number_of_type_arguments
+include_str!("../tests/ThatDraenGuy/stage3/ill-typed/incorrect_number_of_type_arguments/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#universal-types
+"#]]
+
+not_a_generic_function
+include_str!("../tests/ThatDraenGuy/stage3/ill-typed/not_a_generic_function/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#universal-types
+"#]]
+
+occurs_check_infinite_type
+include_str!("../tests/ThatDraenGuy/stage3/ill-typed/occurs_check_infinite_type/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#type-reconstruction
+"#]]
+
+undefined_type_variable
+include_str!("../tests/ThatDraenGuy/stage3/ill-typed/undefined_type_variable/primitive.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#universal-types
+"#]]
+
+type_recon_sample_bad
+include_str!("../tests/ThatDraenGuy/stage3/ill-typed/unexpected_type_for_expression/type-recon-sample.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 273:274
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
+
+wrong_pair
+include_str!("../tests/ThatDraenGuy/stage3/ill-typed/unexpected_type_for_expression/wrong-pair.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#pairs
+    	#type-reconstruction
+"#]]
+
+forall
+include_str!("../tests/ThatDraenGuy/stage3/well-typed/forall.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#universal-types
+"#]]
+
+generic
+include_str!("../tests/ThatDraenGuy/stage3/well-typed/generic.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#universal-types
+"#]]
+
+match_sum
+include_str!("../tests/ThatDraenGuy/stage3/well-typed/match-sum.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#sum-types
+    	#type-reconstruction
+"#]]
+
+multiple_generics
+include_str!("../tests/ThatDraenGuy/stage3/well-typed/multiple-generics.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#universal-types
+"#]]
+
+pair
+include_str!("../tests/ThatDraenGuy/stage3/well-typed/pair.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#pairs
+    	#type-reconstruction
+"#]]
+
+pair2
+include_str!("../tests/ThatDraenGuy/stage3/well-typed/pair2.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#pairs
+    	#let-bindings
+    	#pattern-ascriptions
+    	#let-patterns
+    	#type-reconstruction
+"#]]
+
+selfapp
+include_str!("../tests/ThatDraenGuy/stage3/well-typed/selfapp.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#universal-types
+"#]]
+
+sum_with_record
+include_str!("../tests/ThatDraenGuy/stage3/well-typed/sum-with-record.stella")
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#pairs
+    	#records
+    	#sum-types
+    	#type-reconstruction
+"#]]
+
+type_recon_sample_goot
+include_str!("../tests/ThatDraenGuy/stage3/well-typed/type-recon-sample.stella")
+=> expect![[r#"
+    -1
+    Parser error:
+    Unrecognized token `"}"` found at 262:263
+    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+"#]]
 
 }

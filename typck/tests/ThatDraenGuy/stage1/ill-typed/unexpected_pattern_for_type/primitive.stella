@@ -1,0 +1,10 @@
+language core;
+extend with #sum-types, #variants;
+
+fn main(n : Nat + Bool) -> Nat {
+  return match n {
+    inl(num) => num
+    | inr(_) => 0
+    | <| value = _ |> => 0
+  }
+}

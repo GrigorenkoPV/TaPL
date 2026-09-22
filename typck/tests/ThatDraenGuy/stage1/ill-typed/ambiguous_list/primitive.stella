@@ -1,0 +1,7 @@
+language core;
+
+extend with #lists;
+
+fn main(n : Nat) -> Nat {
+  return if List::isempty([]) then 0 else succ(0)
+}

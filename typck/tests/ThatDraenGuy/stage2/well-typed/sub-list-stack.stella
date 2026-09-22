@@ -1,0 +1,15 @@
+language core;
+
+extend with #structural-subtyping;
+extend with #records;
+extend with #sum-types;
+extend with #tuples;
+extend with #lists;
+
+fn test(n : Nat) -> [{a : Nat, b : Bool}] {
+  return []
+}
+
+fn main(n : Nat) -> [{a : Nat}] {
+  return test(n)
+}

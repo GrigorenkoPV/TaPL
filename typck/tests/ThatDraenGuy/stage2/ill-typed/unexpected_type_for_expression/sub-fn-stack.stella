@@ -1,0 +1,17 @@
+language core;
+
+extend with
+  #sequencing;
+extend with #records;
+extend with #bottom-type;
+extend with #panic;
+
+fn test(n : Nat) -> fn({a : Nat}) -> Bot {
+  return fn(rec : {a : Nat}) {
+    return panic!
+  }
+}
+
+fn main(n : Nat) -> fn({a : Nat, b : Bool}) -> Bool {
+  return test(n)
+}

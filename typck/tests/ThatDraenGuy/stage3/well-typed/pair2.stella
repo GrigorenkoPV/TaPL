@@ -1,0 +1,15 @@
+language core;
+
+extend with #type-reconstruction;
+extend with #pairs;
+extend with #let-bindings;
+extend with #let-patterns;
+extend with #pattern-ascriptions;
+
+fn test(n : auto) -> Nat {
+  return let x as Bool = n.2 in n.1
+}
+
+fn main(n : Nat) -> Nat {
+  return test({ n, true })
+}

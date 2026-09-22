@@ -1,0 +1,8 @@
+language core;
+extend with #multiparameter-functions;
+
+fn main(n : Nat) -> fn (Nat, Bool) -> Nat {
+  return fn(a : Nat, a : Bool) {
+    return 0;
+  }
+}

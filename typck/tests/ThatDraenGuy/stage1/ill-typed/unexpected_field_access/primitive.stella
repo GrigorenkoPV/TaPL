@@ -1,0 +1,6 @@
+language core;
+extend with #records;
+
+fn main(n : { num : Nat, bool : Bool }) -> Nat {
+  return n.status;
+}

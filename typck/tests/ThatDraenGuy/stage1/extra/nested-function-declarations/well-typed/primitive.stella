@@ -1,0 +1,14 @@
+language core;
+extend with #nested-function-declarations;
+
+
+fn twice(f : fn(Bool) -> Bool) -> (fn(Bool) -> Bool) {
+  fn result(x : Bool) -> Bool {
+    return f(f(x));
+  }
+  return result;
+}
+
+fn main(n : Nat) -> Bool {
+  return false;
+}

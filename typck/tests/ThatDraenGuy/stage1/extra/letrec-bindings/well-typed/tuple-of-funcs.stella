@@ -1,0 +1,20 @@
+language core;
+
+extend with #letrec-bindings;
+extend with #let-patterns;
+extend with #pattern-ascriptions;
+extend with #tuples;
+extend with #structural-patterns;
+extend with #lists;
+
+fn main(n : Nat) -> Nat {
+  return letrec {length, len} as {fn([Nat]) -> Nat, fn([Nat]) -> Nat}
+  ={
+   fn (xs : [Nat]) {
+    return if List::isempty(xs) then 0 else succ(len(List::tail(xs)))
+  },
+   fn (xs : [Nat]) {
+    return if List::isempty(xs) then 0 else succ(length(List::tail(xs)))
+  }
+  } in n;
+}

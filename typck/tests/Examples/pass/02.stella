@@ -1,0 +1,38 @@
+language core;
+
+extend with
+  #tuples,
+  #arithmetic-operators,
+  #natural-literals;
+
+fn prev(n : Nat) -> Nat {
+  return match n {
+    0 => 0
+  | succ(m) => m  
+  }
+} 
+
+fn add(n : Nat, m : Nat) -> Nat {
+  return fix(fn (f : fn(Nat) -> Nat) {
+    return fn (k : Nat) {
+      return if Nat::iszero(k) then n else succ(f(prev(k)))
+    }
+  })(m) 
+}
+
+
+fn helper(p : {Nat, Nat, Nat}) -> {Nat, Nat, Nat} {
+  return Nat::rec(p.1, p, fn (i : Nat) {
+    return fn(r : {Nat, Nat, Nat}) {
+      return {prev(r.1), r.3, add(r.2 , r.3)}
+    }
+  })
+}
+
+fn fib(n : Nat) -> Nat {
+  return helper({n,0,1}).2
+}
+
+fn main(n : Nat) -> Nat {
+  return fib(n)
+}

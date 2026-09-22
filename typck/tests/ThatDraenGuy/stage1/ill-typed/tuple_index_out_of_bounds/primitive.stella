@@ -1,0 +1,6 @@
+language core;
+extend with #tuples;
+
+fn main(n : {Nat, Bool, Nat}) -> Nat {
+  return if n.4 then succ(0) else 0
+}

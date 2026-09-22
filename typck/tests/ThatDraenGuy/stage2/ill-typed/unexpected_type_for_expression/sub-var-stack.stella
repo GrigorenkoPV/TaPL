@@ -1,0 +1,20 @@
+language core;
+
+extend with
+  #unit-type,
+  #references,
+  #arithmetic-operators,
+  #sequencing,
+  #natural-literals;
+extend with #records;
+extend with #bottom-type;
+extend with #panic;
+extend with #variants;
+
+fn test(n : Nat) -> <| c : <| c : Nat |> |> {
+  return <| c = <| c = 0 |> |>
+}
+
+fn main(n : Nat) -> <| c : <| c : Nat, d : Bool |>, d : Bool |> {
+  return test(n)
+}

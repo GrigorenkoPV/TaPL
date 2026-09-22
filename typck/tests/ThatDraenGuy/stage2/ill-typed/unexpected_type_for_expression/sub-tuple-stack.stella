@@ -1,0 +1,13 @@
+language core;
+
+extend with #records;
+extend with #sum-types;
+extend with #tuples;
+
+fn test(n : Nat) -> {{a : Nat, b : Bool}, Nat} {
+  return {{ a = 0, b = false }, 0}
+}
+
+fn main(n : Nat) -> {{a : Nat}, Nat} {
+  return test(n)
+}

@@ -1,0 +1,17 @@
+language core;
+
+extend with #structural-subtyping;
+extend with #references;
+extend with #top-type;
+extend with #bottom-type;
+extend with #let-bindings;
+extend with #let-patterns;
+extend with #records;
+
+fn use(rec : &{ a : Nat, b : Bool }) -> Nat {
+  return (*rec).a
+}
+
+fn main(n : Bot) -> Nat {
+  return let x = new(n) in use(x)
+}

@@ -1,0 +1,16 @@
+language core;
+extend with #nested-function-declarations;
+extend with #let-bindings;
+extend with #let-patterns;
+
+
+fn twice(f : fn(Bool) -> Bool) -> (fn(Bool) -> Bool) {
+  fn result(x : Bool) -> Bool {
+    return f(g(x));
+  }
+  return let g = f in result;
+}
+
+fn main(n : Nat) -> Bool {
+  return false;
+}

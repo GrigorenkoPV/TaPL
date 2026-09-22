@@ -1,0 +1,12 @@
+language core;
+extend with #let-bindings;
+extend with #let-patterns;
+extend with #tuples;
+extend with #structural-patterns;
+extend with #letrec-bindings;
+extend with #pattern-ascriptions;
+
+
+fn main(n : Nat) -> Nat {
+  return letrec {a as Nat, a as Nat} = {a, succ(a)} in 0;
+}

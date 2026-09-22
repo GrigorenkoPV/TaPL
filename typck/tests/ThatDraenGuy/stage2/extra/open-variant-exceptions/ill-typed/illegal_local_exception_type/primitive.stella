@@ -1,0 +1,11 @@
+language core;
+
+extend with #exception-type-declaration;
+extend with #variants;
+extend with #nested-function-declarations;
+
+fn main(n : Nat) -> Nat {
+  exception type = <| good : Bool |>
+
+  return 0
+}

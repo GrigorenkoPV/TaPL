@@ -1,0 +1,6 @@
+language core;
+
+
+fn main(n : Nat) -> Nat {
+  return if n(true) then succ(0) else 0
+}
