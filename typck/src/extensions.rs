@@ -14,7 +14,7 @@ pub(crate) enum Extension {
     SumTypes,
     Lists,
     Variants,
-    FixpointCombinators,
+    FixpointCombinator,
 
     // Stage 1 (optional)
     NaturalLiterals,
@@ -75,7 +75,7 @@ impl Extension {
             | Self::SumTypes
             | Self::Lists
             | Self::Variants
-            | Self::FixpointCombinators
+            | Self::FixpointCombinator
             | Self::NaturalLiterals
             | Self::NestedFunctionDeclarations
             | Self::StructuralPatterns

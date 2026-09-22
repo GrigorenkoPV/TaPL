@@ -230,7 +230,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
                     self.require(Extension::NullaryVariantLabels)
                 }
             }
-            Expr::Fix(_) => self.require(Extension::FixpointCombinators),
+            Expr::Fix(_) => self.require(Extension::FixpointCombinator),
 
             Expr::Seq(_) => self.require(Extension::Sequencing),
             Expr::Assign { .. } | Expr::New(_) | Expr::Deref(_) | Expr::Address(_) => {

@@ -134,7 +134,7 @@ include_str!("../tests/Examples/fail/malformed-fix.stella")
     254
     ERROR_MISSING_EXTENSIONS
     the following extensions are required but not enabled:
-    	#fixpoint-combinators
+    	#fixpoint-combinator
 "#]]
 
 no_main_nat_add
@@ -160,7 +160,7 @@ include_str!("../tests/Examples/fail/not-a-function-02.stella")
     254
     ERROR_MISSING_EXTENSIONS
     the following extensions are required but not enabled:
-    	#fixpoint-combinators
+    	#fixpoint-combinator
 "#]]
 
 not_a_list_01
@@ -448,7 +448,14 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-ty
 
 multiparameter_incorrect_number_of_arguments_fix
 include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-typed/incorrect_number_of_arguments/fix.stella")
-=> expect![]
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#let-bindings
+    	#fixpoint-combinator
+    	#let-patterns
+"#]]
 
 multiparameter_incorrect_number_of_arguments
 include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-typed/incorrect_number_of_arguments/primitive.stella")
@@ -1006,7 +1013,14 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/nonexhaustive_match_pattern
 
 fix
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/fix.stella")
-=> expect![]
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#let-bindings
+    	#fixpoint-combinator
+    	#let-patterns
+"#]]
 
 if_funcs_bad
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/if-funcs.stella")
@@ -1208,7 +1222,14 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/factorial.stella")
 
 fix_primitive
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/fix-primitive.stella")
-=> expect![]
+=> expect![[r#"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#let-bindings
+    	#fixpoint-combinator
+    	#let-patterns
+"#]]
 
 func_chain
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/func-chain.stella")

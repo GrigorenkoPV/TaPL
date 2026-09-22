@@ -54,7 +54,7 @@ fn parse_extension(extension: &str) -> Extension {
     match extension.strip_prefix("#") {
         None => unreachable!(),
         Some(extension) => match extension.parse() {
-            Err(e) => todo!("Report: {e:?}"),
+            Err(e) => todo!("Report: {e:?}: {extension:?}"),
             Ok(extension) => extension,
         },
     }
