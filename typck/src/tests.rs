@@ -107,7 +107,15 @@ fn main(n : Nat) -> Nat {
 
 ambigous_list
 include_str!("../tests/Examples/fail/ambigous-list.stella")
-=> expect![]
+=> expect![[r#"
+    254
+    ERROR_MISSING_EXTENSIONS
+    the following extensions are required but not enabled:
+    	#lists
+    	#natural-literals
+    	#nullary-functions
+    	at least one of: #pairs, #tuples
+"#]]
 
 ambitious_injection_on_top
 include_str!("../tests/Examples/fail/ambitious-injection-on-top.stella")
@@ -185,13 +193,20 @@ include_str!("../tests/Examples/fail/not-a-record-01.stella")
     	#records
 "#]]
 
+#[should_panic(expected = "not yet implemented: Check Function(Function")]
 not_a_tuple_01
 include_str!("../tests/Examples/fail/not-a-tuple-01.stella")
 => expect![]
 
 not_a_tuple_02
 include_str!("../tests/Examples/fail/not-a-tuple-02.stella")
-=> expect![]
+=> expect![[r#"
+    254
+    ERROR_MISSING_EXTENSIONS
+    the following extensions are required but not enabled:
+    	#records
+    	at least one of: #pairs, #tuples
+"#]]
 
 #[should_panic(expected = "not yet implemented: Check Function(Function")]
 undefined_var_01
@@ -246,7 +261,13 @@ include_str!("../tests/Examples/fail/unexpected-tuple.stella")
 
 wrong_arity_main
 include_str!("../tests/Examples/fail/wrong_arity_main.stella")
-=> expect![]
+=> expect![[r#"
+    254
+    ERROR_MISSING_EXTENSIONS
+    the following extensions are required but not enabled:
+    	#multiparameter-functions
+    	at least one of: #pairs, #tuples
+"#]]
 
 
 #[should_panic(expected = "not yet implemented: Check Function(Function")]

@@ -1,4 +1,4 @@
-use core::{fmt, num::NonZero};
+use core::{fmt, mem, num::NonZero};
 use std::collections::btree_set::BTreeSet;
 
 use culpa::throws;
@@ -182,7 +182,10 @@ pub(crate) enum Error<'src> {
     // Custom:
     //
     UnsupportedExtensions(BTreeSet<&'src Extension>),
-    MissingExtensions(Extensions),
+    MissingExtensions {
+        mandatory: Extensions,
+        choosable: BTreeSet<Extensions>,
+    },
 }
 
 impl core::error::Error for Error<'_> {}
@@ -196,10 +199,24 @@ impl fmt::Display for Error<'_> {
         match self {
             Self::MissingMain => writeln!(f, "`main` is missing or is not a function")?,
 
-            Self::MissingExtensions(extensions) => {
+            Self::MissingExtensions {
+                mandatory,
+                choosable,
+            } => {
                 writeln!(f, "the following extensions are required but not enabled:")?;
-                for ext in extensions {
+                for ext in mandatory {
                     writeln!(f, "\t{ext}")?
+                }
+                for options in choosable {
+                    write!(f, "\tat least one of: ")?;
+                    let mut first = true;
+                    for option in options {
+                        if !mem::replace(&mut first, false) {
+                            write!(f, ", ")?
+                        }
+                        write!(f, "{option}")?
+                    }
+                    writeln!(f)?
                 }
             }
             Self::UnsupportedExtensions(extensions) => {
@@ -294,7 +311,7 @@ impl Error<'_> {
             Error::UndefinedTypeVariable => nz!(42),
 
             Error::UnsupportedExtensions(_) => nz!(253),
-            Error::MissingExtensions(_) => nz!(254),
+            Error::MissingExtensions { .. } => nz!(254),
         }
     }
 }

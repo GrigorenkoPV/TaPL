@@ -15,18 +15,29 @@ use crate::{
 struct GateCollector<'a> {
     enabled: &'a Extensions,
     missing: Extensions,
+    missing_one_of: BTreeSet<Extensions>,
     is_in_global_scope: bool,
 }
 
 impl GateCollector<'_> {
+    #[expect(
+        clippy::collapsible_if,
+        clippy::needless_pass_by_value,
+        reason = "`insert` does not return the reference to the inserted element
+        BTreeSet entries are unstable
+        so a needless `clone` it is instead
+        "
+    )]
     fn require(&mut self, extension: Extension) {
         if !self.enabled.contains(&extension) {
-            let _: bool = self.missing.insert(extension);
+            if self.missing.insert(extension.clone()) {
+                self.missing_one_of
+                    .retain(|options| !options.contains(&extension));
+            }
         }
     }
-    fn require_one_of<const N: usize>(&mut self, extensions: [Extension; N]) {
-        const { assert!(N != 0, "Cannot require one of 0 extensions to be enabled") }
-        const { assert!(N != 1, "Just use `require` instead") }
+    fn require_one_of(&mut self, extensions: Extensions) {
+        debug_assert!(!extensions.is_empty(), "Cannot require one of ∅");
         for ext in &extensions {
             if self.enabled.contains(ext) {
                 return;
@@ -37,7 +48,13 @@ impl GateCollector<'_> {
                 return;
             }
         }
-        todo!()
+        for other in &self.missing_one_of {
+            if extensions.is_subset(other) {
+                return;
+            }
+        }
+        let inserted: bool = self.missing_one_of.insert(extensions);
+        debug_assert!(inserted, "should've bailed on `is_subset` otherwise");
     }
 
     fn require_fn_arity(&mut self, arity: usize) {
@@ -49,7 +66,7 @@ impl GateCollector<'_> {
     }
 
     fn require_pairs_or_tuples(&mut self) {
-        self.require_one_of([Extension::Pairs, Extension::Tuples])
+        self.require_one_of([Extension::Pairs, Extension::Tuples].into())
     }
 
     fn require_tuple_arity(&mut self, arity: usize) {
@@ -162,7 +179,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
     fn visit_pat(&mut self, pat: &Pattern<'ctx>) {
         match pat {
             Pattern::Var(_) => {
-                self.require_one_of([Extension::LetBindings, Extension::SumTypes]);
+                self.require_one_of([Extension::LetBindings, Extension::SumTypes].into());
             }
             Pattern::Inl(_) | Pattern::Inr(_) => self.require(Extension::SumTypes),
             Pattern::Variant { label: _, pat } => {
@@ -274,12 +291,14 @@ pub(super) fn check_extensions<'src>(program: &'src Program<'src>) {
     let mut collector = GateCollector {
         enabled,
         missing: Extensions::new(),
+        missing_one_of: BTreeSet::new(),
         is_in_global_scope: true,
     };
     collector.visit_program(program);
     let GateCollector {
         enabled,
         missing,
+        missing_one_of,
         is_in_global_scope: _,
     } = collector;
     if !missing.is_empty() {
@@ -289,6 +308,9 @@ pub(super) fn check_extensions<'src>(program: &'src Program<'src>) {
                 "\"Missing\" extension {ext:?} is actually enabled"
             )
         }
-        throw!(Error::MissingExtensions(missing))
+        throw!(Error::MissingExtensions {
+            mandatory: missing,
+            choosable: missing_one_of
+        })
     }
 }

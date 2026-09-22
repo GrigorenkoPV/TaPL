@@ -1,7 +1,9 @@
 use core::fmt::{self, Write};
 use std::collections::btree_set::BTreeSet;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, strum::IntoStaticStr, strum::EnumString)]
+#[derive(
+    Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, strum::IntoStaticStr, strum::EnumString,
+)]
 #[strum(serialize_all = "kebab-case")]
 pub(crate) enum Extension {
     // Stage 1
