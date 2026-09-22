@@ -1,5 +1,7 @@
 language core;
 
+extend with #tuples;
+
 fn run(f : fn (Nat) -> Nat) -> Nat {
     return f(0);
 }

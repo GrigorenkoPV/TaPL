@@ -1,5 +1,7 @@
 language core;
 
+extend with #tuples, #lists;
+
 fn produce_tuple(n : Nat) -> {} {
     return {}
 }

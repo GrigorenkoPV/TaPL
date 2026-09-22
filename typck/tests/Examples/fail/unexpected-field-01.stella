@@ -1,5 +1,7 @@
 language core;
 
+extend with #records, #natural-literals, #nullary-functions;
+
 fn main() -> Bool {
     return {a = true, b = 1}.c
-} 
+}

@@ -108,13 +108,12 @@ fn main(n : Nat) -> Nat {
 ambigous_list
 include_str!("../tests/Examples/fail/ambigous-list.stella")
 => expect![[r#"
-    254
-    ERROR_MISSING_EXTENSIONS
-    the following extensions are required but not enabled:
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#pairs
     	#lists
     	#natural-literals
-    	#nullary-functions
-    	at least one of: #pairs, #tuples
 "#]]
 
 ambitious_injection_on_top
@@ -141,9 +140,9 @@ include_str!("../tests/Examples/fail/duplicate-func.stella")
 malformed_fix
 include_str!("../tests/Examples/fail/malformed-fix.stella")
 => expect![[r#"
-    254
-    ERROR_MISSING_EXTENSIONS
-    the following extensions are required but not enabled:
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
     	#fixpoint-combinator
 "#]]
 
@@ -155,30 +154,26 @@ include_str!("../tests/Examples/fail/no-main.stella")
     `main` is missing or is not a function
 "#]]
 
+#[should_panic(expected = "not yet implemented: Check Function(Function")]
 not_a_function_01
 include_str!("../tests/Examples/fail/not-a-function-01.stella")
-=> expect![[r#"
-    254
-    ERROR_MISSING_EXTENSIONS
-    the following extensions are required but not enabled:
-    	#multiparameter-functions
-"#]]
+=> expect![]
 
 not_a_function_02
 include_str!("../tests/Examples/fail/not-a-function-02.stella")
 => expect![[r#"
-    254
-    ERROR_MISSING_EXTENSIONS
-    the following extensions are required but not enabled:
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
     	#fixpoint-combinator
 "#]]
 
 not_a_list_01
 include_str!("../tests/Examples/fail/not-a-list-01.stella")
 => expect![[r#"
-    254
-    ERROR_MISSING_EXTENSIONS
-    the following extensions are required but not enabled:
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
     	#tuples
     	#lists
 "#]]
@@ -186,11 +181,10 @@ include_str!("../tests/Examples/fail/not-a-list-01.stella")
 not_a_record_01
 include_str!("../tests/Examples/fail/not-a-record-01.stella")
 => expect![[r#"
-    254
-    ERROR_MISSING_EXTENSIONS
-    the following extensions are required but not enabled:
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
     	#tuples
-    	#records
 "#]]
 
 #[should_panic(expected = "not yet implemented: Check Function(Function")]
@@ -201,11 +195,10 @@ include_str!("../tests/Examples/fail/not-a-tuple-01.stella")
 not_a_tuple_02
 include_str!("../tests/Examples/fail/not-a-tuple-02.stella")
 => expect![[r#"
-    254
-    ERROR_MISSING_EXTENSIONS
-    the following extensions are required but not enabled:
-    	#records
-    	at least one of: #pairs, #tuples
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#pairs
 "#]]
 
 #[should_panic(expected = "not yet implemented: Check Function(Function")]
@@ -221,12 +214,11 @@ include_str!("../tests/Examples/fail/undefined-var-02.stella")
 unexpected_field_01
 include_str!("../tests/Examples/fail/unexpected-field-01.stella")
 => expect![[r#"
-    254
-    ERROR_MISSING_EXTENSIONS
-    the following extensions are required but not enabled:
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
     	#records
     	#natural-literals
-    	#nullary-functions
 "#]]
 
 #[should_panic(expected = "not yet implemented: Check Function(Function")]
@@ -242,31 +234,29 @@ include_str!("../tests/Examples/fail/unexpected-lambda-02.stella")
 unexpected_param_type_01
 include_str!("../tests/Examples/fail/unexpected-param-type-01.stella")
 => expect![[r#"
-    254
-    ERROR_MISSING_EXTENSIONS
-    the following extensions are required but not enabled:
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
     	#tuples
 "#]]
 
 unexpected_tuple_2
 include_str!("../tests/Examples/fail/unexpected-tuple.stella")
 => expect![[r#"
-    254
-    ERROR_MISSING_EXTENSIONS
-    the following extensions are required but not enabled:
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
     	#tuples
     	#natural-literals
-    	#nullary-functions
 "#]]
 
 wrong_arity_main
 include_str!("../tests/Examples/fail/wrong_arity_main.stella")
 => expect![[r#"
-    254
-    ERROR_MISSING_EXTENSIONS
-    the following extensions are required but not enabled:
-    	#multiparameter-functions
-    	at least one of: #pairs, #tuples
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#pairs
 "#]]
 
 
@@ -289,9 +279,9 @@ include_str!("../tests/Examples/pass/02.stella")
 ascription2
 include_str!("../tests/Examples/pass/ascription.stella")
 => expect![[r#"
-    254
-    ERROR_MISSING_EXTENSIONS
-    the following extensions are required but not enabled:
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
     	#records
     	#type-ascriptions
     	#lists

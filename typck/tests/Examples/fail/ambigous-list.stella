@@ -1,5 +1,7 @@
 language core;
 
+extend with #lists, #natural-literals, #nullary-functions, #pairs;
+
 fn main() -> Nat {
-    return {[], 1}.1 
+    return {[], 1}.1
 }
