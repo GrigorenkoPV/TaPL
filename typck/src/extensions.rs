@@ -107,3 +107,14 @@ impl Extension {
         }
     }
 }
+
+#[expect(clippy::tests_outside_test_module, reason = "just a single test")]
+#[test]
+fn supported() {
+    if Extension::Tuples.supported() {
+        assert!(
+            Extension::Pairs.supported(),
+            "tuples are a superset of pairs"
+        )
+    }
+}

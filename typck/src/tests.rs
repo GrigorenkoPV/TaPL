@@ -105,8 +105,8 @@ fn main(n : Nat) -> Nat {
 "
 => expect![]
 
-ambigous_list
-include_str!("../tests/Examples/fail/ambigous-list.stella")
+ambiguous_list_bad
+include_str!("../tests/Examples/fail/ambiguous-list.stella")
 => expect![[r#"
     253
     ERROR_UNSUPPORTED_EXTENSIONS
