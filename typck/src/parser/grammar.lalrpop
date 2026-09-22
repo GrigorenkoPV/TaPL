@@ -103,7 +103,7 @@ match {
     r"#([\-_0-9A-Za-z])+" => EXTENSION,
     r"<0x[0-9a-fA-F]+>" => ADDRESS,
     r"[_a-zA-Z][_a-zA-Z0-9!\-:?_]*" => IDENT,
-    r"[0-9]" => INTEGER,
+    r"[0-9]+" => INTEGER,
 }
 
 SepWith1<Sep, T>: Vec<T> = {

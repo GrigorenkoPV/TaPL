@@ -113,7 +113,6 @@ include_str!("../tests/Examples/fail/ambiguous-list.stella")
     the following unsupported extensions are enabled:
     	#pairs
     	#lists
-    	#natural-literals
 "#]]
 
 ambitious_injection_on_top
@@ -218,7 +217,6 @@ include_str!("../tests/Examples/fail/unexpected-field-01.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#natural-literals
 "#]]
 
 #[should_panic(expected = "not yet implemented: Check Function(Function")]
@@ -247,7 +245,6 @@ include_str!("../tests/Examples/fail/unexpected-tuple.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#tuples
-    	#natural-literals
 "#]]
 
 wrong_arity_main
@@ -272,7 +269,6 @@ include_str!("../tests/Examples/pass/02.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#tuples
-    	#natural-literals
     	#arithmetic-operators
 "#]]
 
@@ -285,7 +281,6 @@ include_str!("../tests/Examples/pass/ascription.stella")
     	#records
     	#type-ascriptions
     	#lists
-    	#natural-literals
 "#]]
 
 empty_list
@@ -333,7 +328,6 @@ include_str!("../tests/Examples/pass/letrec.stella")
     	#unit-type
     	#tuples
     	#lists
-    	#natural-literals
     	#nested-function-declarations
     	#structural-patterns
     	#letrec-bindings
@@ -352,7 +346,6 @@ include_str!("../tests/Examples/pass/match.stella")
     the following unsupported extensions are enabled:
     	#type-ascriptions
     	#sum-types
-    	#natural-literals
 "#]]
 
 sub_asc
@@ -491,23 +484,15 @@ multiparameter_functions
 include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/well-typed/primitive.stella")
 => expect![]
 
+#[should_panic(expected = "not yet implemented: Check Function(Function")]
 natural_literals_bad
 include_str!("../tests/ThatDraenGuy/stage1/extra/natural-literals/ill-typed/unexpected_type_for_expression/primitive.stella")
-=> expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"5"` found at 85:86
-    Expected one of "!=", "(", "*", "+", "-", ".", "/", ":=", ";", "<", "<=", "==", ">", ">=", "[", "and", "as", "cast", "or" or "}"
-"#]]
+=> expect![]
 
+#[should_panic(expected = "not yet implemented: Check Function(Function")]
 natural_literals
 include_str!("../tests/ThatDraenGuy/stage1/extra/natural-literals/well-typed/primitive.stella")
-=> expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"5"` found at 551:552
-    Expected one of "!=", "(", ")", "*", "+", ",", "-", ".", "/", ":=", ";", "<", "<=", "==", ">", ">=", "[", "and", "as", "cast" or "or"
-"#]]
+=> expect![]
 
 nested_factorial_bad
 include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/ill-typed/undefined_variable/factorial.stella")
@@ -640,7 +625,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/d
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
@@ -656,7 +640,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
@@ -672,7 +655,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
@@ -688,7 +670,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
@@ -704,17 +685,22 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
 nonexhaustive_match_patterns_nat
 include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/nonexhaustive_match_patterns/nat.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"0"` found at 447:448
-    Expected one of "=>", "as" or "cast"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#structural-patterns
 "#]]
 
 nonexhaustive_match_patterns_nat2
@@ -738,7 +724,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
@@ -754,7 +739,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
@@ -770,7 +754,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/u
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
@@ -786,7 +769,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/u
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
@@ -802,7 +784,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/u
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
@@ -818,7 +799,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
@@ -834,7 +814,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
@@ -850,17 +829,22 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
 structural_patterns_nat
 include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/nat.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"0"` found at 445:446
-    Expected one of "=>", "as" or "cast"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#tuples
+    	#records
+    	#sum-types
+    	#lists
+    	#variants
+    	#structural-patterns
 "#]]
 
 structural_patterns_nat2
@@ -884,7 +868,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
@@ -900,7 +883,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
@@ -916,7 +898,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     	#sum-types
     	#lists
     	#variants
-    	#natural-literals
     	#structural-patterns
 "#]]
 
@@ -1604,7 +1585,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     	#unit-type
     	#records
     	#variants
-    	#natural-literals
     	#sequencing
     	#references
     	#panic
@@ -1642,7 +1622,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     	#unit-type
     	#records
     	#variants
-    	#natural-literals
     	#sequencing
     	#references
     	#panic
@@ -1782,7 +1761,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
     	#unit-type
     	#records
     	#variants
-    	#natural-literals
     	#sequencing
     	#references
     	#panic
@@ -1823,7 +1801,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
     	#unit-type
     	#records
     	#variants
-    	#natural-literals
     	#sequencing
     	#references
     	#panic

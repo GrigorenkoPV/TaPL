@@ -69,7 +69,7 @@ impl Extension {
     #[must_use]
     pub(crate) const fn supported(&self) -> bool {
         match self {
-            Self::NullaryFunctions | Self::MultiparameterFunctions => true,
+            Self::NullaryFunctions | Self::MultiparameterFunctions | Self::NaturalLiterals => true,
 
             Self::UnitType
             | Self::Pairs
@@ -81,7 +81,6 @@ impl Extension {
             | Self::Lists
             | Self::Variants
             | Self::FixpointCombinator
-            | Self::NaturalLiterals
             | Self::NestedFunctionDeclarations
             | Self::StructuralPatterns
             | Self::NullaryVariantLabels

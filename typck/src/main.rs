@@ -43,7 +43,7 @@ fn main() -> ExitCode {
         Ok(Ok(())) => ExitCode::SUCCESS,
         Ok(Err(exit_code)) => ExitCode::from(exit_code.get()),
         Err(internal_err) => {
-            eprintln!("Internal error:\n{internal_err:#?}");
+            eprintln!("Internal error:\n{internal_err:?}");
             ExitCode::from(u8::MAX)
         }
     }
