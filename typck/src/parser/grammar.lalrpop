@@ -245,7 +245,7 @@ Expr: Expr<'input> = {
     <Expr1> ";" <Expr> => Expr::Seq(Box::new([<>])),
     <rec: LetOrLetRec> <bindings: PatternBindings> "in" <body: Box<Expr>> => Expr::Let { <> },
     "generic" "[" <generics: Generics> "]" <expr: Box<Expr>> => Expr::Generic { <> },
-    Expr1
+    <Expr1> ";"?
 }
 
 Expr1: Expr<'input> = {

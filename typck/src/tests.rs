@@ -131,10 +131,10 @@ include_str!("../tests/Examples/fail/duplicate-func.stella")
 malformed_fix
 include_str!("../tests/Examples/fail/malformed-fix.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 70:71
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    254
+    ERROR_MISSING_EXTENSIONS
+    the following extensions are required but not enabled:
+    	#fixpoint-combinators
 "#]]
 
 no_main_nat_add
@@ -231,10 +231,10 @@ include_str!("../tests/Examples/fail/unexpected-lambda-02.stella")
 unexpected_param_type_01
 include_str!("../tests/Examples/fail/unexpected-param-type-01.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 70:71
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    254
+    ERROR_MISSING_EXTENSIONS
+    the following extensions are required but not enabled:
+    	#tuples
 "#]]
 
 unexpected_tuple_2
@@ -263,10 +263,13 @@ include_str!("../tests/Examples/pass/02.stella")
 ascription2
 include_str!("../tests/Examples/pass/ascription.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 91:92
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    254
+    ERROR_MISSING_EXTENSIONS
+    the following extensions are required but not enabled:
+    	#records
+    	#type-ascriptions
+    	#lists
+    	#natural-literals
 "#]]
 
 empty_list
@@ -337,10 +340,16 @@ include_str!("../tests/Examples/pass/sub-asc.stella")
 sub_match
 include_str!("../tests/Examples/pass/sub-match.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 322:323
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#unit-type
+    	#records
+    	#let-bindings
+    	#type-ascriptions
+    	#structural-patterns
+    	#let-patterns
+    	#structural-subtyping
 "#]]
 
 func
@@ -364,55 +373,77 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-type
 r#let
 include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-typed/duplicate_let_binding/let.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 187:188
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+    	#let-bindings
+    	#structural-patterns
+    	#let-patterns
 "#]]
 
 letrec_bad
 include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-typed/duplicate_let_binding/letrec.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 274:275
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+    	#let-bindings
+    	#structural-patterns
+    	#letrec-bindings
+    	#pattern-ascriptions
+    	#let-patterns
 "#]]
 
 tuple_of_funcs_bad
 include_str!("../tests/ThatDraenGuy/stage1/extra/letrec-bindings/ill-typed/unexpected_type_for_expression/tuple-of-funcs.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 489:490
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+    	#lists
+    	#structural-patterns
+    	#letrec-bindings
+    	#pattern-ascriptions
+    	#let-patterns
 "#]]
 
 tuple_of_funcs
 include_str!("../tests/ThatDraenGuy/stage1/extra/letrec-bindings/well-typed/tuple-of-funcs.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 488:489
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+    	#lists
+    	#structural-patterns
+    	#letrec-bindings
+    	#pattern-ascriptions
+    	#let-patterns
 "#]]
 
 tuple_of_funcs2
 include_str!("../tests/ThatDraenGuy/stage1/extra/letrec-bindings/well-typed/tuple-of-funcs2.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 488:489
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
+    	#lists
+    	#structural-patterns
+    	#letrec-bindings
+    	#pattern-ascriptions
+    	#let-patterns
 "#]]
 
 multiparameter_incorrect_arity_of_main
 include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-typed/incorrect_arity_of_main/primitive.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 103:104
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    113
+    ERROR_INCORRECT_ARITY_OF_MAIN
+    `main` has 2 arguments, but is expected to have 1
 "#]]
 
 multiparameter_incorrect_number_of_arguments_fix
@@ -467,10 +498,12 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/il
 nested_function_declarations_bad
 include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/ill-typed/undefined_variable/primitive.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 223:224
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#let-bindings
+    	#nested-function-declarations
+    	#let-patterns
 "#]]
 
 nested_factorial
@@ -485,19 +518,18 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/we
 nested_function_declarations
 include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/well-typed/primitive.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 169:170
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#nested-function-declarations
 "#]]
 
 nullary_incorrect_arity_of_main
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-functions/ill-typed/incorrect_arity_of_main/primitive.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 79:80
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    113
+    ERROR_INCORRECT_ARITY_OF_MAIN
+    `main` has 0 arguments, but is expected to have 1
 "#]]
 
 nullary_incorrect_number_of_arguments
@@ -521,55 +553,64 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-functions/well-typed/pr
 missing_data_for_label
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-typed/missing_data_for_label/primitive.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 130:131
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
+    	#nullary-variant-labels
 "#]]
 
 unexpected_data_for_nullary_label
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-typed/unexpected_data_for_nullary_label/primitive.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 128:129
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
+    	#nullary-variant-labels
 "#]]
 
 unexpected_non_nullary_variant_pattern
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-typed/unexpected_non_nullary_variant_pattern/primitive.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 225:226
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
+    	#structural-patterns
+    	#nullary-variant-labels
 "#]]
 
 unexpected_nullary_variant_pattern
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-typed/unexpected_nullary_variant_pattern/primitive.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 227:228
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
+    	#structural-patterns
+    	#nullary-variant-labels
 "#]]
 
 nullary_variant_labels_match
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/well-typed/match.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 221:222
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
+    	#structural-patterns
+    	#nullary-variant-labels
 "#]]
 
 nullary_variant_labels
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/well-typed/primitive.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 128:129
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
+    	#nullary-variant-labels
 "#]]
 
 duplicate_record_pattern_fields
@@ -1027,19 +1068,19 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/undefined_variable/primitiv
 unexpected_field_access
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_field_access/primitive.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 106:107
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#records
 "#]]
 
 unexpected_injection
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_injection/primitive.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 83:84
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#sum-types
 "#]]
 
 unexpected_lambda
@@ -1054,10 +1095,10 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_lambda/primitive
 unexpected_list
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_list/primitive.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 85:86
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#lists
 "#]]
 
 unexpected_pattern_for_type
@@ -1127,19 +1168,19 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_paramet
 unexpected_variant
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_variant/primitive.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 93:94
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
 "#]]
 
 unexpected_variant_label
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_variant_label/primitive.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 113:114
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#variants
 "#]]
 
 abstraction
@@ -1201,10 +1242,10 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/math.stella")
 pairs
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/pairs.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 82:83
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#pairs
 "#]]
 
 records
@@ -1793,10 +1834,10 @@ include_str!("../tests/ThatDraenGuy/stage3/ill-typed/undefined_type_variable/pri
 type_recon_sample_bad
 include_str!("../tests/ThatDraenGuy/stage3/ill-typed/unexpected_type_for_expression/type-recon-sample.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 273:274
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#type-reconstruction
 "#]]
 
 wrong_pair
@@ -1893,10 +1934,10 @@ include_str!("../tests/ThatDraenGuy/stage3/well-typed/sum-with-record.stella")
 type_recon_sample_goot
 include_str!("../tests/ThatDraenGuy/stage3/well-typed/type-recon-sample.stella")
 => expect![[r#"
-    -1
-    Parser error:
-    Unrecognized token `"}"` found at 262:263
-    Expected one of ADDRESS, INTEGER, IDENT, "(", "*", "<|", "List::head", "List::isempty", "List::tail", "Nat::iszero", "Nat::pred", "Nat::rec", "[", "cons", "false", "fix", "fn", "fold", "generic", "if", "inl", "inr", "let", "letrec", "match", "new", "not", "panic!", "succ", "throw", "true", "try", "unfold", "unit" or "{"
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#type-reconstruction
 "#]]
 
 }
