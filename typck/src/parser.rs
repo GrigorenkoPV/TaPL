@@ -1,3 +1,6 @@
+use core::fmt;
+
+use anyhow::{Context as _, anyhow};
 use lalrpop_util::{ParseError, lexer::Token};
 
 #[allow(
@@ -27,7 +30,7 @@ use lalrpop_util::{ParseError, lexer::Token};
 mod grammar;
 
 use crate::{
-    ast::{Integer, Program},
+    ast::Program,
     extensions::{Extension, Extensions},
 };
 
@@ -37,40 +40,71 @@ fn flatten(v: Vec<Vec<Extension>>) -> Extensions {
     v.into_iter().flatten().collect()
 }
 
-#[inline]
-#[must_use]
-fn immortalize_parse_error<L, E>(error: ParseError<L, Token<'_>, E>) -> ParseError<L, String, E> {
-    error.map_token(|token| format!("{:?}", token.1))
-}
-
-fn parse_int(int: &str) -> Integer {
-    match int.parse() {
-        Ok(int) => int,
-        Err(e) => todo!("Report: {e:?}"),
-    }
-}
-
-fn parse_extension(extension: &str) -> Extension {
-    match extension.strip_prefix("#") {
-        None => unreachable!(),
-        Some(extension) => match extension.parse() {
-            Err(e) => todo!("Report: {e:?}: {extension:?}"),
-            Ok(extension) => extension,
-        },
-    }
+fn parse_extension(extension: &str) -> anyhow::Result<Extension> {
+    let extension = extension
+        .strip_prefix("#")
+        .expect("parser always gives it with `#`");
+    extension.parse().map_err(|e| match e {
+        strum::ParseError::VariantNotFound => anyhow!("Unknown extension: {extension:?}"),
+    })
 }
 
 #[expect(clippy::tests_outside_test_module, reason = "sanity check")]
+#[expect(clippy::unwrap_used, reason = "this is a test")]
 #[test]
 fn parse_extensions() {
     let e = Extension::UnitType;
     let s = "unit-type";
     assert_eq!(<&'static str>::from(&e), s);
-    assert_eq!(parse_extension(&format!("#{s}")), e);
+    assert_eq!(parse_extension(&format!("#{s}")).unwrap(), e);
     assert_eq!(s.parse(), Ok(e));
 }
 
-pub(super) fn parse(input: &str) -> Result<Program<'_>, ParseError<usize, String, anyhow::Error>> {
+pub(super) struct Position {
+    line: usize,
+    column: usize,
+}
+impl fmt::Display for Position {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let Self { line, column } = self;
+        write!(f, "line {line} col {column}")
+    }
+}
+impl fmt::Debug for Position {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if f.alternate() {
+            f.debug_struct("Position")
+                .field("line", &self.line)
+                .field("column", &self.column)
+                .finish()
+        } else {
+            fmt::Display::fmt(&self, f)
+        }
+    }
+}
+
+pub(super) fn parse(
+    input: &str,
+) -> Result<Program<'_>, ParseError<Position, String, anyhow::Error>> {
     let parser = ProgramParser::new();
-    parser.parse(input).map_err(immortalize_parse_error)
+    parser.parse(input).map_err(|e| {
+        e.map_token(|Token(_, text)| format!("{text:?}"))
+            .map_location(|byte_offset| {
+                #[expect(clippy::string_slice, reason = "lalrpop gives valid byte offsets")]
+                let s = &input[..byte_offset];
+                let mut position = match s.rsplit_once('\n') {
+                    None => Position {
+                        line: 0,
+                        column: s.chars().count(),
+                    },
+                    Some((prev_lines, last_line)) => Position {
+                        line: prev_lines.chars().filter(|&c| c == '\n').count() + 1,
+                        column: last_line.chars().count(),
+                    },
+                };
+                position.line += 1;
+                position.column += 1;
+                position
+            })
+    })
 }

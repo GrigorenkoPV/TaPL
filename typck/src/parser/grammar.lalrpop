@@ -133,7 +133,7 @@ pub(in crate::parser) Program: Program<'input> = {
 // HACK: this is a bit inefficient, collecting to a set directly would be better
 FlattenExtensions: Extensions = ExtendWith* => flatten(<>);
 
-Extension: Extension = EXTENSION => parse_extension(<>);
+Extension: Extension = EXTENSION =>? Ok(parse_extension(<>)?);
 
 ExtendWith = "extend" "with" <SepWith1<",", Extension>> ";";
 
@@ -347,7 +347,7 @@ Expr6: Expr<'input> = {
     Expr7
 }
 
-Integer: Integer = INTEGER => parse_int(<>);
+Integer: Integer = INTEGER =>? Ok((<>).parse().context("Invalid literal")?);
 
 Expr7: Expr<'input> = {
     Ident => Expr::Var(<>),

@@ -44,7 +44,7 @@ empty
 => expect![[r#"
     -1
     Parser error:
-    Unrecognized EOF found at 0
+    Unrecognized EOF found at line 1 col 1
     Expected one of "language"
 "#]]
 
