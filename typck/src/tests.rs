@@ -131,10 +131,13 @@ include_str!("../tests/Examples/fail/ambitious-injection-on-top.stella")
     	#open-variant-exceptions
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
 duplicate_func
 include_str!("../tests/Examples/fail/duplicate-func.stella")
-=> expect![]
+=> expect![[r#"
+    30
+    ERROR_DUPLICATE_FUNCTION_DECLARATION
+    function `increment_twice` is defined multiple times
+"#]]
 
 malformed_fix
 include_str!("../tests/Examples/fail/malformed-fix.stella")
@@ -200,10 +203,13 @@ include_str!("../tests/Examples/fail/not-a-tuple-02.stella")
     	#pairs
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
 undefined_var_01
 include_str!("../tests/Examples/fail/undefined-var-01.stella")
-=> expect![]
+=> expect![[r#"
+    2
+    ERROR_UNDEFINED_VARIABLE
+    undefined variable `x`
+"#]]
 
 #[should_panic(expected = "not yet implemented: typck")]
 undefined_var_02
@@ -485,10 +491,18 @@ multiparameter_functions
 include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/well-typed/primitive.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck")]
 natural_literals_bad
 include_str!("../tests/ThatDraenGuy/stage1/extra/natural-literals/ill-typed/unexpected_type_for_expression/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	Integer(25)
+    has type
+    	Nat
+    but expected to have type
+    	Bool
+"#]]
 
 #[should_panic(expected = "not yet implemented: typck")]
 natural_literals
@@ -1131,10 +1145,18 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_tuple_length/pri
     	#tuples
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
 unexpected_type_for_expression
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_expression/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	False
+    has type
+    	Bool
+    but expected to have type
+    	Nat
+"#]]
 
 #[should_panic(expected = "not yet implemented: typck")]
 unexpected_type_for_parameter

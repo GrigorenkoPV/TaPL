@@ -1,3 +1,4 @@
+use core::fmt;
 use std::borrow::Cow;
 
 use crate::extensions::Extensions;
@@ -96,6 +97,30 @@ pub(crate) enum Type<'src> {
     Bot,
     Auto,
     Var(Ident<'src>),
+}
+
+impl fmt::Display for Type<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // FIXME: less parens
+        match self {
+            Self::Bool => f.write_str("Bool"),
+            Self::Nat => f.write_str("Nat"),
+            Self::Unit => f.write_str("Unit"),
+            Self::Top => f.write_str("Top"),
+            Self::Bot => f.write_str("Bot"),
+            Self::Var(name) => f.write_str(name),
+            Self::List(inner) => write!(f, "[{inner}]"),
+            Self::Auto => todo!(),
+            Self::Ref(inner) => write!(f, "&({inner})"),
+            Self::Sum { .. } => todo!(),
+            Self::Fn { .. } => todo!(),
+            Self::Forall { .. } => todo!(),
+            Self::Rec { .. } => todo!(),
+            Self::Tuple(..) => todo!(),
+            Self::Record(..) => todo!(),
+            Self::Variant(..) => todo!(),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -232,7 +257,7 @@ pub(crate) enum Expr<'src> {
     NatPred(Box<Self>),
     NatIsZero(Box<Self>),
     Fix(Box<Self>),
-    NatRec(Box<[Self; 3]>),
+    NatRec(Box<[Self; 3]>), // FIXME: name fields
 
     Fold {
         ty: Type<'src>,

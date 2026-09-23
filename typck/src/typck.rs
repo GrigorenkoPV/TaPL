@@ -5,7 +5,10 @@ use std::{
 
 use culpa::{throw, throws};
 
-use crate::ast::{Decl, Expr, Function, Ident, Program, Type};
+use crate::{
+    ast::{Decl, Expr, Function, Ident, Program, Type},
+    extensions::unsupported,
+};
 
 mod error;
 mod gates;
@@ -153,7 +156,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 None => throw!(Error::UndefinedTypeVariable(Borrowed(name))),
             },
 
-            Type::Rec { .. } => unimplemented!(),
+            t @ Type::Rec { .. } => unsupported::mu(t),
         }
     }
 
@@ -211,13 +214,28 @@ impl<'ctx> Context<'_, 'ctx> {
         ctx.check_expr_is_ty(body, ret_ty)?
     }
 
+    #[expect(clippy::too_many_lines, reason = "giant match")]
     #[throws(Error<'ctx>)]
-    fn check_expr_is_ty(&self, expr: &'ctx Expr<'ctx>, ty: &Type<'_>) {
+    fn check_expr_is_ty(&self, expr: &'ctx Expr<'ctx>, ty: &Type<'ctx>) {
         match (expr, ty) {
-            (Expr::False | Expr::True, Type::Bool)
-            | (Expr::Unit, Type::Unit)
-            | (Expr::Integer(_), Type::Nat) => {}
+            // Unsupported
+            (e @ (Expr::Fold { .. } | Expr::Unfold { .. }), _) => unsupported::fold_unfold(e),
+            (_, t @ Type::Rec { .. }) => unsupported::mu(t),
 
+            // Special
+            (_, Type::Top) => todo!("top"),
+            (_, Type::Bot) => todo!("bot"),
+            (_, Type::Auto) => todo!("auto"),
+            (_, Type::Forall { .. }) => todo!("forall"),
+
+            // Variables
+            (expr, Type::Var(var)) => {
+                let expected = self
+                    .type_aliases
+                    .lookup(var)
+                    .ok_or(Error::UndefinedTypeVariable(var.clone()))?;
+                self.check_expr_is_ty(expr, expected)?
+            }
             (Expr::Var(var), expected) => {
                 let actual = self
                     .variables
@@ -226,7 +244,411 @@ impl<'ctx> Context<'_, 'ctx> {
                 self.check_ty_coerces(actual, expected)?
             }
 
-            (expr, ty) => todo!("typck {expr:?} is {ty:?}"),
+            // Literals
+            (Expr::False | Expr::True, Type::Bool)
+            | (Expr::Unit, Type::Unit)
+            | (Expr::Integer(_), Type::Nat) => {}
+
+            (
+                Expr::If {
+                    cond,
+                    on_true,
+                    on_false,
+                },
+                ty,
+            ) => {
+                self.check_expr_is_ty(cond, &Type::Bool)?;
+                self.check_expr_is_ty(on_true, ty)?;
+                self.check_expr_is_ty(on_false, ty)?;
+            }
+
+            (Expr::ListIsEmpty(inner), Type::Bool) => {
+                todo!("check is list: {inner:?}")
+            }
+            (Expr::Not(inner), Type::Bool) => self.check_expr_is_ty(inner, &Type::Bool)?,
+
+            (Expr::NatIsZero(inner), Type::Bool)
+            | (Expr::Succ(inner) | Expr::NatPred(inner), Type::Nat) => {
+                self.check_expr_is_ty(inner, &Type::Nat)?
+            }
+
+            // Trivially false, no specific error
+            (
+                Expr::True | Expr::False | Expr::ListIsEmpty(_) | Expr::Not(_) | Expr::NatIsZero(_),
+                Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => {
+                throw!(Error::UnexpectedTypeForExpression {
+                    expr,
+                    expected: ty.clone(),
+                    actual: Type::Bool
+                })
+            }
+            (
+                Expr::Unit,
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_),
+            ) => {
+                throw!(Error::UnexpectedTypeForExpression {
+                    expr,
+                    expected: ty.clone(),
+                    actual: Type::Unit
+                })
+            }
+            (
+                Expr::Succ(_) | Expr::NatPred(_) | Expr::Integer(_),
+                Type::Bool
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => {
+                throw!(Error::UnexpectedTypeForExpression {
+                    expr,
+                    expected: ty.clone(),
+                    actual: Type::Nat,
+                })
+            }
+
+            #[expect(clippy::unnested_or_patterns, reason = "WIP")]
+            (Expr::Seq { .. }, Type::Bool)
+            | (Expr::Seq { .. }, Type::Nat { .. })
+            | (Expr::Seq { .. }, Type::Ref { .. })
+            | (Expr::Seq { .. }, Type::Sum { .. })
+            | (Expr::Seq { .. }, Type::Fn { .. })
+            | (Expr::Seq { .. }, Type::Tuple { .. })
+            | (Expr::Seq { .. }, Type::Record { .. })
+            | (Expr::Seq { .. }, Type::Variant { .. })
+            | (Expr::Seq { .. }, Type::List { .. })
+            | (Expr::Seq { .. }, Type::Unit { .. })
+            | (Expr::Let { .. }, Type::Bool)
+            | (Expr::Let { .. }, Type::Nat { .. })
+            | (Expr::Let { .. }, Type::Ref { .. })
+            | (Expr::Let { .. }, Type::Sum { .. })
+            | (Expr::Let { .. }, Type::Fn { .. })
+            | (Expr::Let { .. }, Type::Tuple { .. })
+            | (Expr::Let { .. }, Type::Record { .. })
+            | (Expr::Let { .. }, Type::Variant { .. })
+            | (Expr::Let { .. }, Type::List { .. })
+            | (Expr::Let { .. }, Type::Unit { .. })
+            | (Expr::Assign { .. }, Type::Bool)
+            | (Expr::Assign { .. }, Type::Nat { .. })
+            | (Expr::Assign { .. }, Type::Ref { .. })
+            | (Expr::Assign { .. }, Type::Sum { .. })
+            | (Expr::Assign { .. }, Type::Fn { .. })
+            | (Expr::Assign { .. }, Type::Tuple { .. })
+            | (Expr::Assign { .. }, Type::Record { .. })
+            | (Expr::Assign { .. }, Type::Variant { .. })
+            | (Expr::Assign { .. }, Type::List { .. })
+            | (Expr::Assign { .. }, Type::Unit { .. })
+            | (Expr::Generic { .. }, Type::Bool)
+            | (Expr::Generic { .. }, Type::Nat { .. })
+            | (Expr::Generic { .. }, Type::Ref { .. })
+            | (Expr::Generic { .. }, Type::Sum { .. })
+            | (Expr::Generic { .. }, Type::Fn { .. })
+            | (Expr::Generic { .. }, Type::Tuple { .. })
+            | (Expr::Generic { .. }, Type::Record { .. })
+            | (Expr::Generic { .. }, Type::Variant { .. })
+            | (Expr::Generic { .. }, Type::List { .. })
+            | (Expr::Generic { .. }, Type::Unit { .. })
+            | (Expr::BinOp { .. }, Type::Bool)
+            | (Expr::BinOp { .. }, Type::Nat { .. })
+            | (Expr::BinOp { .. }, Type::Ref { .. })
+            | (Expr::BinOp { .. }, Type::Sum { .. })
+            | (Expr::BinOp { .. }, Type::Fn { .. })
+            | (Expr::BinOp { .. }, Type::Tuple { .. })
+            | (Expr::BinOp { .. }, Type::Record { .. })
+            | (Expr::BinOp { .. }, Type::Variant { .. })
+            | (Expr::BinOp { .. }, Type::List { .. })
+            | (Expr::BinOp { .. }, Type::Unit { .. })
+            | (Expr::Ascription { .. }, Type::Bool)
+            | (Expr::Ascription { .. }, Type::Nat { .. })
+            | (Expr::Ascription { .. }, Type::Ref { .. })
+            | (Expr::Ascription { .. }, Type::Sum { .. })
+            | (Expr::Ascription { .. }, Type::Fn { .. })
+            | (Expr::Ascription { .. }, Type::Tuple { .. })
+            | (Expr::Ascription { .. }, Type::Record { .. })
+            | (Expr::Ascription { .. }, Type::Variant { .. })
+            | (Expr::Ascription { .. }, Type::List { .. })
+            | (Expr::Ascription { .. }, Type::Unit { .. })
+            | (Expr::Cast { .. }, Type::Bool)
+            | (Expr::Cast { .. }, Type::Nat { .. })
+            | (Expr::Cast { .. }, Type::Ref { .. })
+            | (Expr::Cast { .. }, Type::Sum { .. })
+            | (Expr::Cast { .. }, Type::Fn { .. })
+            | (Expr::Cast { .. }, Type::Tuple { .. })
+            | (Expr::Cast { .. }, Type::Record { .. })
+            | (Expr::Cast { .. }, Type::Variant { .. })
+            | (Expr::Cast { .. }, Type::List { .. })
+            | (Expr::Cast { .. }, Type::Unit { .. })
+            | (Expr::Abstraction { .. }, Type::Bool)
+            | (Expr::Abstraction { .. }, Type::Nat { .. })
+            | (Expr::Abstraction { .. }, Type::Ref { .. })
+            | (Expr::Abstraction { .. }, Type::Sum { .. })
+            | (Expr::Abstraction { .. }, Type::Fn { .. })
+            | (Expr::Abstraction { .. }, Type::Tuple { .. })
+            | (Expr::Abstraction { .. }, Type::Record { .. })
+            | (Expr::Abstraction { .. }, Type::Variant { .. })
+            | (Expr::Abstraction { .. }, Type::List { .. })
+            | (Expr::Abstraction { .. }, Type::Unit { .. })
+            | (Expr::Variant { .. }, Type::Bool)
+            | (Expr::Variant { .. }, Type::Nat { .. })
+            | (Expr::Variant { .. }, Type::Ref { .. })
+            | (Expr::Variant { .. }, Type::Sum { .. })
+            | (Expr::Variant { .. }, Type::Fn { .. })
+            | (Expr::Variant { .. }, Type::Tuple { .. })
+            | (Expr::Variant { .. }, Type::Record { .. })
+            | (Expr::Variant { .. }, Type::Variant { .. })
+            | (Expr::Variant { .. }, Type::List { .. })
+            | (Expr::Variant { .. }, Type::Unit { .. })
+            | (Expr::Match { .. }, Type::Bool)
+            | (Expr::Match { .. }, Type::Nat { .. })
+            | (Expr::Match { .. }, Type::Ref { .. })
+            | (Expr::Match { .. }, Type::Sum { .. })
+            | (Expr::Match { .. }, Type::Fn { .. })
+            | (Expr::Match { .. }, Type::Tuple { .. })
+            | (Expr::Match { .. }, Type::Record { .. })
+            | (Expr::Match { .. }, Type::Variant { .. })
+            | (Expr::Match { .. }, Type::List { .. })
+            | (Expr::Match { .. }, Type::Unit { .. })
+            | (Expr::List { .. }, Type::Bool)
+            | (Expr::List { .. }, Type::Nat { .. })
+            | (Expr::List { .. }, Type::Ref { .. })
+            | (Expr::List { .. }, Type::Sum { .. })
+            | (Expr::List { .. }, Type::Fn { .. })
+            | (Expr::List { .. }, Type::Tuple { .. })
+            | (Expr::List { .. }, Type::Record { .. })
+            | (Expr::List { .. }, Type::Variant { .. })
+            | (Expr::List { .. }, Type::List { .. })
+            | (Expr::List { .. }, Type::Unit { .. })
+            | (Expr::New { .. }, Type::Bool)
+            | (Expr::New { .. }, Type::Nat { .. })
+            | (Expr::New { .. }, Type::Ref { .. })
+            | (Expr::New { .. }, Type::Sum { .. })
+            | (Expr::New { .. }, Type::Fn { .. })
+            | (Expr::New { .. }, Type::Tuple { .. })
+            | (Expr::New { .. }, Type::Record { .. })
+            | (Expr::New { .. }, Type::Variant { .. })
+            | (Expr::New { .. }, Type::List { .. })
+            | (Expr::New { .. }, Type::Unit { .. })
+            | (Expr::Deref { .. }, Type::Bool)
+            | (Expr::Deref { .. }, Type::Nat { .. })
+            | (Expr::Deref { .. }, Type::Ref { .. })
+            | (Expr::Deref { .. }, Type::Sum { .. })
+            | (Expr::Deref { .. }, Type::Fn { .. })
+            | (Expr::Deref { .. }, Type::Tuple { .. })
+            | (Expr::Deref { .. }, Type::Record { .. })
+            | (Expr::Deref { .. }, Type::Variant { .. })
+            | (Expr::Deref { .. }, Type::List { .. })
+            | (Expr::Deref { .. }, Type::Unit { .. })
+            | (Expr::Application { .. }, Type::Bool)
+            | (Expr::Application { .. }, Type::Nat { .. })
+            | (Expr::Application { .. }, Type::Ref { .. })
+            | (Expr::Application { .. }, Type::Sum { .. })
+            | (Expr::Application { .. }, Type::Fn { .. })
+            | (Expr::Application { .. }, Type::Tuple { .. })
+            | (Expr::Application { .. }, Type::Record { .. })
+            | (Expr::Application { .. }, Type::Variant { .. })
+            | (Expr::Application { .. }, Type::List { .. })
+            | (Expr::Application { .. }, Type::Unit { .. })
+            | (Expr::TypeApplication { .. }, Type::Bool)
+            | (Expr::TypeApplication { .. }, Type::Nat { .. })
+            | (Expr::TypeApplication { .. }, Type::Ref { .. })
+            | (Expr::TypeApplication { .. }, Type::Sum { .. })
+            | (Expr::TypeApplication { .. }, Type::Fn { .. })
+            | (Expr::TypeApplication { .. }, Type::Tuple { .. })
+            | (Expr::TypeApplication { .. }, Type::Record { .. })
+            | (Expr::TypeApplication { .. }, Type::Variant { .. })
+            | (Expr::TypeApplication { .. }, Type::List { .. })
+            | (Expr::TypeApplication { .. }, Type::Unit { .. })
+            | (Expr::DotRecord { .. }, Type::Bool)
+            | (Expr::DotRecord { .. }, Type::Nat { .. })
+            | (Expr::DotRecord { .. }, Type::Ref { .. })
+            | (Expr::DotRecord { .. }, Type::Sum { .. })
+            | (Expr::DotRecord { .. }, Type::Fn { .. })
+            | (Expr::DotRecord { .. }, Type::Tuple { .. })
+            | (Expr::DotRecord { .. }, Type::Record { .. })
+            | (Expr::DotRecord { .. }, Type::Variant { .. })
+            | (Expr::DotRecord { .. }, Type::List { .. })
+            | (Expr::DotRecord { .. }, Type::Unit { .. })
+            | (Expr::DotTuple { .. }, Type::Bool)
+            | (Expr::DotTuple { .. }, Type::Nat { .. })
+            | (Expr::DotTuple { .. }, Type::Ref { .. })
+            | (Expr::DotTuple { .. }, Type::Sum { .. })
+            | (Expr::DotTuple { .. }, Type::Fn { .. })
+            | (Expr::DotTuple { .. }, Type::Tuple { .. })
+            | (Expr::DotTuple { .. }, Type::Record { .. })
+            | (Expr::DotTuple { .. }, Type::Variant { .. })
+            | (Expr::DotTuple { .. }, Type::List { .. })
+            | (Expr::DotTuple { .. }, Type::Unit { .. })
+            | (Expr::Tuple { .. }, Type::Bool)
+            | (Expr::Tuple { .. }, Type::Nat { .. })
+            | (Expr::Tuple { .. }, Type::Ref { .. })
+            | (Expr::Tuple { .. }, Type::Sum { .. })
+            | (Expr::Tuple { .. }, Type::Fn { .. })
+            | (Expr::Tuple { .. }, Type::Tuple { .. })
+            | (Expr::Tuple { .. }, Type::Record { .. })
+            | (Expr::Tuple { .. }, Type::Variant { .. })
+            | (Expr::Tuple { .. }, Type::List { .. })
+            | (Expr::Tuple { .. }, Type::Unit { .. })
+            | (Expr::Cons { .. }, Type::Bool)
+            | (Expr::Cons { .. }, Type::Nat { .. })
+            | (Expr::Cons { .. }, Type::Ref { .. })
+            | (Expr::Cons { .. }, Type::Sum { .. })
+            | (Expr::Cons { .. }, Type::Fn { .. })
+            | (Expr::Cons { .. }, Type::Tuple { .. })
+            | (Expr::Cons { .. }, Type::Record { .. })
+            | (Expr::Cons { .. }, Type::Variant { .. })
+            | (Expr::Cons { .. }, Type::List { .. })
+            | (Expr::Cons { .. }, Type::Unit { .. })
+            | (Expr::Record { .. }, Type::Bool)
+            | (Expr::Record { .. }, Type::Nat { .. })
+            | (Expr::Record { .. }, Type::Ref { .. })
+            | (Expr::Record { .. }, Type::Sum { .. })
+            | (Expr::Record { .. }, Type::Fn { .. })
+            | (Expr::Record { .. }, Type::Tuple { .. })
+            | (Expr::Record { .. }, Type::Record { .. })
+            | (Expr::Record { .. }, Type::Variant { .. })
+            | (Expr::Record { .. }, Type::List { .. })
+            | (Expr::Record { .. }, Type::Unit { .. })
+            | (Expr::ListHead { .. }, Type::Bool)
+            | (Expr::ListHead { .. }, Type::Nat { .. })
+            | (Expr::ListHead { .. }, Type::Ref { .. })
+            | (Expr::ListHead { .. }, Type::Sum { .. })
+            | (Expr::ListHead { .. }, Type::Fn { .. })
+            | (Expr::ListHead { .. }, Type::Tuple { .. })
+            | (Expr::ListHead { .. }, Type::Record { .. })
+            | (Expr::ListHead { .. }, Type::Variant { .. })
+            | (Expr::ListHead { .. }, Type::List { .. })
+            | (Expr::ListHead { .. }, Type::Unit { .. })
+            | (Expr::ListTail { .. }, Type::Bool)
+            | (Expr::ListTail { .. }, Type::Nat { .. })
+            | (Expr::ListTail { .. }, Type::Ref { .. })
+            | (Expr::ListTail { .. }, Type::Sum { .. })
+            | (Expr::ListTail { .. }, Type::Fn { .. })
+            | (Expr::ListTail { .. }, Type::Tuple { .. })
+            | (Expr::ListTail { .. }, Type::Record { .. })
+            | (Expr::ListTail { .. }, Type::Variant { .. })
+            | (Expr::ListTail { .. }, Type::List { .. })
+            | (Expr::ListTail { .. }, Type::Unit { .. })
+            | (Expr::Panic { .. }, Type::Bool)
+            | (Expr::Panic { .. }, Type::Nat { .. })
+            | (Expr::Panic { .. }, Type::Ref { .. })
+            | (Expr::Panic { .. }, Type::Sum { .. })
+            | (Expr::Panic { .. }, Type::Fn { .. })
+            | (Expr::Panic { .. }, Type::Tuple { .. })
+            | (Expr::Panic { .. }, Type::Record { .. })
+            | (Expr::Panic { .. }, Type::Variant { .. })
+            | (Expr::Panic { .. }, Type::List { .. })
+            | (Expr::Panic { .. }, Type::Unit { .. })
+            | (Expr::Throw { .. }, Type::Bool)
+            | (Expr::Throw { .. }, Type::Nat { .. })
+            | (Expr::Throw { .. }, Type::Ref { .. })
+            | (Expr::Throw { .. }, Type::Sum { .. })
+            | (Expr::Throw { .. }, Type::Fn { .. })
+            | (Expr::Throw { .. }, Type::Tuple { .. })
+            | (Expr::Throw { .. }, Type::Record { .. })
+            | (Expr::Throw { .. }, Type::Variant { .. })
+            | (Expr::Throw { .. }, Type::List { .. })
+            | (Expr::Throw { .. }, Type::Unit { .. })
+            | (Expr::TryCatch { .. }, Type::Bool)
+            | (Expr::TryCatch { .. }, Type::Nat { .. })
+            | (Expr::TryCatch { .. }, Type::Ref { .. })
+            | (Expr::TryCatch { .. }, Type::Sum { .. })
+            | (Expr::TryCatch { .. }, Type::Fn { .. })
+            | (Expr::TryCatch { .. }, Type::Tuple { .. })
+            | (Expr::TryCatch { .. }, Type::Record { .. })
+            | (Expr::TryCatch { .. }, Type::Variant { .. })
+            | (Expr::TryCatch { .. }, Type::List { .. })
+            | (Expr::TryCatch { .. }, Type::Unit { .. })
+            | (Expr::TryWith { .. }, Type::Bool)
+            | (Expr::TryWith { .. }, Type::Nat { .. })
+            | (Expr::TryWith { .. }, Type::Ref { .. })
+            | (Expr::TryWith { .. }, Type::Sum { .. })
+            | (Expr::TryWith { .. }, Type::Fn { .. })
+            | (Expr::TryWith { .. }, Type::Tuple { .. })
+            | (Expr::TryWith { .. }, Type::Record { .. })
+            | (Expr::TryWith { .. }, Type::Variant { .. })
+            | (Expr::TryWith { .. }, Type::List { .. })
+            | (Expr::TryWith { .. }, Type::Unit { .. })
+            | (Expr::TryCastAs { .. }, Type::Bool)
+            | (Expr::TryCastAs { .. }, Type::Nat { .. })
+            | (Expr::TryCastAs { .. }, Type::Ref { .. })
+            | (Expr::TryCastAs { .. }, Type::Sum { .. })
+            | (Expr::TryCastAs { .. }, Type::Fn { .. })
+            | (Expr::TryCastAs { .. }, Type::Tuple { .. })
+            | (Expr::TryCastAs { .. }, Type::Record { .. })
+            | (Expr::TryCastAs { .. }, Type::Variant { .. })
+            | (Expr::TryCastAs { .. }, Type::List { .. })
+            | (Expr::TryCastAs { .. }, Type::Unit { .. })
+            | (Expr::Inl { .. }, Type::Bool)
+            | (Expr::Inl { .. }, Type::Nat { .. })
+            | (Expr::Inl { .. }, Type::Ref { .. })
+            | (Expr::Inl { .. }, Type::Sum { .. })
+            | (Expr::Inl { .. }, Type::Fn { .. })
+            | (Expr::Inl { .. }, Type::Tuple { .. })
+            | (Expr::Inl { .. }, Type::Record { .. })
+            | (Expr::Inl { .. }, Type::Variant { .. })
+            | (Expr::Inl { .. }, Type::List { .. })
+            | (Expr::Inl { .. }, Type::Unit { .. })
+            | (Expr::Inr { .. }, Type::Bool)
+            | (Expr::Inr { .. }, Type::Nat { .. })
+            | (Expr::Inr { .. }, Type::Ref { .. })
+            | (Expr::Inr { .. }, Type::Sum { .. })
+            | (Expr::Inr { .. }, Type::Fn { .. })
+            | (Expr::Inr { .. }, Type::Tuple { .. })
+            | (Expr::Inr { .. }, Type::Record { .. })
+            | (Expr::Inr { .. }, Type::Variant { .. })
+            | (Expr::Inr { .. }, Type::List { .. })
+            | (Expr::Inr { .. }, Type::Unit { .. })
+            | (Expr::NatRec { .. }, Type::Bool)
+            | (Expr::NatRec { .. }, Type::Nat { .. })
+            | (Expr::NatRec { .. }, Type::Ref { .. })
+            | (Expr::NatRec { .. }, Type::Sum { .. })
+            | (Expr::NatRec { .. }, Type::Fn { .. })
+            | (Expr::NatRec { .. }, Type::Tuple { .. })
+            | (Expr::NatRec { .. }, Type::Record { .. })
+            | (Expr::NatRec { .. }, Type::Variant { .. })
+            | (Expr::NatRec { .. }, Type::List { .. })
+            | (Expr::NatRec { .. }, Type::Unit { .. })
+            | (Expr::Fix { .. }, Type::Bool)
+            | (Expr::Fix { .. }, Type::Nat { .. })
+            | (Expr::Fix { .. }, Type::Ref { .. })
+            | (Expr::Fix { .. }, Type::Sum { .. })
+            | (Expr::Fix { .. }, Type::Fn { .. })
+            | (Expr::Fix { .. }, Type::Tuple { .. })
+            | (Expr::Fix { .. }, Type::Record { .. })
+            | (Expr::Fix { .. }, Type::Variant { .. })
+            | (Expr::Fix { .. }, Type::List { .. })
+            | (Expr::Fix { .. }, Type::Unit { .. })
+            | (Expr::Address { .. }, Type::Bool)
+            | (Expr::Address { .. }, Type::Nat { .. })
+            | (Expr::Address { .. }, Type::Ref { .. })
+            | (Expr::Address { .. }, Type::Sum { .. })
+            | (Expr::Address { .. }, Type::Fn { .. })
+            | (Expr::Address { .. }, Type::Tuple { .. })
+            | (Expr::Address { .. }, Type::Record { .. })
+            | (Expr::Address { .. }, Type::Variant { .. })
+            | (Expr::Address { .. }, Type::List { .. })
+            | (Expr::Address { .. }, Type::Unit { .. }) => todo!("typck {expr:?} is {ty:?}"),
         }
     }
 

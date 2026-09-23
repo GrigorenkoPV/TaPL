@@ -4,7 +4,7 @@ use std::collections::btree_set::BTreeSet;
 use culpa::throws;
 
 use crate::{
-    ast::Ident,
+    ast::{Expr, Ident, Type},
     extensions::{Extension, Extensions},
 };
 
@@ -22,7 +22,11 @@ pub(crate) enum Error<'src> {
     ///
     /// Эта ошибка должна возникать только если ни одна из более точных ошибок (ниже)
     /// не возникла раньше.
-    UnexpectedTypeForExpression,
+    UnexpectedTypeForExpression {
+        expr: &'src Expr<'src>,
+        actual: Type<'src>,
+        expected: Type<'src>,
+    },
     /// При попытке применить (`Application`) выражение к аргументу
     /// или передать в комбинатор неподвижной точки (`Fix`), выражение
     /// оказывается не функцией.
@@ -251,6 +255,16 @@ impl fmt::Display for Error<'_> {
             }
             Self::UndefinedVariable(name) => writeln!(f, "undefined variable `{name}`")?,
 
+            Self::UnexpectedTypeForExpression {
+                actual,
+                expected,
+                expr,
+            } => writeln!(
+                f,
+                // TODO: impl Display for Expr
+                "expression\n\t{expr:?}\nhas type\n\t{actual}\nbut expected to have type\n\t{expected}"
+            )?,
+
             other => todo!("format Error::{other:?}"),
         }
     }
@@ -268,7 +282,7 @@ impl Error<'_> {
         match self {
             Error::MissingMain => nz!(1),
             Error::UndefinedVariable(_) => nz!(2),
-            Error::UnexpectedTypeForExpression => nz!(3),
+            Error::UnexpectedTypeForExpression { .. } => nz!(3),
             Error::NotAFunction => nz!(4),
             Error::NotATuple => nz!(5),
             Error::NotARecord => nz!(6),

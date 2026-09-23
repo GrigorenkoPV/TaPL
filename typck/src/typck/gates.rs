@@ -8,7 +8,7 @@ use crate::{
         Annotation, Binding, Decl, Expr, Function, HasVisitable, Pattern, PatternBinding, Program,
         Type, Visitor,
     },
-    extensions::{Extension, Extensions},
+    extensions::{Extension, Extensions, unsupported},
     typck::Error,
 };
 
@@ -96,12 +96,10 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
         }
         self.require_fn_arity(params.len());
         if ret_ty.is_none() {
-            unimplemented!(
-                "Function declarations without an explicit return type are not supported"
-            )
+            unsupported::no_ret_ty(function)
         }
         if !throws.is_empty() {
-            unimplemented!("Functions that throw exceptions are not supported")
+            unsupported::throws(function)
         }
         let was_in_global_scope = mem::replace(&mut self.is_in_global_scope, false);
         function.visit_inner_with(self);
@@ -109,9 +107,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
     }
 
     fn visit_annotation(&mut self, annotation: &Annotation) {
-        match annotation {
-            Annotation::Inline => unimplemented!("Inline functions are not supported"),
-        }
+        unsupported::annotations(annotation)
     }
 
     fn visit_pattern_binding(&mut self, pattern_binding: &PatternBinding<'ctx>) {
@@ -171,7 +167,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
             Type::Auto => self.require(Extension::TypeReconstruction),
             Type::Var(_) | Type::Forall { .. } => self.require(Extension::UniversalTypes),
 
-            Type::Rec { .. } => unimplemented!("`μ` types are not supported"),
+            t @ Type::Rec { .. } => unsupported::mu(t),
         }
         ty.visit_inner_with(self)
     }
@@ -265,9 +261,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
             }
 
             Expr::BinOp { .. } | Expr::Not(..) => self.require(Extension::ArithmeticOperators),
-            Expr::Fold { .. } | Expr::Unfold { .. } => {
-                unimplemented!("fold/unfold are not supported")
-            }
+            e @ (Expr::Fold { .. } | Expr::Unfold { .. }) => unsupported::fold_unfold(e),
         }
         expr.visit_inner_with(self)
     }
