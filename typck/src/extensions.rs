@@ -72,6 +72,7 @@ impl Extension {
             Self::NullaryFunctions
             | Self::MultiparameterFunctions
             | Self::NaturalLiterals
+            | Self::NestedFunctionDeclarations
             | Self::UnitType => true,
 
             Self::Pairs
@@ -83,7 +84,6 @@ impl Extension {
             | Self::Lists
             | Self::Variants
             | Self::FixpointCombinator
-            | Self::NestedFunctionDeclarations
             | Self::StructuralPatterns
             | Self::NullaryVariantLabels
             | Self::LetrecBindings

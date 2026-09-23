@@ -89,7 +89,7 @@ fn main() -> Nat {
     `main` has 0 arguments, but is expected to have 1
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 basic
 "
 // пример программы на ядре Stella
@@ -156,7 +156,7 @@ include_str!("../tests/Examples/fail/no-main.stella")
     `main` is missing or is not a function
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 not_a_function_01
 include_str!("../tests/Examples/fail/not-a-function-01.stella")
 => expect![]
@@ -189,7 +189,7 @@ include_str!("../tests/Examples/fail/not-a-record-01.stella")
     	#tuples
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck DotTuple")]
 not_a_tuple_01
 include_str!("../tests/Examples/fail/not-a-tuple-01.stella")
 => expect![]
@@ -211,7 +211,7 @@ include_str!("../tests/Examples/fail/undefined-var-01.stella")
     undefined variable `x`
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 undefined_var_02
 include_str!("../tests/Examples/fail/undefined-var-02.stella")
 => expect![]
@@ -225,12 +225,12 @@ include_str!("../tests/Examples/fail/unexpected-field-01.stella")
     	#records
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 unexpected_lambda_01
 include_str!("../tests/Examples/fail/unexpected-lambda-01.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 unexpected_lambda_02
 include_str!("../tests/Examples/fail/unexpected-lambda-02.stella")
 => expect![]
@@ -263,7 +263,7 @@ include_str!("../tests/Examples/fail/wrong_arity_main.stella")
 "#]]
 
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 basic_01
 include_str!("../tests/Examples/pass/01.stella")
 => expect![]
@@ -333,7 +333,6 @@ include_str!("../tests/Examples/pass/letrec.stella")
     the following unsupported extensions are enabled:
     	#tuples
     	#lists
-    	#nested-function-declarations
     	#structural-patterns
     	#letrec-bindings
     	#pattern-ascriptions
@@ -389,7 +388,7 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-type
     function `duplicate` is declared with duplicates of parameter `a`
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 duplicate_function_parameter_lambda
 include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-typed/duplicate_function_parameter/lambda.stella")
 => expect![]
@@ -481,12 +480,12 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-ty
     	#let-patterns
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 multiparameter_incorrect_number_of_arguments
 include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-typed/incorrect_number_of_arguments/primitive.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 multiparameter_functions
 include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/well-typed/primitive.stella")
 => expect![]
@@ -504,19 +503,15 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/natural-literals/ill-typed/unex
     	Bool
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 natural_literals
 include_str!("../tests/ThatDraenGuy/stage1/extra/natural-literals/well-typed/primitive.stella")
 => expect![]
 
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 nested_factorial_bad
 include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/ill-typed/undefined_variable/factorial.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#nested-function-declarations
-"#]]
+=> expect![]
 
 nested_function_declarations_bad
 include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/ill-typed/undefined_variable/primitive.stella")
@@ -525,27 +520,18 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/il
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#let-bindings
-    	#nested-function-declarations
     	#let-patterns
 "#]]
 
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 nested_factorial
 include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/well-typed/factorial.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#nested-function-declarations
-"#]]
+=> expect![]
 
+#[should_panic(expected = "not yet implemented: typck Application")]
 nested_function_declarations
 include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/well-typed/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#nested-function-declarations
-"#]]
+=> expect![]
 
 nullary_incorrect_arity_of_main
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-functions/ill-typed/incorrect_arity_of_main/primitive.stella")
@@ -555,12 +541,12 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-functions/ill-typed/inc
     `main` has 0 arguments, but is expected to have 1
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 nullary_incorrect_number_of_arguments
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-functions/ill-typed/incorrect_number_of_arguments/primitive.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 nullary_functions
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-functions/well-typed/primitive.stella")
 => expect![]
@@ -1007,17 +993,17 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/fix.stella")
     	#let-patterns
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 if_funcs_bad
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/if-funcs.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 not_a_function
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/primitive.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 triple
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/triple.stella")
 => expect![]
@@ -1085,7 +1071,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_injection/primit
 "#]]
 
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 unexpected_lambda
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_lambda/primitive.stella")
 => expect![]
@@ -1158,7 +1144,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_express
     	Nat
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 unexpected_type_for_parameter
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_parameter/primitive.stella")
 => expect![]
@@ -1181,7 +1167,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_variant_label/pr
     	#variants
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 abstraction
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/abstraction.stella")
 => expect![]
@@ -1196,7 +1182,7 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/ascription.stella")
     	#sum-types
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 factorial
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/factorial.stella")
 => expect![]
@@ -1212,17 +1198,17 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/fix-primitive.stella")
     	#let-patterns
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 func_chain
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/func-chain.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 func_chain2
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/func-chain2.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 if_funcs
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/if-funcs.stella")
 => expect![]
@@ -1236,12 +1222,12 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/lists.stella")
     	#lists
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 logic
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/logic.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 math
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/math.stella")
 => expect![]
@@ -1264,17 +1250,17 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/records.stella")
     	#records
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 sample
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/sample.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 shadowing
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/shadowing.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck")]
+#[should_panic(expected = "not yet implemented: typck Abstraction")]
 square
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/square.stella")
 => expect![]
@@ -1308,7 +1294,6 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typ
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#variants
-    	#nested-function-declarations
     	#exception-type-declaration
     	#open-variant-exceptions
 "#]]
@@ -1341,7 +1326,6 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typ
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#variants
-    	#nested-function-declarations
     	#exception-type-declaration
 "#]]
 
@@ -1352,7 +1336,6 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typ
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#variants
-    	#nested-function-declarations
     	#exception-type-declaration
     	#open-variant-exceptions
 "#]]
