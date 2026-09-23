@@ -89,7 +89,7 @@ fn main() -> Nat {
     `main` has 0 arguments, but is expected to have 1
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 basic
 "
 // пример программы на ядре Stella
@@ -131,7 +131,7 @@ include_str!("../tests/Examples/fail/ambitious-injection-on-top.stella")
     	#open-variant-exceptions
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 duplicate_func
 include_str!("../tests/Examples/fail/duplicate-func.stella")
 => expect![]
@@ -153,7 +153,7 @@ include_str!("../tests/Examples/fail/no-main.stella")
     `main` is missing or is not a function
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 not_a_function_01
 include_str!("../tests/Examples/fail/not-a-function-01.stella")
 => expect![]
@@ -186,7 +186,7 @@ include_str!("../tests/Examples/fail/not-a-record-01.stella")
     	#tuples
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 not_a_tuple_01
 include_str!("../tests/Examples/fail/not-a-tuple-01.stella")
 => expect![]
@@ -200,12 +200,12 @@ include_str!("../tests/Examples/fail/not-a-tuple-02.stella")
     	#pairs
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 undefined_var_01
 include_str!("../tests/Examples/fail/undefined-var-01.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 undefined_var_02
 include_str!("../tests/Examples/fail/undefined-var-02.stella")
 => expect![]
@@ -219,12 +219,12 @@ include_str!("../tests/Examples/fail/unexpected-field-01.stella")
     	#records
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 unexpected_lambda_01
 include_str!("../tests/Examples/fail/unexpected-lambda-01.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 unexpected_lambda_02
 include_str!("../tests/Examples/fail/unexpected-lambda-02.stella")
 => expect![]
@@ -257,7 +257,7 @@ include_str!("../tests/Examples/fail/wrong_arity_main.stella")
 "#]]
 
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 basic_01
 include_str!("../tests/Examples/pass/01.stella")
 => expect![]
@@ -377,13 +377,17 @@ include_str!("../tests/Examples/pass/sub-match.stella")
     	#structural-subtyping
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
-func
-include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-typed/duplicate_function_parameter/func.stella")
-=> expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
-lambda
+duplicate_function_parameter_func
+include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-typed/duplicate_function_parameter/func.stella")
+=> expect![[r#"
+    117
+    ERROR_DUPLICATE_FUNCTION_PARAMETER
+    function `duplicate` is declared with duplicates of parameter `a`
+"#]]
+
+#[should_panic(expected = "not yet implemented: typck")]
+duplicate_function_parameter_lambda
 include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-typed/duplicate_function_parameter/lambda.stella")
 => expect![]
 
@@ -474,22 +478,22 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-ty
     	#let-patterns
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 multiparameter_incorrect_number_of_arguments
 include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-typed/incorrect_number_of_arguments/primitive.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 multiparameter_functions
 include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/well-typed/primitive.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 natural_literals_bad
 include_str!("../tests/ThatDraenGuy/stage1/extra/natural-literals/ill-typed/unexpected_type_for_expression/primitive.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 natural_literals
 include_str!("../tests/ThatDraenGuy/stage1/extra/natural-literals/well-typed/primitive.stella")
 => expect![]
@@ -540,12 +544,12 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-functions/ill-typed/inc
     `main` has 0 arguments, but is expected to have 1
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 nullary_incorrect_number_of_arguments
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-functions/ill-typed/incorrect_number_of_arguments/primitive.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 nullary_functions
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-functions/well-typed/primitive.stella")
 => expect![]
@@ -929,7 +933,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/ambiguous_variant_type/prim
     	#structural-patterns
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 duplicate_function_declaration
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_function_declaration/primitive.stella")
 => expect![]
@@ -1007,17 +1011,17 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/fix.stella")
     	#let-patterns
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 if_funcs_bad
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/if-funcs.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 not_a_function
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/primitive.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 triple
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/triple.stella")
 => expect![]
@@ -1058,7 +1062,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/tuple_index_out_of_bounds/p
     	#tuples
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 undefined_variable
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/undefined_variable/primitive.stella")
 => expect![]
@@ -1082,7 +1086,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_injection/primit
 "#]]
 
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 unexpected_lambda
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_lambda/primitive.stella")
 => expect![]
@@ -1142,12 +1146,12 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_tuple_length/pri
     	#tuples
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 unexpected_type_for_expression
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_expression/primitive.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 unexpected_type_for_parameter
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_parameter/primitive.stella")
 => expect![]
@@ -1170,7 +1174,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_variant_label/pr
     	#variants
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 abstraction
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/abstraction.stella")
 => expect![]
@@ -1185,7 +1189,7 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/ascription.stella")
     	#sum-types
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 factorial
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/factorial.stella")
 => expect![]
@@ -1201,17 +1205,17 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/fix-primitive.stella")
     	#let-patterns
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 func_chain
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/func-chain.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 func_chain2
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/func-chain2.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 if_funcs
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/if-funcs.stella")
 => expect![]
@@ -1225,12 +1229,12 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/lists.stella")
     	#lists
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 logic
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/logic.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 math
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/math.stella")
 => expect![]
@@ -1253,17 +1257,17 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/records.stella")
     	#records
 "#]]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 sample
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/sample.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 shadowing
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/shadowing.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: Check Function(Function")]
+#[should_panic(expected = "not yet implemented: typck")]
 square
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/square.stella")
 => expect![]

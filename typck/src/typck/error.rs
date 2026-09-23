@@ -4,7 +4,7 @@ use std::collections::btree_set::BTreeSet;
 use culpa::throws;
 
 use crate::{
-    ast::Function,
+    ast::Ident,
     extensions::{Extension, Extensions},
 };
 
@@ -92,13 +92,13 @@ pub(crate) enum Error<'src> {
     /// Образец в match-выражении не соответствует типу разбираемого выражения.
     UnexpectedPatternForType,
     /// В записи (`Record`) указаны повторяющиеся имена полей.
-    DuplicateRecordFields,
+    DuplicateRecordFields(Ident<'src>),
     /// В типе записи (`TypeRecord`) указаны повторяющиеся имена полей.
-    DuplicateRecordTypeFields,
+    DuplicateRecordTypeFields(Ident<'src>),
     /// В типе варианта (`TypeVariant`) указаны повторяющиеся имена вариантов (тегов/полей).
-    DuplicateVariantTypeFields,
+    DuplicateVariantTypeFields(Ident<'src>),
     /// Функция с данным именем объявлена в программе более одного раза.
-    DuplicateFunctionDeclaration([&'src Function<'src>; 2]),
+    DuplicateFunctionDeclaration(Ident<'src>),
 
     // Stage 1 extra 3:
     //
@@ -113,7 +113,7 @@ pub(crate) enum Error<'src> {
     // Stage 1 extra 4:
     //
     /// В паттерне записи (`PatternRecord`) указаны повторяющиеся имена полей.
-    DuplicateRecordPatternFields,
+    DuplicateRecordPatternFields(Ident<'src>),
 
     // Stage 1 extra 5:
     //
@@ -133,11 +133,14 @@ pub(crate) enum Error<'src> {
     // Stage 1 extra 7:
     //
     /// В объявлении функции повторяется имя параметра.
-    DuplicateFunctionParameter,
+    DuplicateFunctionParameter {
+        function: Ident<'src>,
+        param: Ident<'src>,
+    },
     /// Повторяющееся связывание в `let`-выражении.
-    DuplicateLetBinding,
+    DuplicateLetBinding(Ident<'src>),
     /// Повторяющийся параметр типа.
-    DuplicateTypeParameter,
+    DuplicateTypeParameter(Ident<'src>),
 
     // Stage 2:
     //
@@ -177,7 +180,7 @@ pub(crate) enum Error<'src> {
     /// происходит с некорректным количеством типов-аргументов.
     IncorrectNumberOfTypeArguments,
     /// В типе содержится необъявленная типовая переменная (только для `#universal-types`)
-    UndefinedTypeVariable,
+    UndefinedTypeVariable(Ident<'src>),
 
     // Custom:
     //
@@ -238,7 +241,12 @@ impl fmt::Display for Error<'_> {
                 )?
             }
 
-            other => todo!("format {other:?}"),
+            Self::DuplicateFunctionParameter { function, param } => writeln!(
+                f,
+                "function `{function}` is declared with duplicates of parameter `{param}`"
+            )?,
+
+            other => todo!("format Error::{other:?}"),
         }
     }
 }
@@ -279,22 +287,22 @@ impl Error<'_> {
             Error::IllegalEmptyMatching => nz!(24),
             Error::NonexhaustiveMatchPatterns => nz!(25),
             Error::UnexpectedPatternForType => nz!(26),
-            Error::DuplicateRecordFields => nz!(27),
-            Error::DuplicateRecordTypeFields => nz!(28),
-            Error::DuplicateVariantTypeFields => nz!(29),
+            Error::DuplicateRecordFields(_) => nz!(27),
+            Error::DuplicateRecordTypeFields(_) => nz!(28),
+            Error::DuplicateVariantTypeFields(_) => nz!(29),
             Error::DuplicateFunctionDeclaration(_) => nz!(30),
 
             Error::IncorrectArityOfMain(_)
             | Error::IncorrectNumberOfArguments
             | Error::UnexpectedNumberOfParametersInLambda => nz!(113),
-            Error::DuplicateRecordPatternFields => nz!(114),
+            Error::DuplicateRecordPatternFields(_) => nz!(114),
             Error::UnexpectedDataForNullaryLabel
             | Error::MissingDataForLabel
             | Error::UnexpectedNonNullaryVariantPattern
             | Error::UnexpectedNullaryVariantPattern => nz!(115),
-            Error::DuplicateFunctionParameter
-            | Error::DuplicateLetBinding
-            | Error::DuplicateTypeParameter => nz!(117),
+            Error::DuplicateFunctionParameter { .. }
+            | Error::DuplicateLetBinding(_)
+            | Error::DuplicateTypeParameter(_) => nz!(117),
 
             Error::ExceptionTypeNotDeclared => nz!(31),
             Error::AmbiguousThrowType => nz!(32),
@@ -308,7 +316,7 @@ impl Error<'_> {
             Error::OccursCheckInfiniteType => nz!(39),
             Error::NotAGenericFunction => nz!(40),
             Error::IncorrectNumberOfTypeArguments => nz!(41),
-            Error::UndefinedTypeVariable => nz!(42),
+            Error::UndefinedTypeVariable(_) => nz!(42),
 
             Error::UnsupportedExtensions(_) => nz!(253),
             Error::MissingExtensions { .. } => nz!(254),

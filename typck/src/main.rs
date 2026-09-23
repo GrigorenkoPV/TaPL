@@ -12,6 +12,7 @@ use crate::parser::parse;
 
 mod ast;
 mod extensions;
+mod namespace;
 mod parser;
 mod typck;
 
