@@ -17,7 +17,7 @@ pub(crate) enum Error<'src> {
     /// В программе отсутствует функция `main`.
     MissingMain,
     /// В выражении содержится необъявленная переменная.
-    UndefinedVariable,
+    UndefinedVariable(Ident<'src>),
     /// Тип выражения отличается от ожидаемого.
     ///
     /// Эта ошибка должна возникать только если ни одна из более точных ошибок (ниже)
@@ -246,6 +246,11 @@ impl fmt::Display for Error<'_> {
                 "function `{function}` is declared with duplicates of parameter `{param}`"
             )?,
 
+            Self::DuplicateFunctionDeclaration(name) => {
+                writeln!(f, "function `{name}` is defined multiple times")?
+            }
+            Self::UndefinedVariable(name) => writeln!(f, "undefined variable `{name}`")?,
+
             other => todo!("format Error::{other:?}"),
         }
     }
@@ -262,7 +267,7 @@ impl Error<'_> {
     pub(crate) const fn code(&self) -> NonZero<u8> {
         match self {
             Error::MissingMain => nz!(1),
-            Error::UndefinedVariable => nz!(2),
+            Error::UndefinedVariable(_) => nz!(2),
             Error::UnexpectedTypeForExpression => nz!(3),
             Error::NotAFunction => nz!(4),
             Error::NotATuple => nz!(5),

@@ -212,8 +212,30 @@ impl<'ctx> Context<'_, 'ctx> {
     }
 
     #[throws(Error<'ctx>)]
-    fn check_expr_is_ty(&self, expr: &'ctx Expr<'ctx>, expected: &Type<'_>) {
-        todo!("typck {expr:?}")
+    fn check_expr_is_ty(&self, expr: &'ctx Expr<'ctx>, ty: &Type<'_>) {
+        match (expr, ty) {
+            (Expr::False | Expr::True, Type::Bool)
+            | (Expr::Unit, Type::Unit)
+            | (Expr::Integer(_), Type::Nat) => {}
+
+            (Expr::Var(var), expected) => {
+                let actual = self
+                    .variables
+                    .lookup(var)
+                    .ok_or(Error::UndefinedVariable(Borrowed(var)))?;
+                self.check_ty_coerces(actual, expected)?
+            }
+
+            (expr, ty) => todo!("typck {expr:?} is {ty:?}"),
+        }
+    }
+
+    #[throws(Error<'ctx>)]
+    fn check_ty_coerces(&self, from: &Type<'_>, to: &Type<'_>) {
+        match [from, to] {
+            [Type::Bool, Type::Bool] | [Type::Nat, Type::Nat] | [Type::Unit, Type::Unit] => {}
+            [from, to] => todo!("Check coercion from {from:?} to {to:?}"),
+        }
     }
 }
 

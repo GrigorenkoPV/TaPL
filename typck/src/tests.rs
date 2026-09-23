@@ -933,10 +933,13 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/ambiguous_variant_type/prim
     	#structural-patterns
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
 duplicate_function_declaration
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_function_declaration/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    30
+    ERROR_DUPLICATE_FUNCTION_DECLARATION
+    function `func` is defined multiple times
+"#]]
 
 duplicate_record_fields
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_record_fields/primitive.stella")
@@ -1062,10 +1065,13 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/tuple_index_out_of_bounds/p
     	#tuples
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck")]
 undefined_variable
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/undefined_variable/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    2
+    ERROR_UNDEFINED_VARIABLE
+    undefined variable `a`
+"#]]
 
 unexpected_field_access
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_field_access/primitive.stella")
