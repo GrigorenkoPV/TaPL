@@ -4,7 +4,7 @@ use std::collections::btree_set::BTreeSet;
 use culpa::throws;
 
 use crate::{
-    ast::Decl,
+    ast::Function,
     extensions::{Extension, Extensions},
 };
 
@@ -98,7 +98,7 @@ pub(crate) enum Error<'src> {
     /// В типе варианта (`TypeVariant`) указаны повторяющиеся имена вариантов (тегов/полей).
     DuplicateVariantTypeFields,
     /// Функция с данным именем объявлена в программе более одного раза.
-    DuplicateFunctionDeclaration([&'src Decl<'src>; 2]),
+    DuplicateFunctionDeclaration([&'src Function<'src>; 2]),
 
     // Stage 1 extra 3:
     //
