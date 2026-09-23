@@ -325,7 +325,6 @@ include_str!("../tests/Examples/pass/letrec.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#lists
     	#nested-function-declarations
@@ -354,7 +353,6 @@ include_str!("../tests/Examples/pass/sub-asc.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#records
     	#let-bindings
     	#type-ascriptions
@@ -368,7 +366,6 @@ include_str!("../tests/Examples/pass/sub-match.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#records
     	#let-bindings
     	#type-ascriptions
@@ -623,7 +620,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/d
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -638,7 +634,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -653,7 +648,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -668,7 +662,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -683,7 +676,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -698,7 +690,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -722,7 +713,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -737,7 +727,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -752,7 +741,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/u
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -767,7 +755,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/u
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -782,7 +769,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/u
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -797,7 +783,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -812,7 +797,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -827,7 +811,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -842,7 +825,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -866,7 +848,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -881,7 +862,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -896,7 +876,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#tuples
     	#records
     	#sum-types
@@ -1284,7 +1263,6 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/sum-types.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#sum-types
 "#]]
 
@@ -1299,12 +1277,7 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/tuples.stella")
 
 unit
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/unit.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#unit-type
-"#]]
+=> expect!["0"]
 
 conflicting_exception_declarations
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/conflicting_exception_declarations/primitive.stella")
@@ -1456,7 +1429,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/not_a_reference/primitive.s
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#references
 "#]]
 
@@ -1477,7 +1449,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_reference/primit
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#references
 "#]]
 
@@ -1541,7 +1512,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/ref-chai
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#records
     	#let-bindings
     	#lists
@@ -1592,7 +1562,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#records
     	#variants
     	#sequencing
@@ -1629,7 +1598,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#records
     	#variants
     	#sequencing
@@ -1645,7 +1613,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/deref.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#records
     	#let-bindings
     	#lists
@@ -1702,7 +1669,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/ref-assign.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#records
     	#let-bindings
     	#lists
@@ -1720,7 +1686,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/refs.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#let-bindings
     	#sequencing
     	#references
@@ -1768,7 +1733,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#records
     	#variants
     	#sequencing
@@ -1808,7 +1772,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#unit-type
     	#records
     	#variants
     	#sequencing

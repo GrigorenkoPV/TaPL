@@ -69,10 +69,12 @@ impl Extension {
     #[must_use]
     pub(crate) const fn supported(&self) -> bool {
         match self {
-            Self::NullaryFunctions | Self::MultiparameterFunctions | Self::NaturalLiterals => true,
+            Self::NullaryFunctions
+            | Self::MultiparameterFunctions
+            | Self::NaturalLiterals
+            | Self::UnitType => true,
 
-            Self::UnitType
-            | Self::Pairs
+            Self::Pairs
             | Self::Tuples
             | Self::Records
             | Self::LetBindings
