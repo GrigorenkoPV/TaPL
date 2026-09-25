@@ -120,7 +120,6 @@ include_str!("../tests/Examples/fail/ambitious-injection-on-top.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-bindings
     	#sum-types
     	#lists
     	#variants
@@ -319,7 +318,6 @@ include_str!("../tests/Examples/pass/empty-list.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-bindings
     	#lists
     	#variants
     	#exceptions
@@ -336,7 +334,6 @@ include_str!("../tests/Examples/pass/exception01.stella")
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#let-bindings
     	#type-ascriptions
     	#sum-types
     	#variants
@@ -383,7 +380,6 @@ include_str!("../tests/Examples/pass/sub-asc.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#let-bindings
     	#type-ascriptions
     	#let-patterns
     	#structural-subtyping
@@ -396,7 +392,6 @@ include_str!("../tests/Examples/pass/sub-match.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#let-bindings
     	#type-ascriptions
     	#structural-patterns
     	#let-patterns
@@ -433,7 +428,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-type
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#tuples
-    	#let-bindings
     	#structural-patterns
     	#let-patterns
 "#]]
@@ -445,7 +439,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-type
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#tuples
-    	#let-bindings
     	#structural-patterns
     	#letrec-bindings
     	#pattern-ascriptions
@@ -508,7 +501,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-ty
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-bindings
     	#fixpoint-combinator
     	#let-patterns
 "#]]
@@ -558,7 +550,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/il
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-bindings
     	#let-patterns
 "#]]
 
@@ -1029,7 +1020,6 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/fix.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-bindings
     	#fixpoint-combinator
     	#let-patterns
 "#]]
@@ -1264,7 +1254,6 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/fix-primitive.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-bindings
     	#fixpoint-combinator
     	#let-patterns
 "#]]
@@ -1463,9 +1452,7 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_panic_type/primit
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-bindings
     	#let-patterns
-    	#panic
 "#]]
 
 ambiguous_reference_type
@@ -1474,7 +1461,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_reference_type/pr
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-bindings
     	#let-patterns
     	#references
 "#]]
@@ -1486,7 +1472,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/missing_record_fields/subty
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#let-bindings
     	#let-patterns
     	#structural-subtyping
 "#]]
@@ -1506,7 +1491,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_memory_address/p
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-bindings
     	#let-patterns
     	#references
 "#]]
@@ -1527,7 +1511,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invarian
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#let-bindings
     	#let-patterns
     	#references
     	#structural-subtyping
@@ -1542,7 +1525,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invarian
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#let-bindings
     	#let-patterns
     	#references
     	#structural-subtyping
@@ -1557,7 +1539,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invarian
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#let-bindings
     	#let-patterns
     	#references
     	#structural-subtyping
@@ -1581,7 +1562,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/ref-chai
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#let-bindings
     	#lists
     	#let-patterns
     	#sequencing
@@ -1599,7 +1579,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     the following unsupported extensions are enabled:
     	#records
     	#sequencing
-    	#panic
     	#bottom-type
 "#]]
 
@@ -1634,7 +1613,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     	#variants
     	#sequencing
     	#references
-    	#panic
     	#bottom-type
     	#arithmetic-operators
 "#]]
@@ -1670,7 +1648,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     	#variants
     	#sequencing
     	#references
-    	#panic
     	#bottom-type
     	#arithmetic-operators
 "#]]
@@ -1682,7 +1659,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/deref.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#let-bindings
     	#lists
     	#let-patterns
     	#sequencing
@@ -1708,7 +1684,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref-with-bot-in-
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#let-bindings
     	#let-patterns
     	#references
     	#structural-subtyping
@@ -1723,7 +1698,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#let-bindings
     	#let-patterns
     	#references
     	#structural-subtyping
@@ -1738,7 +1712,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/ref-assign.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#let-bindings
     	#lists
     	#let-patterns
     	#sequencing
@@ -1754,7 +1727,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/refs.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-bindings
     	#sequencing
     	#references
 "#]]
@@ -1767,7 +1739,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-fn-stack.stella")
     the following unsupported extensions are enabled:
     	#records
     	#sequencing
-    	#panic
     	#structural-subtyping
     	#bottom-type
 "#]]
@@ -1805,7 +1776,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
     	#variants
     	#sequencing
     	#references
-    	#panic
     	#structural-subtyping
     	#bottom-type
     	#arithmetic-operators
@@ -1844,7 +1814,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
     	#variants
     	#sequencing
     	#references
-    	#panic
     	#structural-subtyping
     	#bottom-type
     	#arithmetic-operators
@@ -1989,7 +1958,6 @@ include_str!("../tests/ThatDraenGuy/stage3/well-typed/pair2.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#pairs
-    	#let-bindings
     	#pattern-ascriptions
     	#let-patterns
     	#type-reconstruction

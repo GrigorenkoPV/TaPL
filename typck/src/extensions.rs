@@ -73,12 +73,13 @@ impl Extension {
             | Self::MultiparameterFunctions
             | Self::NaturalLiterals
             | Self::NestedFunctionDeclarations
+            | Self::LetBindings
+            | Self::Panic
             | Self::UnitType => true,
 
             Self::Pairs
             | Self::Tuples
             | Self::Records
-            | Self::LetBindings
             | Self::TypeAscriptions
             | Self::SumTypes
             | Self::Lists
@@ -91,7 +92,6 @@ impl Extension {
             | Self::LetPatterns
             | Self::Sequencing
             | Self::References
-            | Self::Panic
             | Self::Exceptions
             | Self::ExceptionTypeDeclaration
             | Self::StructuralSubtyping
