@@ -237,26 +237,22 @@ include_str!("../tests/Examples/fail/unexpected-field-01.stella")
 unexpected_lambda_01
 include_str!("../tests/Examples/fail/unexpected-lambda-01.stella")
 => expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
+    8
+    ERROR_UNEXPECTED_LAMBDA
+    expected an abstraction
     	fn(x: Nat) { return x }
-    has type
-    	fn(Nat) -> auto
-    but expected to have type
+    to be
     	Nat
 "#]]
 
 unexpected_lambda_02
 include_str!("../tests/Examples/fail/unexpected-lambda-02.stella")
 => expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
+    8
+    ERROR_UNEXPECTED_LAMBDA
+    expected an abstraction
     	fn(x: Nat) { return x }
-    has type
-    	fn(Nat) -> auto
-    but expected to have type
+    to be
     	Nat
 "#]]
 
@@ -1128,13 +1124,11 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_injection/primit
 unexpected_lambda
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_lambda/primitive.stella")
 => expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
+    8
+    ERROR_UNEXPECTED_LAMBDA
+    expected an abstraction
     	fn(a: Bool) { return if a then 0 else succ(0) }
-    has type
-    	fn(Bool) -> auto
-    but expected to have type
+    to be
     	Nat
 "#]]
 

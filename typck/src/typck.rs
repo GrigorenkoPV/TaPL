@@ -480,7 +480,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 ctx.ensure(ret_actual, ret_expected)?
             }
             (
-                Expr::Abstraction { params, ret: _ },
+                Expr::Abstraction { .. },
                 Type::Bool
                 | Type::Nat { .. }
                 | Type::Ref { .. }
@@ -490,14 +490,9 @@ impl<'ctx> Context<'_, 'ctx> {
                 | Type::Variant { .. }
                 | Type::List { .. }
                 | Type::Unit { .. },
-            ) => throw!(Error::UnexpectedTypeForExpression {
-                // FIXME: ERROR_UNEXPECTED_LAMBDA
-                expr,
+            ) => throw!(Error::UnexpectedLambda {
+                lambda: expr,
                 expected: expected.to_owned(),
-                actual: Type::Fn {
-                    args: params.iter().map(|(_name, ty)| ty.clone()).collect(),
-                    ret: Box::new(Type::Auto)
-                },
             }),
 
             (

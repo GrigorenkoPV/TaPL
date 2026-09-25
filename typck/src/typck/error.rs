@@ -1,8 +1,6 @@
 use core::{fmt, mem, num::NonZero};
 use std::{borrow::Cow, collections::btree_set::BTreeSet};
 
-use culpa::throws;
-
 use crate::{
     ast::{Expr, Ident, Type},
     extensions::{Extension, Extensions},
@@ -50,8 +48,10 @@ pub(crate) enum Error<'src> {
     /// Анонимная функция (`Abstraction`) проверяется с не функциональным типом (`TypeFun`).
     ///
     /// Ошибка должна возникать до проверки типа самой функции.
-    #[expect(dead_code, reason = "WIP")]
-    UnexpectedLambda,
+    UnexpectedLambda {
+        lambda: &'src Expr<'src>,
+        expected: Type<'src>,
+    },
     /// Тип параметра анонимной функции (`AParamDecl`) отличается от ожидаемого.
     ///
     /// Ошибка должна возникать до проверки тела функции.
@@ -250,13 +250,12 @@ pub(crate) enum Error<'src> {
 impl core::error::Error for Error<'_> {}
 
 impl fmt::Display for Error<'_> {
-    #[throws(fmt::Error)]
     #[expect(clippy::too_many_lines, reason = "big `match`")]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "ERROR_{}", <&'static str>::from(self))?;
 
         match self {
-            Self::MissingMain => writeln!(f, "`main` is missing or is not a function")?,
+            Self::MissingMain => writeln!(f, "`main` is missing or is not a function"),
 
             Self::MissingExtensions {
                 mandatory,
@@ -277,12 +276,14 @@ impl fmt::Display for Error<'_> {
                     }
                     writeln!(f)?
                 }
+                Ok(())
             }
             Self::UnsupportedExtensions(extensions) => {
                 writeln!(f, "the following unsupported extensions are enabled:")?;
                 for ext in extensions {
                     writeln!(f, "\t{ext}")?
                 }
+                Ok(())
             }
 
             &Self::IncorrectArityOfMain(arity) => {
@@ -294,18 +295,18 @@ impl fmt::Display for Error<'_> {
                 writeln!(
                     f,
                     "`main` has {arity} arguments, but is expected to have {EXPECTED}"
-                )?
+                )
             }
 
             Self::DuplicateFunctionParameter { function, param } => writeln!(
                 f,
                 "function\n\t{function}\nis declared with duplicates of parameter\n\t{param}"
-            )?,
+            ),
 
             Self::DuplicateFunctionDeclaration(name) => {
-                writeln!(f, "function `{name}` is defined multiple times")?
+                writeln!(f, "function `{name}` is defined multiple times")
             }
-            Self::UndefinedVariable(name) => writeln!(f, "undefined variable `{name}`")?,
+            Self::UndefinedVariable(name) => writeln!(f, "undefined variable `{name}`"),
 
             Self::UnexpectedTypeForExpression {
                 actual,
@@ -314,7 +315,7 @@ impl fmt::Display for Error<'_> {
             } => writeln!(
                 f,
                 "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to have type\n\t{expected}"
-            )?,
+            ),
             Self::UnexpectedTypeForParameter {
                 actual,
                 expected,
@@ -322,7 +323,7 @@ impl fmt::Display for Error<'_> {
             } => writeln!(
                 f,
                 "parameter `{param}` has type\n\t{actual}\nbut expected to have type\n\t{expected}"
-            )?,
+            ),
 
             Self::UnexpectedNumberOfParametersInLambda {
                 expected,
@@ -331,7 +332,7 @@ impl fmt::Display for Error<'_> {
             } => writeln!(
                 f,
                 "abstraction\n\t{lambda}\nhas {actual} arguments, but is expected to have {expected}"
-            )?,
+            ),
 
             Self::DuplicateRecordTypeFields(name)
             | Self::DuplicateVariantTypeFields(name)
@@ -339,15 +340,20 @@ impl fmt::Display for Error<'_> {
             | Self::DuplicateTypeParameter(name)
             | Self::DuplicateRecordFields(name)
             | Self::DuplicateRecordPatternFields(name) => {
-                writeln!(f, "`{name}` is declared more than once")?
+                writeln!(f, "`{name}` is declared more than once")
             }
 
-            Self::UndefinedTypeVariable(name) => writeln!(f, "`{name}` not found")?,
+            Self::UndefinedTypeVariable(name) => writeln!(f, "`{name}` not found"),
+
+            Self::UnexpectedLambda { lambda, expected } => writeln!(
+                f,
+                "expected an abstraction\n\t{lambda}\nto be\n\t{expected}"
+            ),
 
             Self::NotAFunction { expr, actual } => writeln!(
                 f,
                 "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to be a function"
-            )?,
+            ),
 
             Self::IncorrectNumberOfArguments {
                 expected,
@@ -356,12 +362,11 @@ impl fmt::Display for Error<'_> {
             } => writeln!(
                 f,
                 "function\n\t{callee}\nis called with {actual} argument(s), but has arity of {expected}"
-            )?,
+            ),
 
             Self::NotATuple
             | Self::NotARecord
             | Self::NotAList
-            | Self::UnexpectedLambda
             | Self::UnexpectedTuple
             | Self::UnexpectedRecord
             | Self::UnexpectedVariant
@@ -415,7 +420,7 @@ impl Error<'_> {
             Error::NotATuple => nz!(5),
             Error::NotARecord => nz!(6),
             Error::NotAList => nz!(7),
-            Error::UnexpectedLambda => nz!(8),
+            Error::UnexpectedLambda { .. } => nz!(8),
             Error::UnexpectedTypeForParameter { .. } => nz!(9),
             Error::UnexpectedTuple => nz!(10),
             Error::UnexpectedRecord => nz!(11),
