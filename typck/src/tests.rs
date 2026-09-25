@@ -231,7 +231,7 @@ include_str!("../tests/Examples/fail/unexpected-lambda-01.stella")
     3
     ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
     expression
-    	Abstraction { params: [("x", Nat)], ret: Var("x") }
+    	fn(x: Nat) { return x }
     has type
     	fn(Nat) -> auto
     but expected to have type
@@ -393,7 +393,10 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-type
 => expect![[r#"
     117
     ERROR_DUPLICATE_FUNCTION_PARAMETER
-    function `duplicate` is declared with duplicates of parameter `a`
+    function
+    	duplicate
+    is declared with duplicates of parameter
+    	a
 "#]]
 
 duplicate_function_parameter_lambda
@@ -401,7 +404,10 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-type
 => expect![[r#"
     117
     ERROR_DUPLICATE_FUNCTION_PARAMETER
-    function `Abstraction { params: [("a", Nat), ("a", Bool)], ret: Integer(0) }` is declared with duplicates of parameter `a`
+    function
+    	fn(a: Nat, a: Bool) { return 0 }
+    is declared with duplicates of parameter
+    	a
 "#]]
 
 r#let
@@ -507,7 +513,7 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/natural-literals/ill-typed/unex
     3
     ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
     expression
-    	Integer(25)
+    	25
     has type
     	Nat
     but expected to have type
@@ -1087,7 +1093,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_lambda/primitive
     3
     ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
     expression
-    	Abstraction { params: [("a", Bool)], ret: If { cond: Var("a"), on_true: Integer(0), on_false: Succ(Integer(0)) } }
+    	fn(a: Bool) { return if a then 0 else succ(0) }
     has type
     	fn(Bool) -> auto
     but expected to have type
@@ -1155,7 +1161,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_express
     3
     ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
     expression
-    	False
+    	false
     has type
     	Bool
     but expected to have type

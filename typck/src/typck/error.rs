@@ -220,9 +220,9 @@ impl fmt::Display for Error<'_> {
                 }
                 for options in choosable {
                     write!(f, "\tat least one of: ")?;
-                    let mut first = true;
+                    let first = &mut true;
                     for option in options {
-                        if !mem::replace(&mut first, false) {
+                        if !mem::replace(first, false) {
                             write!(f, ", ")?
                         }
                         write!(f, "{option}")?
@@ -251,7 +251,7 @@ impl fmt::Display for Error<'_> {
 
             Self::DuplicateFunctionParameter { function, param } => writeln!(
                 f,
-                "function `{function}` is declared with duplicates of parameter `{param}`"
+                "function\n\t{function}\nis declared with duplicates of parameter\n\t{param}"
             )?,
 
             Self::DuplicateFunctionDeclaration(name) => {
@@ -265,8 +265,7 @@ impl fmt::Display for Error<'_> {
                 expr,
             } => writeln!(
                 f,
-                // TODO: impl Display for Expr
-                "expression\n\t{expr:?}\nhas type\n\t{actual}\nbut expected to have type\n\t{expected}"
+                "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to have type\n\t{expected}"
             )?,
             Self::UnexpectedTypeForParameter {
                 actual,

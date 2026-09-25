@@ -485,8 +485,7 @@ impl<'ctx> Context<'_, 'ctx> {
                     ctx.variables
                         .add_local(Borrowed(name), Borrowed(actual))
                         .map_err(|(_old, _new)| Error::DuplicateFunctionParameter {
-                            // TODO: Display
-                            function: format!("{expr:?}").into(),
+                            function: format!("{expr}").into(),
                             param: Borrowed(name),
                         })?
                 }
