@@ -75,12 +75,12 @@ impl Extension {
             | Self::NestedFunctionDeclarations
             | Self::LetBindings
             | Self::Panic
+            | Self::TypeAscriptions
             | Self::UnitType => true,
 
             Self::Pairs
             | Self::Tuples
             | Self::Records
-            | Self::TypeAscriptions
             | Self::SumTypes
             | Self::Lists
             | Self::Variants

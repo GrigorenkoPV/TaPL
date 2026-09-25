@@ -308,7 +308,6 @@ include_str!("../tests/Examples/pass/ascription.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#type-ascriptions
     	#lists
 "#]]
 
@@ -334,7 +333,6 @@ include_str!("../tests/Examples/pass/exception01.stella")
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#type-ascriptions
     	#sum-types
     	#variants
     	#structural-patterns
@@ -369,7 +367,6 @@ include_str!("../tests/Examples/pass/match.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#type-ascriptions
     	#sum-types
 "#]]
 
@@ -380,7 +377,6 @@ include_str!("../tests/Examples/pass/sub-asc.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#type-ascriptions
     	#let-patterns
     	#structural-subtyping
 "#]]
@@ -392,7 +388,6 @@ include_str!("../tests/Examples/pass/sub-match.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#type-ascriptions
     	#structural-patterns
     	#let-patterns
     	#structural-subtyping
@@ -1240,7 +1235,6 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/ascription.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#type-ascriptions
     	#sum-types
 "#]]
 

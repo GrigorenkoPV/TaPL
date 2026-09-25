@@ -373,11 +373,15 @@ impl<'ctx> Context<'_, 'ctx> {
                 })
             }
 
+            Expr::Ascription { expr, ty } => {
+                self.ensure(expr, ty)?;
+                Borrowed(ty)
+            }
+
             Expr::Assign { .. }
             | Expr::Seq(_)
             | Expr::Generic { .. }
             | Expr::BinOp { .. }
-            | Expr::Ascription { .. }
             | Expr::Cast { .. }
             | Expr::Variant { .. }
             | Expr::Match { .. }
@@ -540,6 +544,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 | Expr::ListIsEmpty(_)
                 | Expr::Succ(_)
                 | Expr::NatPred(_)
+                | Expr::Ascription { .. }
                 | Expr::Application { .. },
                 Type::Bool
                 | Type::Nat
@@ -603,16 +608,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::BinOp { .. }, Type::Variant { .. })
             | (Expr::BinOp { .. }, Type::List { .. })
             | (Expr::BinOp { .. }, Type::Unit { .. })
-            | (Expr::Ascription { .. }, Type::Bool)
-            | (Expr::Ascription { .. }, Type::Nat { .. })
-            | (Expr::Ascription { .. }, Type::Ref { .. })
-            | (Expr::Ascription { .. }, Type::Sum { .. })
-            | (Expr::Ascription { .. }, Type::Fn { .. })
-            | (Expr::Ascription { .. }, Type::Tuple { .. })
-            | (Expr::Ascription { .. }, Type::Record { .. })
-            | (Expr::Ascription { .. }, Type::Variant { .. })
-            | (Expr::Ascription { .. }, Type::List { .. })
-            | (Expr::Ascription { .. }, Type::Unit { .. })
             | (Expr::Cast { .. }, Type::Bool)
             | (Expr::Cast { .. }, Type::Nat { .. })
             | (Expr::Cast { .. }, Type::Ref { .. })
