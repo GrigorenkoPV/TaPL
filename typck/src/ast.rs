@@ -1,4 +1,4 @@
-use core::fmt;
+use core::{fmt, mem};
 use std::borrow::Cow;
 
 use crate::extensions::Extensions;
@@ -108,17 +108,34 @@ impl fmt::Display for Type<'_> {
             Self::Unit => f.write_str("Unit"),
             Self::Top => f.write_str("Top"),
             Self::Bot => f.write_str("Bot"),
+            Self::Auto => f.write_str("auto"),
             Self::Var(name) => f.write_str(name),
             Self::List(inner) => write!(f, "[{inner}]"),
-            Self::Auto => todo!(),
-            Self::Ref(inner) => write!(f, "&({inner})"),
-            Self::Sum { .. } => todo!(),
-            Self::Fn { .. } => todo!(),
-            Self::Forall { .. } => todo!(),
-            Self::Rec { .. } => todo!(),
-            Self::Tuple(..) => todo!(),
-            Self::Record(..) => todo!(),
-            Self::Variant(..) => todo!(),
+            Self::Ref(inner) => write!(f, "&{inner:#}"),
+            Self::Fn { args, ret } => {
+                if f.alternate(){
+                    f.write_str("(")?
+                }
+                f.write_str("fn(")?;
+                let first = &mut true;
+                for arg in args {
+                    if !mem::replace(first, false) {
+                        f.write_str(", ")?
+                    }
+                    write!(f, "{arg}")?
+                }
+                write!(f, ") -> {ret:#}")?;
+                if f.alternate(){
+                    f.write_str(")")?
+                }
+                Ok(())
+            }
+            Self::Sum { .. }
+            | Self::Forall { .. }
+            | Self::Rec { .. }
+            | Self::Tuple(..)
+            | Self::Record(..)
+            | Self::Variant(..) => todo!("Display {self:?}"),
         }
     }
 }

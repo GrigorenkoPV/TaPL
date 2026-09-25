@@ -1,3 +1,4 @@
+use core::iter::zip;
 use std::{
     borrow::Cow::{self, Borrowed, Owned},
     collections::HashSet,
@@ -6,7 +7,7 @@ use std::{
 use culpa::{throw, throws};
 
 use crate::{
-    ast::{Decl, Expr, Function, Ident, Program, Type},
+    ast::{Decl, Expr, Function, Ident, Pattern, PatternBinding, Program, Type},
     extensions::unsupported,
 };
 
@@ -211,12 +212,120 @@ impl<'ctx> Context<'_, 'ctx> {
                 })?
         }
         ctx.check_decls(decls)?;
-        ctx.check_expr_is_ty(body, ret_ty)?
+        ctx.ensure(body, ret_ty)?
+    }
+
+    #[throws(Error<'ctx>)]
+    fn check_bindings(&mut self, bindings: impl IntoIterator<Item = &'ctx PatternBinding<'ctx>>) {
+        for binding in bindings {
+            self.check_binding(binding)?
+        }
+    }
+
+    #[throws(Error<'ctx>)]
+    fn check_binding(&mut self, binding: &'ctx PatternBinding<'ctx>) {
+        let PatternBinding { lhs, rhs } = binding;
+        match lhs {
+            Pattern::Unit => self.ensure(rhs, &Type::Unit)?,
+            Pattern::Var(var) => {
+                let ty = self.infer(rhs)?;
+                self.variables
+                    .add_local(Borrowed(var), ty)
+                    .map_err(|(_old, _new)| Error::DuplicateLetBinding(Borrowed(var)))?
+            }
+            Pattern::CastAs { .. }
+            | Pattern::Asc { .. }
+            | Pattern::Variant { .. }
+            | Pattern::Inl(_)
+            | Pattern::Inr(_)
+            | Pattern::Tuple(_)
+            | Pattern::Record(_)
+            | Pattern::List(_)
+            | Pattern::Cons(_)
+            | Pattern::False
+            | Pattern::True
+            | Pattern::Int(_)
+            | Pattern::Succ(_) => todo!("let binding {binding:?}"),
+        }
+    }
+
+    #[throws(Error<'ctx>)]
+    fn infer(&self, expr: &'ctx Expr<'ctx>) -> Typed<'ctx> {
+        match expr {
+            Expr::True | Expr::False => Owned(Type::Bool),
+            Expr::Unit => Owned(Type::Unit),
+            Expr::Integer(_) => Owned(Type::Nat),
+
+            Expr::Var(var) => self
+                .variables
+                .lookup(var)
+                .ok_or(Error::UndefinedVariable(Borrowed(var)))?
+                .clone(),
+
+            Expr::NatIsZero(nat) => {
+                self.ensure(nat, &Type::Nat)?;
+                Owned(Type::Bool)
+            }
+
+            Expr::Succ(nat) | Expr::NatPred(nat) => {
+                self.ensure(nat, &Type::Nat)?;
+                Owned(Type::Nat)
+            }
+
+            Expr::Panic => Owned(Type::Auto),
+
+            Expr::If {
+                cond,
+                on_true,
+                on_false,
+            } => {
+                self.ensure(cond, &Type::Bool)?;
+                let ty = self.infer(on_true)?;
+                self.ensure(on_false, &ty)?;
+                ty
+            }
+
+            Expr::Let { .. }
+            | Expr::Assign { .. }
+            | Expr::Seq(_)
+            | Expr::Generic { .. }
+            | Expr::BinOp { .. }
+            | Expr::Ascription { .. }
+            | Expr::Cast { .. }
+            | Expr::Abstraction { .. }
+            | Expr::Variant { .. }
+            | Expr::Match { .. }
+            | Expr::List(_)
+            | Expr::New(_)
+            | Expr::Deref(_)
+            | Expr::Application { .. }
+            | Expr::TypeApplication { .. }
+            | Expr::DotRecord { .. }
+            | Expr::DotTuple { .. }
+            | Expr::Tuple(_)
+            | Expr::Cons(_)
+            | Expr::Record(_)
+            | Expr::ListHead(_)
+            | Expr::ListIsEmpty(_)
+            | Expr::ListTail(_)
+            | Expr::Throw(_)
+            | Expr::TryCatch { .. }
+            | Expr::TryWith { .. }
+            | Expr::TryCastAs { .. }
+            | Expr::Inl(_)
+            | Expr::Inr(_)
+            | Expr::Not(_)
+            | Expr::Fix(_)
+            | Expr::NatRec(_)
+            | Expr::Address(_) => todo!("deduce {expr:?}"),
+
+            Expr::Fold { .. } | Expr::Unfold { .. } => unsupported::fold_unfold(expr),
+        }
     }
 
     #[expect(clippy::too_many_lines, reason = "giant match")]
     #[throws(Error<'ctx>)]
-    fn check_expr_is_ty(&self, expr: &'ctx Expr<'ctx>, ty: &Type<'ctx>) {
+    fn ensure(&self, expr: &'ctx Expr<'ctx>, ty: &Type<'ctx>) {
         match (expr, ty) {
             // Unsupported
             (e @ (Expr::Fold { .. } | Expr::Unfold { .. }), _) => unsupported::fold_unfold(e),
@@ -234,14 +343,37 @@ impl<'ctx> Context<'_, 'ctx> {
                     .type_aliases
                     .lookup(var)
                     .ok_or(Error::UndefinedTypeVariable(var.clone()))?;
-                self.check_expr_is_ty(expr, expected)?
+                self.ensure(expr, expected)?
             }
             (Expr::Var(var), expected) => {
                 let actual = self
                     .variables
                     .lookup(var)
                     .ok_or(Error::UndefinedVariable(Borrowed(var)))?;
-                self.check_ty_coerces(actual, expected)?
+                self.check_ty_coerces(actual, expected).map_err(|()| {
+                    Error::UnexpectedTypeForExpression {
+                        expr,
+                        actual: actual.clone().into_owned(),
+                        expected: expected.to_owned(),
+                    }
+                })?
+            }
+
+            // Let
+            (
+                Expr::Let {
+                    rec,
+                    bindings,
+                    body,
+                },
+                ty,
+            ) => {
+                if *rec {
+                    todo!("letrec")
+                }
+                let mut ctx = self.new_scope();
+                ctx.check_bindings(bindings)?;
+                ctx.ensure(body, ty)?
             }
 
             // Literals
@@ -257,19 +389,19 @@ impl<'ctx> Context<'_, 'ctx> {
                 },
                 ty,
             ) => {
-                self.check_expr_is_ty(cond, &Type::Bool)?;
-                self.check_expr_is_ty(on_true, ty)?;
-                self.check_expr_is_ty(on_false, ty)?;
+                self.ensure(cond, &Type::Bool)?;
+                self.ensure(on_true, ty)?;
+                self.ensure(on_false, ty)?;
             }
 
             (Expr::ListIsEmpty(inner), Type::Bool) => {
                 todo!("check is list: {inner:?}")
             }
-            (Expr::Not(inner), Type::Bool) => self.check_expr_is_ty(inner, &Type::Bool)?,
+            (Expr::Not(inner), Type::Bool) => self.ensure(inner, &Type::Bool)?,
 
             (Expr::NatIsZero(inner), Type::Bool)
             | (Expr::Succ(inner) | Expr::NatPred(inner), Type::Nat) => {
-                self.check_expr_is_ty(inner, &Type::Nat)?
+                self.ensure(inner, &Type::Nat)?
             }
 
             // Trivially false, no specific error
@@ -328,6 +460,58 @@ impl<'ctx> Context<'_, 'ctx> {
                 })
             }
 
+            (
+                Expr::Abstraction {
+                    params: args_actual,
+                    ret: ret_actual,
+                },
+                Type::Fn {
+                    args: args_expected,
+                    ret: ret_expected,
+                },
+            ) => {
+                if args_actual.len() != args_expected.len() {
+                    todo!("args mismatch in abstraction")
+                }
+                let mut ctx = self.new_scope();
+                for ((name, actual), expected) in zip(args_actual, args_expected) {
+                    self.check_ty_coerces(expected, actual).map_err(|()| {
+                        Error::UnexpectedTypeForParameter {
+                            param: Borrowed(name),
+                            actual: actual.to_owned(),
+                            expected: expected.to_owned(),
+                        }
+                    })?;
+                    ctx.variables
+                        .add_local(Borrowed(name), Borrowed(actual))
+                        .map_err(|(_old, _new)| Error::DuplicateFunctionParameter {
+                            // TODO: Display
+                            function: format!("{expr:?}").into(),
+                            param: Borrowed(name),
+                        })?
+                }
+                ctx.ensure(ret_actual, ret_expected)?
+            }
+            (
+                Expr::Abstraction { params, ret: _ },
+                Type::Bool
+                | Type::Nat { .. }
+                | Type::Ref { .. }
+                | Type::Sum { .. }
+                | Type::Tuple { .. }
+                | Type::Record { .. }
+                | Type::Variant { .. }
+                | Type::List { .. }
+                | Type::Unit { .. },
+            ) => throw!(Error::UnexpectedTypeForExpression {
+                expr,
+                expected: ty.clone(),
+                actual: Type::Fn {
+                    args: params.iter().map(|(_name, ty)| ty.clone()).collect(),
+                    ret: Box::new(Type::Auto)
+                },
+            }),
+
             #[expect(clippy::unnested_or_patterns, reason = "WIP")]
             (Expr::Seq { .. }, Type::Bool)
             | (Expr::Seq { .. }, Type::Nat { .. })
@@ -339,16 +523,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::Seq { .. }, Type::Variant { .. })
             | (Expr::Seq { .. }, Type::List { .. })
             | (Expr::Seq { .. }, Type::Unit { .. })
-            | (Expr::Let { .. }, Type::Bool)
-            | (Expr::Let { .. }, Type::Nat { .. })
-            | (Expr::Let { .. }, Type::Ref { .. })
-            | (Expr::Let { .. }, Type::Sum { .. })
-            | (Expr::Let { .. }, Type::Fn { .. })
-            | (Expr::Let { .. }, Type::Tuple { .. })
-            | (Expr::Let { .. }, Type::Record { .. })
-            | (Expr::Let { .. }, Type::Variant { .. })
-            | (Expr::Let { .. }, Type::List { .. })
-            | (Expr::Let { .. }, Type::Unit { .. })
             | (Expr::Assign { .. }, Type::Bool)
             | (Expr::Assign { .. }, Type::Nat { .. })
             | (Expr::Assign { .. }, Type::Ref { .. })
@@ -399,16 +573,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::Cast { .. }, Type::Variant { .. })
             | (Expr::Cast { .. }, Type::List { .. })
             | (Expr::Cast { .. }, Type::Unit { .. })
-            | (Expr::Abstraction { .. }, Type::Bool)
-            | (Expr::Abstraction { .. }, Type::Nat { .. })
-            | (Expr::Abstraction { .. }, Type::Ref { .. })
-            | (Expr::Abstraction { .. }, Type::Sum { .. })
-            | (Expr::Abstraction { .. }, Type::Fn { .. })
-            | (Expr::Abstraction { .. }, Type::Tuple { .. })
-            | (Expr::Abstraction { .. }, Type::Record { .. })
-            | (Expr::Abstraction { .. }, Type::Variant { .. })
-            | (Expr::Abstraction { .. }, Type::List { .. })
-            | (Expr::Abstraction { .. }, Type::Unit { .. })
             | (Expr::Variant { .. }, Type::Bool)
             | (Expr::Variant { .. }, Type::Nat { .. })
             | (Expr::Variant { .. }, Type::Ref { .. })
@@ -652,10 +816,28 @@ impl<'ctx> Context<'_, 'ctx> {
         }
     }
 
-    #[throws(Error<'ctx>)]
-    fn check_ty_coerces(&self, from: &Type<'_>, to: &Type<'_>) {
+    fn check_ty_coerces(&self, from: &Type<'_>, to: &Type<'_>) -> Result<(), ()> {
         match [from, to] {
-            [Type::Bool, Type::Bool] | [Type::Nat, Type::Nat] | [Type::Unit, Type::Unit] => {}
+            [Type::Bool, Type::Bool] | [Type::Nat, Type::Nat] | [Type::Unit, Type::Unit] => Ok(()),
+            [Type::Nat, Type::Bool] => Err(()),
+            [
+                Type::Fn {
+                    args: args_from,
+                    ret: ret_from,
+                },
+                Type::Fn {
+                    args: args_to,
+                    ret: ret_to,
+                },
+            ] => {
+                if args_from.len() != args_to.len() {
+                    todo!()
+                }
+                for (arg_from, arg_to) in zip(args_from, args_to) {
+                    self.check_ty_coerces(arg_to, arg_from)?
+                }
+                self.check_ty_coerces(ret_from, ret_to)
+            }
             [from, to] => todo!("Check coercion from {from:?} to {to:?}"),
         }
     }

@@ -225,10 +225,18 @@ include_str!("../tests/Examples/fail/unexpected-field-01.stella")
     	#records
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
 unexpected_lambda_01
 include_str!("../tests/Examples/fail/unexpected-lambda-01.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	Abstraction { params: [("x", Nat)], ret: Var("x") }
+    has type
+    	fn(Nat) -> auto
+    but expected to have type
+    	Nat
+"#]]
 
 #[should_panic(expected = "not yet implemented: typck Application")]
 unexpected_lambda_02
@@ -263,7 +271,7 @@ include_str!("../tests/Examples/fail/wrong_arity_main.stella")
 "#]]
 
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
+#[should_panic(expected = "not yet implemented: typck NatRec")]
 basic_01
 include_str!("../tests/Examples/pass/01.stella")
 => expect![]
@@ -388,10 +396,13 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-type
     function `duplicate` is declared with duplicates of parameter `a`
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
 duplicate_function_parameter_lambda
 include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-typed/duplicate_function_parameter/lambda.stella")
-=> expect![]
+=> expect![[r#"
+    117
+    ERROR_DUPLICATE_FUNCTION_PARAMETER
+    function `Abstraction { params: [("a", Nat), ("a", Bool)], ret: Integer(0) }` is declared with duplicates of parameter `a`
+"#]]
 
 r#let
 include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-typed/duplicate_let_binding/let.stella")
@@ -503,12 +514,12 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/natural-literals/ill-typed/unex
     	Bool
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
+#[should_panic(expected = "not yet implemented: typck NatRec")]
 natural_literals
 include_str!("../tests/ThatDraenGuy/stage1/extra/natural-literals/well-typed/primitive.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
+#[should_panic(expected = "not yet implemented: typck NatRec")]
 nested_factorial_bad
 include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/ill-typed/undefined_variable/factorial.stella")
 => expect![]
@@ -523,7 +534,7 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/il
     	#let-patterns
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
+#[should_panic(expected = "not yet implemented: typck NatRec")]
 nested_factorial
 include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/well-typed/factorial.stella")
 => expect![]
@@ -993,7 +1004,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/fix.stella")
     	#let-patterns
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 if_funcs_bad
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/if-funcs.stella")
 => expect![]
@@ -1070,11 +1081,18 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_injection/primit
     	#sum-types
 "#]]
 
-
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
 unexpected_lambda
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_lambda/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	Abstraction { params: [("a", Bool)], ret: If { cond: Var("a"), on_true: Integer(0), on_false: Succ(Integer(0)) } }
+    has type
+    	fn(Bool) -> auto
+    but expected to have type
+    	Nat
+"#]]
 
 unexpected_list
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_list/primitive.stella")
@@ -1144,10 +1162,16 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_express
     	Nat
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
 unexpected_type_for_parameter
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_parameter/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    9
+    ERROR_UNEXPECTED_TYPE_FOR_PARAMETER
+    Param `a` has type
+    	Bool
+    but expected to have type
+    	Nat
+"#]]
 
 unexpected_variant
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_variant/primitive.stella")
@@ -1182,7 +1206,7 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/ascription.stella")
     	#sum-types
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
+#[should_panic(expected = "not yet implemented: typck NatRec")]
 factorial
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/factorial.stella")
 => expect![]
@@ -1198,7 +1222,7 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/fix-primitive.stella")
     	#let-patterns
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 func_chain
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/func-chain.stella")
 => expect![]
@@ -1208,7 +1232,7 @@ func_chain2
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/func-chain2.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 if_funcs
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/if-funcs.stella")
 => expect![]
@@ -1222,12 +1246,12 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/lists.stella")
     	#lists
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 logic
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/logic.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
+#[should_panic(expected = "not yet implemented: typck NatRec")]
 math
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/math.stella")
 => expect![]
@@ -1255,12 +1279,12 @@ sample
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/sample.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 shadowing
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/shadowing.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck Abstraction")]
+#[should_panic(expected = "not yet implemented: typck NatRec")]
 square
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/square.stella")
 => expect![]

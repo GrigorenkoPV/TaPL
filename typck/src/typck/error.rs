@@ -49,7 +49,11 @@ pub(crate) enum Error<'src> {
     /// Тип параметра анонимной функции (`AParamDecl`) отличается от ожидаемого.
     ///
     /// Ошибка должна возникать до проверки тела функции.
-    UnexpectedTypeForParameter,
+    UnexpectedTypeForParameter {
+        param: Ident<'src>,
+        actual: Type<'src>,
+        expected: Type<'src>,
+    },
     /// Кортеж (`Tuple`) проверяется с типом, отличным от типа кортежа (`TypeTuple`).
     ///
     /// Ошибка до проверки элементов.
@@ -264,6 +268,14 @@ impl fmt::Display for Error<'_> {
                 // TODO: impl Display for Expr
                 "expression\n\t{expr:?}\nhas type\n\t{actual}\nbut expected to have type\n\t{expected}"
             )?,
+            Self::UnexpectedTypeForParameter {
+                actual,
+                expected,
+                param,
+            } => writeln!(
+                f,
+                "Param `{param}` has type\n\t{actual}\nbut expected to have type\n\t{expected}"
+            )?,
 
             other => todo!("format Error::{other:?}"),
         }
@@ -288,7 +300,7 @@ impl Error<'_> {
             Error::NotARecord => nz!(6),
             Error::NotAList => nz!(7),
             Error::UnexpectedLambda => nz!(8),
-            Error::UnexpectedTypeForParameter => nz!(9),
+            Error::UnexpectedTypeForParameter { .. } => nz!(9),
             Error::UnexpectedTuple => nz!(10),
             Error::UnexpectedRecord => nz!(11),
             Error::UnexpectedVariant => nz!(12),
