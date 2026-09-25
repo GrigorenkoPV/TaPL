@@ -339,7 +339,8 @@ Expr6: Expr<'input> = {
     "Nat::iszero" "(" <Box<Expr>> ")" => Expr::NatIsZero(<>),
 
     "fix" "(" <Box<Expr>> ")" => Expr::Fix(<>),
-    "Nat::rec" "(" <Expr> "," <Expr> "," <Expr> ")" => Expr::NatRec(Box::new([<>])),
+    "Nat::rec" "(" <iterations: Box<Expr>> "," <start: Box<Expr>> "," <step: Box<Expr>> ")"
+        => Expr::NatRec { <> },
 
     "fold" "[" <ty: Type> "]" <expr: Box<Expr7>> => Expr::Fold { <> },
     "unfold" "[" <ty: Type> "]" <expr: Box<Expr7>> => Expr::Unfold { <> },

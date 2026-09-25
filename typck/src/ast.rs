@@ -231,7 +231,11 @@ pub(crate) enum Expr<'src> {
     NatPred(Box<Self>),
     NatIsZero(Box<Self>),
     Fix(Box<Self>),
-    NatRec(Box<[Self; 3]>), // FIXME: name fields
+    NatRec {
+        iterations: Box<Self>,
+        start: Box<Self>,
+        step: Box<Self>,
+    },
 
     Fold {
         ty: Type<'src>,

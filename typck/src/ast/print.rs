@@ -120,7 +120,7 @@ impl Display for Expr<'_> {
             | Self::NatPred(_)
             | Self::NatIsZero(_)
             | Self::Fix(_)
-            | Self::NatRec(_) => todo!("Display {self:?}"),
+            | Self::NatRec { .. } => todo!("Display {self:?}"),
 
             Self::Fold { .. } | Self::Unfold { .. } => unsupported::fold_unfold(self),
         }

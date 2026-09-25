@@ -236,7 +236,11 @@ impl<'src> HasVisitable<'src> for Expr<'src> {
             | Self::Throw(expr) => v.visit_expr(expr),
 
             Self::Seq(exprs) | Self::Cons(exprs) => visit_all!(v.visit_expr, exprs.as_ref()),
-            Self::NatRec(exprs) => visit_all!(v.visit_expr, exprs.as_ref()),
+            Self::NatRec {
+                iterations,
+                start,
+                step,
+            } => visit_all!(v.visit_expr, [iterations, start, step]),
             Self::Tuple(exprs) | Self::List(exprs) => visit_all!(v.visit_expr, exprs),
 
             Self::Record(bindings) => visit_all!(v.visit_binding, bindings),

@@ -271,7 +271,7 @@ include_str!("../tests/Examples/fail/wrong_arity_main.stella")
 "#]]
 
 
-#[should_panic(expected = "not yet implemented: typck NatRec")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 basic_01
 include_str!("../tests/Examples/pass/01.stella")
 => expect![]
@@ -520,12 +520,12 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/natural-literals/ill-typed/unex
     	Bool
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck NatRec")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 natural_literals
 include_str!("../tests/ThatDraenGuy/stage1/extra/natural-literals/well-typed/primitive.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck NatRec")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 nested_factorial_bad
 include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/ill-typed/undefined_variable/factorial.stella")
 => expect![]
@@ -540,7 +540,7 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/il
     	#let-patterns
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck NatRec")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 nested_factorial
 include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/well-typed/factorial.stella")
 => expect![]
@@ -1212,7 +1212,7 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/ascription.stella")
     	#sum-types
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck NatRec")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 factorial
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/factorial.stella")
 => expect![]
@@ -1257,7 +1257,7 @@ logic
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/logic.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck NatRec")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 math
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/math.stella")
 => expect![]
@@ -1290,7 +1290,7 @@ shadowing
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/shadowing.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck NatRec")]
+#[should_panic(expected = "not yet implemented: typck Application")]
 square
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/square.stella")
 => expect![]

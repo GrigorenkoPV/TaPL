@@ -208,8 +208,9 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
             | Expr::Succ(_)
             | Expr::NatPred(_)
             | Expr::NatIsZero(_)
-            | Expr::NatRec(_)
-            | Expr::Var(_) => {}
+            | Expr::NatRec { .. }
+            | Expr::Var(_) => { /* subexpressions are visited below */ }
+
             &Expr::Integer(i) => {
                 if i != 0 {
                     self.require(Extension::NaturalLiterals)

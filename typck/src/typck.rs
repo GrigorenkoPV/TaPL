@@ -53,6 +53,17 @@ struct Context<'a, 'ctx> {
     variables: Namespace<'a, 'ctx>,
 }
 
+fn nat_rec_step_type(acc: Type<'_>) -> Type<'_> {
+    Type::Fn {
+        args: vec![Type::Nat],
+        ret: Box::new(Type::Fn {
+            // TODO: `Cow`/`Rc`?
+            args: vec![acc.clone()],
+            ret: Box::new(acc),
+        }),
+    }
+}
+
 impl<'ctx> Context<'_, 'ctx> {
     #[throws(Error<'ctx>)]
     fn check_program(program: &'ctx Program<'ctx>) {
@@ -297,6 +308,17 @@ impl<'ctx> Context<'_, 'ctx> {
                 ctx.infer(body)?
             }
 
+            Expr::NatRec {
+                iterations,
+                start,
+                step,
+            } => {
+                self.ensure(iterations, &Type::Nat)?;
+                let res = self.infer(start)?;
+                self.ensure(step, &nat_rec_step_type(res.clone().into_owned()))?;
+                res
+            }
+
             Expr::Assign { .. }
             | Expr::Seq(_)
             | Expr::Generic { .. }
@@ -327,7 +349,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | Expr::Inr(_)
             | Expr::Not(_)
             | Expr::Fix(_)
-            | Expr::NatRec(_)
             | Expr::Address(_) => todo!("infer {expr:?}"),
 
             Expr::Fold { .. } | Expr::Unfold { .. } => unsupported::fold_unfold(expr),
@@ -445,6 +466,19 @@ impl<'ctx> Context<'_, 'ctx> {
                     ret: Box::new(Type::Auto)
                 },
             }),
+
+            (
+                Expr::NatRec {
+                    iterations,
+                    start,
+                    step,
+                },
+                expected,
+            ) => {
+                self.ensure(iterations, &Type::Nat)?;
+                self.ensure(start, expected)?;
+                self.ensure(step, &nat_rec_step_type(expected.to_owned()))?;
+            }
 
             (
                 Expr::Var(_)
@@ -740,16 +774,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::Inr { .. }, Type::Variant { .. })
             | (Expr::Inr { .. }, Type::List { .. })
             | (Expr::Inr { .. }, Type::Unit { .. })
-            | (Expr::NatRec { .. }, Type::Bool)
-            | (Expr::NatRec { .. }, Type::Nat { .. })
-            | (Expr::NatRec { .. }, Type::Ref { .. })
-            | (Expr::NatRec { .. }, Type::Sum { .. })
-            | (Expr::NatRec { .. }, Type::Fn { .. })
-            | (Expr::NatRec { .. }, Type::Tuple { .. })
-            | (Expr::NatRec { .. }, Type::Record { .. })
-            | (Expr::NatRec { .. }, Type::Variant { .. })
-            | (Expr::NatRec { .. }, Type::List { .. })
-            | (Expr::NatRec { .. }, Type::Unit { .. })
             | (Expr::Fix { .. }, Type::Bool)
             | (Expr::Fix { .. }, Type::Nat { .. })
             | (Expr::Fix { .. }, Type::Ref { .. })
