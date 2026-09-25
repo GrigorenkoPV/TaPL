@@ -76,12 +76,12 @@ impl Extension {
             | Self::LetBindings
             | Self::Panic
             | Self::TypeAscriptions
+            | Self::SumTypes
             | Self::UnitType => true,
 
             Self::Pairs
             | Self::Tuples
             | Self::Records
-            | Self::SumTypes
             | Self::Lists
             | Self::Variants
             | Self::FixpointCombinator

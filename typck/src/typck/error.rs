@@ -1,4 +1,4 @@
-use core::{fmt, mem, num::NonZero};
+use core::{debug_assert_matches, fmt, mem, num::NonZero};
 use std::{borrow::Cow, collections::btree_set::BTreeSet};
 
 use crate::{
@@ -83,8 +83,10 @@ pub(crate) enum Error<'src> {
     /// Инъекция (`Inl` или `Inr`) проверяется с типом, отличным от типа-суммы (`TypeSum`).
     ///
     /// Ошибка до проверки инъекции.
-    #[expect(dead_code, reason = "WIP")]
-    UnexpectedInjection,
+    UnexpectedInjection {
+        expr: &'src Expr<'src>,
+        expected: Type<'src>,
+    },
     /// В записи (`Record`) отсутствуют ожидаемые поля.
     #[expect(dead_code, reason = "WIP")]
     MissingRecordFields,
@@ -104,8 +106,7 @@ pub(crate) enum Error<'src> {
     #[expect(dead_code, reason = "WIP")]
     UnexpectedTupleLength,
     /// Тип инъекции (`Inl` или `Inr`) невозможно определить (отсутствует ожидаемый тип-сумма).
-    #[expect(dead_code, reason = "WIP")]
-    AmbiguousSumType,
+    AmbiguousSumType(&'src Expr<'src>),
     /// Тип варианта (`Variant`) невозможно определить (отсутствует ожидаемый тип варианта).
     #[expect(dead_code, reason = "WIP")]
     AmbiguousVariantType,
@@ -364,6 +365,23 @@ impl fmt::Display for Error<'_> {
                 "function\n\t{callee}\nis called with {actual} argument(s), but has arity of {expected}"
             ),
 
+            Self::UnexpectedInjection { expr, expected } => {
+                debug_assert_matches!(expr, Expr::Inl(_) | Expr::Inr(_));
+                debug_assert!(
+                    !matches!(expected, Type::Sum { .. }),
+                    "So it's an *expected* injection?"
+                );
+                writeln!(
+                    f,
+                    "expression\n\t{expr}\nis an injections, but expected to be\n\t{expected}"
+                )
+            }
+
+            Self::AmbiguousSumType(expr) => {
+                debug_assert_matches!(expr, Expr::Inl(_) | Expr::Inr(_));
+                writeln!(f, "cannot infer type of an injection\n\t{expr}")
+            }
+
             Self::NotATuple
             | Self::NotARecord
             | Self::NotAList
@@ -371,14 +389,12 @@ impl fmt::Display for Error<'_> {
             | Self::UnexpectedRecord
             | Self::UnexpectedVariant
             | Self::UnexpectedList
-            | Self::UnexpectedInjection
             | Self::MissingRecordFields
             | Self::UnexpectedRecordFields
             | Self::UnexpectedFieldAccess
             | Self::UnexpectedVariantLabel
             | Self::TupleIndexOutOfBounds
             | Self::UnexpectedTupleLength
-            | Self::AmbiguousSumType
             | Self::AmbiguousVariantType
             | Self::AmbiguousList
             | Self::IllegalEmptyMatching
@@ -426,14 +442,14 @@ impl Error<'_> {
             Error::UnexpectedRecord => nz!(11),
             Error::UnexpectedVariant => nz!(12),
             Error::UnexpectedList => nz!(13),
-            Error::UnexpectedInjection => nz!(14),
+            Error::UnexpectedInjection { .. } => nz!(14),
             Error::MissingRecordFields => nz!(15),
             Error::UnexpectedRecordFields => nz!(16),
             Error::UnexpectedFieldAccess => nz!(17),
             Error::UnexpectedVariantLabel => nz!(18),
             Error::TupleIndexOutOfBounds => nz!(19),
             Error::UnexpectedTupleLength => nz!(20),
-            Error::AmbiguousSumType => nz!(21),
+            Error::AmbiguousSumType { .. } => nz!(21),
             Error::AmbiguousVariantType => nz!(22),
             Error::AmbiguousList => nz!(23),
             Error::IllegalEmptyMatching => nz!(24),

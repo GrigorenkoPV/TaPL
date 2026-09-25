@@ -102,6 +102,9 @@ impl Display for Expr<'_> {
                 f.write_str(")")
             }
 
+            Self::Inl(expr) => write!(f, "inl({expr})"),
+            Self::Inr(expr) => write!(f, "inr({expr})"),
+
             Self::Seq(_)
             | Self::Let { .. }
             | Self::Assign { .. }
@@ -127,8 +130,6 @@ impl Display for Expr<'_> {
             | Self::TryCatch { .. }
             | Self::TryWith { .. }
             | Self::TryCastAs { .. }
-            | Self::Inl(_)
-            | Self::Inr(_)
             | Self::Not(_)
             | Self::Fix(_)
             | Self::NatRec { .. } => todo!("Display {self:?}"),

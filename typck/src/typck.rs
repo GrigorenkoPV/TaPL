@@ -378,6 +378,8 @@ impl<'ctx> Context<'_, 'ctx> {
                 Borrowed(ty)
             }
 
+            Expr::Inl(_) | Expr::Inr(_) => throw!(Error::AmbiguousSumType(expr)),
+
             Expr::Assign { .. }
             | Expr::Seq(_)
             | Expr::Generic { .. }
@@ -401,8 +403,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | Expr::TryCatch { .. }
             | Expr::TryWith { .. }
             | Expr::TryCastAs { .. }
-            | Expr::Inl(_)
-            | Expr::Inr(_)
             | Expr::Not(_)
             | Expr::Fix(_)
             | Expr::Address(_) => todo!("infer {expr:?}"),
@@ -531,6 +531,41 @@ impl<'ctx> Context<'_, 'ctx> {
                 self.ensure(start, expected)?;
                 self.ensure(step, &nat_rec_step_type(expected.to_owned()))?;
             }
+
+            (
+                Expr::Inl(expr),
+                Type::Sum {
+                    left: expected,
+                    right: _other,
+                },
+            )
+            | (
+                Expr::Inr(expr),
+                Type::Sum {
+                    left: _other,
+                    right: expected,
+                },
+            ) => {
+                self.ensure(expr, expected)?;
+                // TODO:
+                // self.check_ty_wf(other)?
+            }
+
+            (
+                Expr::Inl(_) | Expr::Inr(_),
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => throw!(Error::UnexpectedInjection {
+                expr,
+                expected: expected.to_owned()
+            }),
 
             (
                 Expr::Var(_)
@@ -788,26 +823,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::TryCastAs { .. }, Type::Variant { .. })
             | (Expr::TryCastAs { .. }, Type::List { .. })
             | (Expr::TryCastAs { .. }, Type::Unit { .. })
-            | (Expr::Inl { .. }, Type::Bool)
-            | (Expr::Inl { .. }, Type::Nat { .. })
-            | (Expr::Inl { .. }, Type::Ref { .. })
-            | (Expr::Inl { .. }, Type::Sum { .. })
-            | (Expr::Inl { .. }, Type::Fn { .. })
-            | (Expr::Inl { .. }, Type::Tuple { .. })
-            | (Expr::Inl { .. }, Type::Record { .. })
-            | (Expr::Inl { .. }, Type::Variant { .. })
-            | (Expr::Inl { .. }, Type::List { .. })
-            | (Expr::Inl { .. }, Type::Unit { .. })
-            | (Expr::Inr { .. }, Type::Bool)
-            | (Expr::Inr { .. }, Type::Nat { .. })
-            | (Expr::Inr { .. }, Type::Ref { .. })
-            | (Expr::Inr { .. }, Type::Sum { .. })
-            | (Expr::Inr { .. }, Type::Fn { .. })
-            | (Expr::Inr { .. }, Type::Tuple { .. })
-            | (Expr::Inr { .. }, Type::Record { .. })
-            | (Expr::Inr { .. }, Type::Variant { .. })
-            | (Expr::Inr { .. }, Type::List { .. })
-            | (Expr::Inr { .. }, Type::Unit { .. })
             | (Expr::Fix { .. }, Type::Bool)
             | (Expr::Fix { .. }, Type::Nat { .. })
             | (Expr::Fix { .. }, Type::Ref { .. })
@@ -853,6 +868,20 @@ impl<'ctx> Context<'_, 'ctx> {
                     self.check_ty_coerces(arg_to, arg_from)?
                 }
                 self.check_ty_coerces(ret_from, ret_to)
+            }
+            [
+                Type::Sum {
+                    left: from_left,
+                    right: from_right,
+                },
+                Type::Sum {
+                    left: to_left,
+                    right: to_right,
+                },
+            ] => {
+                self.check_ty_coerces(from_left, to_left)?;
+                self.check_ty_coerces(from_right, to_right)?;
+                Ok(())
             }
             [from, to] => todo!("Check coercion from {from:?} to {to:?}"),
         }
