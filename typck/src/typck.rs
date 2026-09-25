@@ -847,6 +847,7 @@ impl<'ctx> Context<'_, 'ctx> {
     }
 
     #[expect(clippy::self_only_used_in_recursion, reason = "WIP")]
+    // TODO: is this just equality?
     fn check_ty_coerces(&self, from: &Type<'_>, to: &Type<'_>) -> Result<(), ()> {
         match [from, to] {
             [Type::Bool, Type::Bool] | [Type::Nat, Type::Nat] | [Type::Unit, Type::Unit] => Ok(()),
@@ -862,7 +863,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 },
             ] => {
                 if args_from.len() != args_to.len() {
-                    todo!()
+                    throw!(())
                 }
                 for (arg_from, arg_to) in zip(args_from, args_to) {
                     self.check_ty_coerces(arg_to, arg_from)?

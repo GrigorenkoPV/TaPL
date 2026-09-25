@@ -1,6 +1,6 @@
 language core;
 
-extend with #pairs;
+extend with #pairs, #records;
 
 fn main(n : Nat) -> Nat {
     return { current = n, next = succ(n) }.1;

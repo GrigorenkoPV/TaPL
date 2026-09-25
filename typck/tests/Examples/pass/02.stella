@@ -5,19 +5,24 @@ extend with
   #arithmetic-operators,
   #natural-literals;
 
+extend with
+  #fixpoint-combinator,
+  #multiparameter-functions,
+  #structural-patterns;
+
 fn prev(n : Nat) -> Nat {
   return match n {
     0 => 0
-  | succ(m) => m  
+  | succ(m) => m
   }
-} 
+}
 
 fn add(n : Nat, m : Nat) -> Nat {
   return fix(fn (f : fn(Nat) -> Nat) {
     return fn (k : Nat) {
       return if Nat::iszero(k) then n else succ(f(prev(k)))
     }
-  })(m) 
+  })(m)
 }
 
 

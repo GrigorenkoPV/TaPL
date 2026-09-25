@@ -191,6 +191,7 @@ include_str!("../tests/Examples/fail/not-a-record-01.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#tuples
+    	#records
 "#]]
 
 not_a_tuple_01
@@ -209,6 +210,7 @@ include_str!("../tests/Examples/fail/not-a-tuple-02.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#pairs
+    	#records
 "#]]
 
 undefined_var_01
@@ -297,6 +299,8 @@ include_str!("../tests/Examples/pass/02.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#tuples
+    	#fixpoint-combinator
+    	#structural-patterns
     	#arithmetic-operators
 "#]]
 

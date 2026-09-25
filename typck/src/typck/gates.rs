@@ -132,10 +132,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
                 }
             }
 
-            Decl::ExceptionType(_) => {
-                self.require(Extension::Exceptions);
-                self.require(Extension::ExceptionTypeDeclaration)
-            }
+            Decl::ExceptionType(_) => self.require(Extension::ExceptionTypeDeclaration),
             Decl::ExceptionVariant { .. } => self.require(Extension::OpenVariantExceptions),
 
             Decl::TypeAlias { .. } => unimplemented!("Type aliases are not supported"),
@@ -176,7 +173,15 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
     fn visit_pat(&mut self, pat: &Pattern<'ctx>) {
         match pat {
             Pattern::Var(_) => {
-                self.require_one_of([Extension::LetBindings, Extension::SumTypes].into());
+                self.require_one_of(
+                    [
+                        Extension::LetBindings,
+                        Extension::SumTypes,
+                        Extension::Variants,
+                        Extension::StructuralPatterns,
+                    ]
+                    .into(),
+                );
             }
             Pattern::Inl(_) | Pattern::Inr(_) => self.require(Extension::SumTypes),
             Pattern::Variant { label: _, pat } => {
@@ -210,7 +215,8 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
             | Expr::NatPred(_)
             | Expr::NatIsZero(_)
             | Expr::NatRec { .. }
-            | Expr::Var(_) => { /* subexpressions are visited below */ }
+            | Expr::Var(_)
+            | Expr::Match { .. } => { /* subexpressions are visited below */ }
 
             &Expr::Integer(i) => {
                 if i != 0 {
@@ -233,7 +239,8 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
                 Extension::LetBindings
             }),
             Expr::Ascription { .. } => self.require(Extension::TypeAscriptions),
-            Expr::Inl(_) | Expr::Inr(_) | Expr::Match { .. } => self.require(Extension::SumTypes),
+            Expr::Inl(_) | Expr::Inr(_) => self.require(Extension::SumTypes),
+
             Expr::List(_)
             | Expr::Cons(_)
             | Expr::ListHead(_)
@@ -270,22 +277,23 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
 }
 
 #[throws(Error<'src>)]
-pub(super) fn check_extensions<'src>(program: &'src Program<'src>) {
-    let enabled = &program.extensions;
-    {
-        let mut unsupported = BTreeSet::<&'src Extension>::new();
-        for ext in enabled {
-            if !ext.supported() {
-                let inserted = unsupported.insert(ext);
-                debug_assert!(inserted, "We're iterating over a set")
-            }
-        }
-        if !unsupported.is_empty() {
-            throw!(Error::UnsupportedExtensions(unsupported))
+fn check_unsupported<'src>(program: &'src Program<'src>) {
+    let mut unsupported = BTreeSet::<&'src Extension>::new();
+    for ext in &program.extensions {
+        if !ext.supported() {
+            let inserted = unsupported.insert(ext);
+            debug_assert!(inserted, "We're iterating over a set")
         }
     }
+    if !unsupported.is_empty() {
+        throw!(Error::UnsupportedExtensions(unsupported))
+    }
+}
+
+#[throws(Error<'src>)]
+fn check_missing<'src>(program: &'src Program<'src>) {
     let mut collector = GateCollector {
-        enabled,
+        enabled: &program.extensions,
         missing: Extensions::new(),
         missing_one_of: BTreeSet::new(),
         is_in_global_scope: true,
@@ -309,4 +317,10 @@ pub(super) fn check_extensions<'src>(program: &'src Program<'src>) {
             choosable: missing_one_of
         })
     }
+}
+
+#[throws(Error<'src>)]
+pub(super) fn check_extensions<'src>(program: &'src Program<'src>) {
+    check_missing(program)?;
+    check_unsupported(program)?;
 }
