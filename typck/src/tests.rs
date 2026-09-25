@@ -1054,10 +1054,17 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/primitive.st
     but expected to be a function
 "#]]
 
-#[should_panic(expected = "not yet implemented: infer Abstraction")]
 triple
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/triple.stella")
-=> expect![]
+=> expect![[r#"
+    4
+    ERROR_NOT_A_FUNCTION
+    expression
+    	(fn(x: Bool) { return fn(y: Nat) { return succ(y) } })(false)(0)
+    has type
+    	Nat
+    but expected to be a function
+"#]]
 
 not_a_list
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_list/primitive.stella")
@@ -1229,7 +1236,6 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_variant_label/pr
     	#variants
 "#]]
 
-#[should_panic(expected = "not yet implemented: infer Abstraction")]
 abstraction
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/abstraction.stella")
 => expect![]
@@ -1263,7 +1269,6 @@ func_chain
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/func-chain.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: infer Abstraction")]
 func_chain2
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/func-chain2.stella")
 => expect![]

@@ -352,13 +352,33 @@ impl<'ctx> Context<'_, 'ctx> {
                 Owned(ret.as_ref().to_owned())
             }
 
+            Expr::Abstraction { params, ret } => {
+                let mut ctx = self.new_scope();
+                let args = params
+                    .iter()
+                    .map(|(name, ty)| {
+                        ctx.variables
+                            .add_local(Borrowed(name), Borrowed(ty))
+                            .map_err(|(_old, _new)| Error::DuplicateFunctionParameter {
+                                function: Owned(expr.to_string()),
+                                param: Borrowed(name),
+                            })
+                            .map(|()| ty.to_owned())
+                    })
+                    .collect::<Result<_, _>>()?;
+                let ret = ctx.infer(ret)?;
+                Owned(Type::Fn {
+                    args,
+                    ret: Box::new(ret.into_owned()),
+                })
+            }
+
             Expr::Assign { .. }
             | Expr::Seq(_)
             | Expr::Generic { .. }
             | Expr::BinOp { .. }
             | Expr::Ascription { .. }
             | Expr::Cast { .. }
-            | Expr::Abstraction { .. }
             | Expr::Variant { .. }
             | Expr::Match { .. }
             | Expr::List(_)
