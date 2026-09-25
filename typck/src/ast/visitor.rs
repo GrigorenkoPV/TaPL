@@ -64,7 +64,7 @@ macro_rules! visit_opt {
 }
 
 macro_rules! visit_all {
-    ($visitor:ident . $method:ident, $container:ident) => {
+    ($visitor:ident . $method:ident, $container:expr) => {
         for element in $container {
             $visitor.$method(element)
         }
@@ -199,7 +199,7 @@ impl<'src> HasVisitable<'src> for Pattern<'src> {
                     v.visit_pat(pat);
                 }
             }
-            Self::Cons(inner) => visit_all!(v.visit_pat, inner),
+            Self::Cons(inner) => visit_all!(v.visit_pat, inner.as_ref()),
             Self::Int(int) => v.visit_int(int),
             Self::Succ(pat) => v.visit_pat(pat),
             Self::Var(name) => v.visit_ident(name),
@@ -235,8 +235,8 @@ impl<'src> HasVisitable<'src> for Expr<'src> {
             | Self::ListTail(expr)
             | Self::Throw(expr) => v.visit_expr(expr),
 
-            Self::Seq(exprs) | Self::Cons(exprs) => visit_all!(v.visit_expr, exprs),
-            Self::NatRec(exprs) => visit_all!(v.visit_expr, exprs),
+            Self::Seq(exprs) | Self::Cons(exprs) => visit_all!(v.visit_expr, exprs.as_ref()),
+            Self::NatRec(exprs) => visit_all!(v.visit_expr, exprs.as_ref()),
             Self::Tuple(exprs) | Self::List(exprs) => visit_all!(v.visit_expr, exprs),
 
             Self::Record(bindings) => visit_all!(v.visit_binding, bindings),
