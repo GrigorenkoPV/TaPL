@@ -196,10 +196,10 @@ include_str!("../tests/Examples/fail/not-a-record-01.stella")
 not_a_tuple_01
 include_str!("../tests/Examples/fail/not-a-tuple-01.stella")
 => expect![[r#"
-    254
-    ERROR_MISSING_EXTENSIONS
-    the following extensions are required but not enabled:
-    	at least one of: #pairs, #tuples
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
+    	#tuples
 "#]]
 
 not_a_tuple_02
@@ -362,9 +362,9 @@ include_str!("../tests/Examples/pass/letrec.stella")
 r#match
 include_str!("../tests/Examples/pass/match.stella")
 => expect![[r#"
-    254
-    ERROR_MISSING_EXTENSIONS
-    the following extensions are required but not enabled:
+    253
+    ERROR_UNSUPPORTED_EXTENSIONS
+    the following unsupported extensions are enabled:
     	#variants
     	#nullary-variant-labels
 "#]]

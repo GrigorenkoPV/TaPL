@@ -118,6 +118,12 @@ fn supported() {
             "tuples are a superset of pairs"
         )
     }
+    if Extension::NullaryVariantLabels.supported() {
+        assert!(
+            Extension::Variants.supported(),
+            "it's nullary VARIANT labels"
+        )
+    }
 }
 
 pub(crate) mod unsupported {
