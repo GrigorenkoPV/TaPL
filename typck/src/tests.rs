@@ -1173,7 +1173,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_paramet
 => expect![[r#"
     9
     ERROR_UNEXPECTED_TYPE_FOR_PARAMETER
-    Param `a` has type
+    parameter `a` has type
     	Bool
     but expected to have type
     	Nat

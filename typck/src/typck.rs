@@ -255,6 +255,7 @@ impl<'ctx> Context<'_, 'ctx> {
             Expr::True | Expr::False => Owned(Type::Bool),
             Expr::Unit => Owned(Type::Unit),
             Expr::Integer(_) => Owned(Type::Nat),
+            Expr::Panic => Owned(Type::Auto),
 
             Expr::Var(var) => self
                 .variables
@@ -272,8 +273,6 @@ impl<'ctx> Context<'_, 'ctx> {
                 Owned(Type::Nat)
             }
 
-            Expr::Panic => Owned(Type::Auto),
-
             Expr::If {
                 cond,
                 on_true,
@@ -285,8 +284,20 @@ impl<'ctx> Context<'_, 'ctx> {
                 ty
             }
 
-            Expr::Let { .. }
-            | Expr::Assign { .. }
+            Expr::Let {
+                rec,
+                bindings,
+                body,
+            } => {
+                if *rec {
+                    todo!("infer letrec")
+                }
+                let mut ctx = self.new_scope();
+                ctx.check_bindings(bindings)?;
+                ctx.infer(body)?
+            }
+
+            Expr::Assign { .. }
             | Expr::Seq(_)
             | Expr::Generic { .. }
             | Expr::BinOp { .. }
@@ -317,7 +328,7 @@ impl<'ctx> Context<'_, 'ctx> {
             | Expr::Not(_)
             | Expr::Fix(_)
             | Expr::NatRec(_)
-            | Expr::Address(_) => todo!("deduce {expr:?}"),
+            | Expr::Address(_) => todo!("infer {expr:?}"),
 
             Expr::Fold { .. } | Expr::Unfold { .. } => unsupported::fold_unfold(expr),
         }
@@ -356,7 +367,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 ty,
             ) => {
                 if *rec {
-                    todo!("letrec")
+                    todo!("typck letrec")
                 }
                 let mut ctx = self.new_scope();
                 ctx.check_bindings(bindings)?;
@@ -386,8 +397,16 @@ impl<'ctx> Context<'_, 'ctx> {
                     ret: ret_expected,
                 },
             ) => {
-                if args_actual.len() != args_expected.len() {
-                    todo!("args mismatch in abstraction")
+                {
+                    let expected = args_expected.len();
+                    let actual = args_actual.len();
+                    if expected != actual {
+                        throw!(Error::UnexpectedNumberOfParametersInLambda {
+                            expected,
+                            actual,
+                            lambda: expr
+                        })
+                    }
                 }
                 let mut ctx = self.new_scope();
                 for ((name, actual), expected) in zip(args_actual, args_expected) {
@@ -401,7 +420,7 @@ impl<'ctx> Context<'_, 'ctx> {
                     ctx.variables
                         .add_local(Borrowed(name), Borrowed(actual))
                         .map_err(|(_old, _new)| Error::DuplicateFunctionParameter {
-                            function: format!("{expr}").into(),
+                            function: Owned(expr.to_string()),
                             param: Borrowed(name),
                         })?
                 }
@@ -754,6 +773,7 @@ impl<'ctx> Context<'_, 'ctx> {
         }
     }
 
+    #[expect(clippy::self_only_used_in_recursion, reason = "WIP")]
     fn check_ty_coerces(&self, from: &Type<'_>, to: &Type<'_>) -> Result<(), ()> {
         match [from, to] {
             [Type::Bool, Type::Bool] | [Type::Nat, Type::Nat] | [Type::Unit, Type::Unit] => Ok(()),

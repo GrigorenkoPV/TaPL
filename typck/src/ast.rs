@@ -64,7 +64,6 @@ pub(crate) enum Annotation {
 }
 
 #[derive(Debug, Clone)]
-#[expect(dead_code, reason = "WIP")]
 pub(crate) enum Type<'src> {
     Bool,
     Nat,
@@ -100,7 +99,6 @@ pub(crate) enum Type<'src> {
 }
 
 #[derive(Debug)]
-#[expect(dead_code, reason = "WIP")]
 pub(crate) enum Pattern<'src> {
     CastAs {
         pat: Box<Self>,
@@ -131,7 +129,6 @@ pub(crate) enum Pattern<'src> {
 pub(crate) type Catch<'src> = (Pattern<'src>, Box<Expr<'src>>);
 
 #[derive(Debug)]
-#[expect(dead_code, reason = "WIP")]
 pub(crate) enum Expr<'src> {
     Seq(Box<[Self; 2]>),
     Let {
@@ -198,6 +195,7 @@ pub(crate) enum Expr<'src> {
     },
     DotTuple {
         lhs: Box<Self>,
+        #[expect(dead_code, reason = "WIP")]
         field: Integer,
     },
     Tuple(Vec<Self>),
