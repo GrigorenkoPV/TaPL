@@ -261,6 +261,7 @@ impl<'ctx> Context<'_, 'ctx> {
     }
 
     #[throws(Error<'ctx>)]
+    #[expect(clippy::too_many_lines, reason = "big sw")]
     fn infer(&self, expr: &'ctx Expr<'ctx>) -> Typed<'ctx> {
         match expr {
             Expr::True | Expr::False => Owned(Type::Bool),
@@ -319,6 +320,38 @@ impl<'ctx> Context<'_, 'ctx> {
                 res
             }
 
+            Expr::Application {
+                lhs,
+                args: args_actual,
+            } => {
+                let callee = self.infer(lhs)?;
+                let Type::Fn {
+                    args: args_expected,
+                    ret,
+                } = callee.as_ref()
+                else {
+                    throw!(Error::NotAFunction {
+                        expr: lhs,
+                        actual: callee.into_owned()
+                    })
+                };
+                {
+                    let actual = args_actual.len();
+                    let expected = args_expected.len();
+                    if actual != expected {
+                        throw!(Error::IncorrectNumberOfArguments {
+                            expected,
+                            actual,
+                            callee: lhs
+                        })
+                    }
+                }
+                for (actual, expected) in zip(args_actual, args_expected) {
+                    self.ensure(actual, expected)?
+                }
+                Owned(ret.as_ref().to_owned())
+            }
+
             Expr::Assign { .. }
             | Expr::Seq(_)
             | Expr::Generic { .. }
@@ -331,7 +364,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | Expr::List(_)
             | Expr::New(_)
             | Expr::Deref(_)
-            | Expr::Application { .. }
             | Expr::TypeApplication { .. }
             | Expr::DotRecord { .. }
             | Expr::DotTuple { .. }
@@ -459,6 +491,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 | Type::List { .. }
                 | Type::Unit { .. },
             ) => throw!(Error::UnexpectedTypeForExpression {
+                // FIXME: ERROR_UNEXPECTED_LAMBDA
                 expr,
                 expected: expected.to_owned(),
                 actual: Type::Fn {
@@ -482,16 +515,17 @@ impl<'ctx> Context<'_, 'ctx> {
 
             (
                 Expr::Var(_)
-                | Expr::Panic
+                | Expr::Unit
                 | Expr::True
                 | Expr::False
-                | Expr::ListIsEmpty(_)
+                | Expr::Integer(_)
+                | Expr::Panic
                 | Expr::Not(_)
                 | Expr::NatIsZero(_)
-                | Expr::Unit
+                | Expr::ListIsEmpty(_)
                 | Expr::Succ(_)
                 | Expr::NatPred(_)
-                | Expr::Integer(_),
+                | Expr::Application { .. },
                 Type::Bool
                 | Type::Nat
                 | Type::Ref(_)
@@ -624,16 +658,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::Deref { .. }, Type::Variant { .. })
             | (Expr::Deref { .. }, Type::List { .. })
             | (Expr::Deref { .. }, Type::Unit { .. })
-            | (Expr::Application { .. }, Type::Bool)
-            | (Expr::Application { .. }, Type::Nat { .. })
-            | (Expr::Application { .. }, Type::Ref { .. })
-            | (Expr::Application { .. }, Type::Sum { .. })
-            | (Expr::Application { .. }, Type::Fn { .. })
-            | (Expr::Application { .. }, Type::Tuple { .. })
-            | (Expr::Application { .. }, Type::Record { .. })
-            | (Expr::Application { .. }, Type::Variant { .. })
-            | (Expr::Application { .. }, Type::List { .. })
-            | (Expr::Application { .. }, Type::Unit { .. })
             | (Expr::TypeApplication { .. }, Type::Bool)
             | (Expr::TypeApplication { .. }, Type::Nat { .. })
             | (Expr::TypeApplication { .. }, Type::Ref { .. })

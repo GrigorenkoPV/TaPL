@@ -87,6 +87,20 @@ impl Display for Expr<'_> {
             }),
 
             Self::Succ(i) => write!(f, "succ({i})"),
+            Self::NatPred(expr) => write!(f, "Nat::pred({expr})"),
+            Self::NatIsZero(expr) => write!(f, "Nat::iszero({expr})"),
+
+            Self::Application { lhs, args } => {
+                write!(f, "{lhs:#}(")?;
+                let first = &mut true;
+                for arg in args {
+                    if !mem::take(first) {
+                        f.write_str(", ")?
+                    }
+                    write!(f, "{arg}")?
+                }
+                f.write_str(")")
+            }
 
             Self::Seq(_)
             | Self::Let { .. }
@@ -100,7 +114,6 @@ impl Display for Expr<'_> {
             | Self::List(_)
             | Self::New(_)
             | Self::Deref(_)
-            | Self::Application { .. }
             | Self::TypeApplication { .. }
             | Self::DotRecord { .. }
             | Self::DotTuple { .. }
@@ -117,8 +130,6 @@ impl Display for Expr<'_> {
             | Self::Inl(_)
             | Self::Inr(_)
             | Self::Not(_)
-            | Self::NatPred(_)
-            | Self::NatIsZero(_)
             | Self::Fix(_)
             | Self::NatRec { .. } => todo!("Display {self:?}"),
 

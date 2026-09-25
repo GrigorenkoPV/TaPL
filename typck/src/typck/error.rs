@@ -31,8 +31,10 @@ pub(crate) enum Error<'src> {
     /// оказывается не функцией.
     ///
     /// Ошибка должна возникать до проверки типа аргумента.
-    #[expect(dead_code, reason = "WIP")]
-    NotAFunction,
+    NotAFunction {
+        expr: &'src Expr<'src>,
+        actual: Type<'src>,
+    },
     /// При попытке извлечь компонент кортежа (`DotTuple`) из выражения,
     /// выражение оказывается не кортежем (`TypeTuple`)
     #[expect(dead_code, reason = "WIP")]
@@ -135,7 +137,6 @@ pub(crate) enum Error<'src> {
     /// Функция main объявлена с `n` параметрами, где `n != 1`.
     IncorrectArityOfMain(usize),
     /// Вызов функции (`Application`) происходит с некорректным количеством аргументов.
-    #[expect(dead_code, reason = "WIP")]
     IncorrectNumberOfArguments {
         expected: usize,
         actual: usize,
@@ -335,14 +336,29 @@ impl fmt::Display for Error<'_> {
             Self::DuplicateRecordTypeFields(name)
             | Self::DuplicateVariantTypeFields(name)
             | Self::DuplicateLetBinding(name)
-            | Self::DuplicateTypeParameter(name) => {
+            | Self::DuplicateTypeParameter(name)
+            | Self::DuplicateRecordFields(name)
+            | Self::DuplicateRecordPatternFields(name) => {
                 writeln!(f, "`{name}` is declared more than once")?
             }
 
             Self::UndefinedTypeVariable(name) => writeln!(f, "`{name}` not found")?,
 
-            Self::NotAFunction
-            | Self::NotATuple
+            Self::NotAFunction { expr, actual } => writeln!(
+                f,
+                "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to be a function"
+            )?,
+
+            Self::IncorrectNumberOfArguments {
+                expected,
+                actual,
+                callee,
+            } => writeln!(
+                f,
+                "function\n\t{callee}\nis called with {actual} argument(s), but has arity of {expected}"
+            )?,
+
+            Self::NotATuple
             | Self::NotARecord
             | Self::NotAList
             | Self::UnexpectedLambda
@@ -363,9 +379,6 @@ impl fmt::Display for Error<'_> {
             | Self::IllegalEmptyMatching
             | Self::NonexhaustiveMatchPatterns
             | Self::UnexpectedPatternForType
-            | Self::DuplicateRecordFields(_)
-            | Self::IncorrectNumberOfArguments { .. }
-            | Self::DuplicateRecordPatternFields(_)
             | Self::UnexpectedDataForNullaryLabel
             | Self::MissingDataForLabel
             | Self::UnexpectedNonNullaryVariantPattern
@@ -398,7 +411,7 @@ impl Error<'_> {
             Error::MissingMain => nz!(1),
             Error::UndefinedVariable(_) => nz!(2),
             Error::UnexpectedTypeForExpression { .. } => nz!(3),
-            Error::NotAFunction => nz!(4),
+            Error::NotAFunction { .. } => nz!(4),
             Error::NotATuple => nz!(5),
             Error::NotARecord => nz!(6),
             Error::NotAList => nz!(7),
