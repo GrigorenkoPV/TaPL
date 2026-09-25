@@ -325,8 +325,8 @@ impl<'ctx> Context<'_, 'ctx> {
 
     #[expect(clippy::too_many_lines, reason = "giant match")]
     #[throws(Error<'ctx>)]
-    fn ensure(&self, expr: &'ctx Expr<'ctx>, ty: &Type<'ctx>) {
-        match (expr, ty) {
+    fn ensure(&self, expr: &'ctx Expr<'ctx>, expected: &Type<'ctx>) {
+        match (expr, expected) {
             // Unsupported
             (e @ (Expr::Fold { .. } | Expr::Unfold { .. }), _) => unsupported::fold_unfold(e),
             (_, t @ Type::Rec { .. }) => unsupported::mu(t),
@@ -337,26 +337,13 @@ impl<'ctx> Context<'_, 'ctx> {
             (_, Type::Auto) => todo!("auto"),
             (_, Type::Forall { .. }) => todo!("forall"),
 
-            // Variables
+            // Var
             (expr, Type::Var(var)) => {
                 let expected = self
                     .type_aliases
                     .lookup(var)
                     .ok_or(Error::UndefinedTypeVariable(var.clone()))?;
                 self.ensure(expr, expected)?
-            }
-            (Expr::Var(var), expected) => {
-                let actual = self
-                    .variables
-                    .lookup(var)
-                    .ok_or(Error::UndefinedVariable(Borrowed(var)))?;
-                self.check_ty_coerces(actual, expected).map_err(|()| {
-                    Error::UnexpectedTypeForExpression {
-                        expr,
-                        actual: actual.clone().into_owned(),
-                        expected: expected.to_owned(),
-                    }
-                })?
             }
 
             // Let
@@ -376,11 +363,6 @@ impl<'ctx> Context<'_, 'ctx> {
                 ctx.ensure(body, ty)?
             }
 
-            // Literals
-            (Expr::False | Expr::True, Type::Bool)
-            | (Expr::Unit, Type::Unit)
-            | (Expr::Integer(_), Type::Nat) => {}
-
             (
                 Expr::If {
                     cond,
@@ -392,72 +374,6 @@ impl<'ctx> Context<'_, 'ctx> {
                 self.ensure(cond, &Type::Bool)?;
                 self.ensure(on_true, ty)?;
                 self.ensure(on_false, ty)?;
-            }
-
-            (Expr::ListIsEmpty(inner), Type::Bool) => {
-                todo!("check is list: {inner:?}")
-            }
-            (Expr::Not(inner), Type::Bool) => self.ensure(inner, &Type::Bool)?,
-
-            (Expr::NatIsZero(inner), Type::Bool)
-            | (Expr::Succ(inner) | Expr::NatPred(inner), Type::Nat) => {
-                self.ensure(inner, &Type::Nat)?
-            }
-
-            // Trivially false, no specific error
-            (
-                Expr::True | Expr::False | Expr::ListIsEmpty(_) | Expr::Not(_) | Expr::NatIsZero(_),
-                Type::Nat
-                | Type::Ref(_)
-                | Type::Sum { .. }
-                | Type::Fn { .. }
-                | Type::Tuple(_)
-                | Type::Record(_)
-                | Type::Variant(_)
-                | Type::List(_)
-                | Type::Unit,
-            ) => {
-                throw!(Error::UnexpectedTypeForExpression {
-                    expr,
-                    expected: ty.clone(),
-                    actual: Type::Bool
-                })
-            }
-            (
-                Expr::Unit,
-                Type::Bool
-                | Type::Nat
-                | Type::Ref(_)
-                | Type::Sum { .. }
-                | Type::Fn { .. }
-                | Type::Tuple(_)
-                | Type::Record(_)
-                | Type::Variant(_)
-                | Type::List(_),
-            ) => {
-                throw!(Error::UnexpectedTypeForExpression {
-                    expr,
-                    expected: ty.clone(),
-                    actual: Type::Unit
-                })
-            }
-            (
-                Expr::Succ(_) | Expr::NatPred(_) | Expr::Integer(_),
-                Type::Bool
-                | Type::Ref(_)
-                | Type::Sum { .. }
-                | Type::Fn { .. }
-                | Type::Tuple(_)
-                | Type::Record(_)
-                | Type::Variant(_)
-                | Type::List(_)
-                | Type::Unit,
-            ) => {
-                throw!(Error::UnexpectedTypeForExpression {
-                    expr,
-                    expected: ty.clone(),
-                    actual: Type::Nat,
-                })
             }
 
             (
@@ -504,12 +420,45 @@ impl<'ctx> Context<'_, 'ctx> {
                 | Type::Unit { .. },
             ) => throw!(Error::UnexpectedTypeForExpression {
                 expr,
-                expected: ty.clone(),
+                expected: expected.to_owned(),
                 actual: Type::Fn {
                     args: params.iter().map(|(_name, ty)| ty.clone()).collect(),
                     ret: Box::new(Type::Auto)
                 },
             }),
+
+            (
+                Expr::Var(_)
+                | Expr::Panic
+                | Expr::True
+                | Expr::False
+                | Expr::ListIsEmpty(_)
+                | Expr::Not(_)
+                | Expr::NatIsZero(_)
+                | Expr::Unit
+                | Expr::Succ(_)
+                | Expr::NatPred(_)
+                | Expr::Integer(_),
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => {
+                let actual = self.infer(expr)?;
+                self.check_ty_coerces(&actual, expected).map_err(|()| {
+                    Error::UnexpectedTypeForExpression {
+                        expr,
+                        actual: actual.clone().into_owned(),
+                        expected: expected.to_owned(),
+                    }
+                })?;
+            }
 
             #[expect(clippy::unnested_or_patterns, reason = "WIP")]
             (Expr::Seq { .. }, Type::Bool)
@@ -712,16 +661,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::ListTail { .. }, Type::Variant { .. })
             | (Expr::ListTail { .. }, Type::List { .. })
             | (Expr::ListTail { .. }, Type::Unit { .. })
-            | (Expr::Panic { .. }, Type::Bool)
-            | (Expr::Panic { .. }, Type::Nat { .. })
-            | (Expr::Panic { .. }, Type::Ref { .. })
-            | (Expr::Panic { .. }, Type::Sum { .. })
-            | (Expr::Panic { .. }, Type::Fn { .. })
-            | (Expr::Panic { .. }, Type::Tuple { .. })
-            | (Expr::Panic { .. }, Type::Record { .. })
-            | (Expr::Panic { .. }, Type::Variant { .. })
-            | (Expr::Panic { .. }, Type::List { .. })
-            | (Expr::Panic { .. }, Type::Unit { .. })
             | (Expr::Throw { .. }, Type::Bool)
             | (Expr::Throw { .. }, Type::Nat { .. })
             | (Expr::Throw { .. }, Type::Ref { .. })
@@ -811,14 +750,14 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::Address { .. }, Type::Record { .. })
             | (Expr::Address { .. }, Type::Variant { .. })
             | (Expr::Address { .. }, Type::List { .. })
-            | (Expr::Address { .. }, Type::Unit { .. }) => todo!("typck {expr:?} is {ty:?}"),
+            | (Expr::Address { .. }, Type::Unit { .. }) => todo!("typck {expr:?} is {expected:?}"),
         }
     }
 
     fn check_ty_coerces(&self, from: &Type<'_>, to: &Type<'_>) -> Result<(), ()> {
         match [from, to] {
             [Type::Bool, Type::Bool] | [Type::Nat, Type::Nat] | [Type::Unit, Type::Unit] => Ok(()),
-            [Type::Nat, Type::Bool] => Err(()),
+            [Type::Nat, Type::Bool] | [Type::Bool, Type::Nat] => Err(()),
             [
                 Type::Fn {
                     args: args_from,
