@@ -15,7 +15,7 @@ fn run_typck(input: &str) -> String {
         Ok(program) => program,
     };
     match typck(&program) {
-        Ok(()) => "0".into(),
+        Ok(()) => String::new(),
         Err(e) => format!("{}\n{e}", e.code()),
     }
 }
@@ -1315,7 +1315,7 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/tuples.stella")
 
 unit
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/unit.stella")
-=> expect!["0"]
+=> expect![]
 
 conflicting_exception_declarations
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/conflicting_exception_declarations/primitive.stella")
