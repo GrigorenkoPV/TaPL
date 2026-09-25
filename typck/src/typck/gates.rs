@@ -12,6 +12,7 @@ use crate::{
     typck::Error,
 };
 
+#[derive(Debug)]
 struct GateCollector<'a> {
     enabled: &'a Extensions,
     missing: Extensions,
@@ -66,7 +67,7 @@ impl GateCollector<'_> {
     }
 
     fn require_pairs_or_tuples(&mut self) {
-        self.require_one_of([Extension::Pairs, Extension::Tuples].into())
+        self.require_one_of([Extension::Pairs, Extension::Tuples].into());
     }
 
     fn require_tuple_arity(&mut self, arity: usize) {
@@ -296,8 +297,8 @@ pub(super) fn check_extensions<'src>(program: &'src Program<'src>) {
         missing_one_of,
         is_in_global_scope: _,
     } = collector;
-    if !missing.is_empty() {
-        for ext in &missing {
+    if !missing.is_empty() || !missing_one_of.is_empty() {
+        for ext in missing.iter().chain(missing_one_of.iter().flatten()) {
             debug_assert!(
                 !enabled.contains(ext),
                 "\"Missing\" extension {ext:?} is actually enabled"

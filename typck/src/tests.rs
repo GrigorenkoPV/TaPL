@@ -195,10 +195,14 @@ include_str!("../tests/Examples/fail/not-a-record-01.stella")
     	#tuples
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck DotTuple")]
 not_a_tuple_01
 include_str!("../tests/Examples/fail/not-a-tuple-01.stella")
-=> expect![]
+=> expect![[r#"
+    254
+    ERROR_MISSING_EXTENSIONS
+    the following extensions are required but not enabled:
+    	at least one of: #pairs, #tuples
+"#]]
 
 not_a_tuple_02
 include_str!("../tests/Examples/fail/not-a-tuple-02.stella")
