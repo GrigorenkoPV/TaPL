@@ -816,7 +816,44 @@ impl<'ctx> Context<'_, 'ctx> {
                 expected: expected.to_owned()
             }),
 
-            (Expr::Record(_), Type::Record(_)) => todo!("typck {expr:?}"),
+            (Expr::Record(actual_fields), Type::Record(expected_fields)) => {
+                // TODO:
+                // self.check_ty_wf(expected)?;
+                check_no_duplicate_field_names(actual_fields)
+                    .map_err(|field| Error::DuplicateRecordFields { expr, field })?;
+                for Binding { name, value } in actual_fields {
+                    self.ensure(
+                        value,
+                        expected_fields
+                            .iter()
+                            .find_map(|(expected_name, expected_ty)| {
+                                if name == expected_name {
+                                    Some(expected_ty)
+                                } else {
+                                    None
+                                }
+                            })
+                            .ok_or(Error::UnexpectedRecordFields {
+                                actual: expr,
+                                expected: expected.to_owned(),
+                                unexpected: Borrowed(name),
+                            })?,
+                    )?
+                }
+
+                for (needle, _) in expected_fields {
+                    if !actual_fields
+                        .iter()
+                        .any(|Binding { name, value: _ }| name == needle)
+                    {
+                        throw!(Error::MissingRecordFields {
+                            actual: expr,
+                            expected: expected.to_owned(),
+                            missing: needle.clone()
+                        })
+                    }
+                }
+            }
             (
                 Expr::Record { .. },
                 Type::Bool
@@ -1068,6 +1105,28 @@ impl<'ctx> Context<'_, 'ctx> {
             }
 
             [Type::List(from), Type::List(to)] => self.check_ty_coerces(from, to),
+
+            [Type::Tuple(from), Type::Tuple(to)] => {
+                if from.len() != to.len() {
+                    throw!(())
+                }
+                for (from, to) in zip(from, to) {
+                    self.check_ty_coerces(from, to)?
+                }
+                Ok(())
+            }
+            [Type::Record(from), Type::Record(to)] => {
+                if from.len() != to.len() {
+                    throw!(())
+                }
+                for ((from_name, from), (to_name, to)) in zip(from, to) {
+                    if from_name != to_name {
+                        throw!(())
+                    }
+                    self.check_ty_coerces(from, to)?
+                }
+                Ok(())
+            }
 
             [from, to] => {
                 assert_ne!(

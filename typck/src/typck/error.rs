@@ -103,11 +103,17 @@ pub(crate) enum Error<'src> {
         expected: Type<'src>,
     },
     /// В записи (`Record`) отсутствуют ожидаемые поля.
-    #[expect(dead_code, reason = "WIP")]
-    MissingRecordFields,
+    MissingRecordFields {
+        actual: &'src Expr<'src>,
+        expected: Type<'src>,
+        missing: Ident<'src>,
+    },
     /// В записи (`Record`) присутствуют поля, которых нет в ожидаемом типе записи.
-    #[expect(dead_code, reason = "WIP")]
-    UnexpectedRecordFields,
+    UnexpectedRecordFields {
+        actual: &'src Expr<'src>,
+        expected: Type<'src>,
+        unexpected: Ident<'src>,
+    },
     /// Попытка извлечь отсутствующее поле записи (`DotRecord`).
     UnexpectedFieldAccess {
         record: &'src Expr<'src>,
@@ -539,9 +545,33 @@ impl fmt::Display for Error<'_> {
                 Ok(())
             }
 
-            Self::MissingRecordFields
-            | Self::UnexpectedRecordFields
-            | Self::UnexpectedVariantLabel
+            Self::MissingRecordFields {
+                actual,
+                expected,
+                missing,
+            } => {
+                debug_assert_matches!(actual, Expr::Record(_));
+                debug_assert_matches!(expected, Type::Record(_));
+                // TODO: debug_assert that field is missing
+                writeln!(
+                    f,
+                    "expected\n\t{actual}\nto be\n\t{expected}\nbut it is missing field `{missing}`"
+                )
+            }
+            Self::UnexpectedRecordFields {
+                actual,
+                expected,
+                unexpected,
+            } => {
+                debug_assert_matches!(actual, Expr::Record(_));
+                debug_assert_matches!(expected, Type::Record(_));
+                // TODO: debug_assert that field is unexpected
+                writeln!(
+                    f,
+                    "expected\n\t{actual}\nto be\n\t{expected}\nbut it has an unexpected field `{unexpected}`"
+                )
+            }
+            Self::UnexpectedVariantLabel
             | Self::AmbiguousVariantType
             | Self::IllegalEmptyMatching
             | Self::NonexhaustiveMatchPatterns
@@ -589,8 +619,8 @@ impl Error<'_> {
             Error::UnexpectedVariant { .. } => nz!(12),
             Error::UnexpectedList { .. } => nz!(13),
             Error::UnexpectedInjection { .. } => nz!(14),
-            Error::MissingRecordFields => nz!(15),
-            Error::UnexpectedRecordFields => nz!(16),
+            Error::MissingRecordFields { .. } => nz!(15),
+            Error::UnexpectedRecordFields { .. } => nz!(16),
             Error::UnexpectedFieldAccess { .. } => nz!(17),
             Error::UnexpectedVariantLabel => nz!(18),
             Error::TupleIndexOutOfBounds { .. } => nz!(19),

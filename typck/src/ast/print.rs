@@ -61,7 +61,9 @@ impl Display for Type<'_> {
                 comma_sep_with(fields, |f, (name, ty)| write!(f, "{name} : {ty}"))
             ),
 
-            Self::Sum { .. } | Self::Forall { .. } | Self::Variant(..) => {
+            Self::Sum { left, right } => paren_alt(f, |f| write!(f, "{left:#} + {right:#}")),
+
+            Self::Forall { .. } | Self::Variant(..) => {
                 todo!("Display {self:?}")
             }
 

@@ -908,10 +908,17 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/missing_main/primitive.stel
     `main` is missing or is not a function
 "#]]
 
-#[should_panic(expected="not yet implemented: typck Record")]
 missing_record_fields
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/missing_record_fields/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    15
+    ERROR_MISSING_RECORD_FIELDS
+    expected
+    	{a = false}
+    to be
+    	{a : Bool, b : Bool}
+    but it is missing field `b`
+"#]]
 
 #[should_panic(expected = "not yet implemented: typck Match")]
 nonexhaustive_match_patterns
@@ -1082,10 +1089,17 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_record/primitive
     	Nat
 "#]]
 
-#[should_panic(expected="not yet implemented: typck Record")]
 unexpected_record_fields
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_record_fields/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    16
+    ERROR_UNEXPECTED_RECORD_FIELDS
+    expected
+    	{a = 0, b = false, c = succ(0)}
+    to be
+    	{a : Nat, b : Bool}
+    but it has an unexpected field `c`
+"#]]
 
 unexpected_tuple
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_tuple/primitive.stella")
@@ -1199,7 +1213,6 @@ pairs
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/pairs.stella")
 => expect![]
 
-#[should_panic(expected="not yet implemented: typck Record")]
 records
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/records.stella")
 => expect![]
@@ -1465,15 +1478,31 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     	#bottom-type
 "#]]
 
-#[should_panic(expected="TODO: check coercion from Record")]
 sub_list_stack_bad
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-list-stack.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	test(n)
+    has type
+    	[{a : Nat, b : Bool}]
+    but expected to have type
+    	[{a : Nat}]
+"#]]
 
-#[should_panic(expected="not yet implemented: typck Record")]
 sub_rec_stack_bad
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-rec-stack.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	test(n)
+    has type
+    	{a : {a : Nat, b : Bool}, b : Bool}
+    but expected to have type
+    	{a : {a : Nat}}
+"#]]
 
 sub_stack_bad
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-stack.stella")
@@ -1488,15 +1517,31 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     	#arithmetic-operators
 "#]]
 
-#[should_panic(expected="not yet implemented: typck Record")]
 sub_sum_stack_bad
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-sum-stack.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	test(n)
+    has type
+    	{a : Nat, b : Bool} + Nat
+    but expected to have type
+    	{a : Nat} + Nat
+"#]]
 
-#[should_panic(expected="not yet implemented: typck Record")]
 sub_tuple_stack_bad
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-tuple-stack.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	test(n)
+    has type
+    	{{a : Nat, b : Bool}, Nat}
+    but expected to have type
+    	{{a : Nat}, Nat}
+"#]]
 
 sub_var_stack_bad
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-var-stack.stella")
