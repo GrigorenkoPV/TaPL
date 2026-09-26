@@ -369,7 +369,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 self.ensure(second, expected)?
             }
 
-            // ref
+            // ref creation
             (Expr::New(actual), Type::Ref(expected)) => self.ensure(actual, expected)?,
             (
                 Expr::New(_),
@@ -406,6 +406,17 @@ impl<'ctx> Context<'_, 'ctx> {
                 address: expr,
                 expected: expected.to_owned()
             }),
+
+            // ref consumption
+            (Expr::Deref(expr), expected) => {
+                self.ensure(
+                    expr,
+                    &Type::Ref(
+                        // FIXME: `Rc` / `Cow`
+                        Box::new(expected.to_owned()),
+                    ),
+                )?
+            }
 
             // fallback to infer + check_ty_coerces
             (
@@ -497,16 +508,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::Match { .. }, Type::Variant { .. })
             | (Expr::Match { .. }, Type::List { .. })
             | (Expr::Match { .. }, Type::Unit { .. })
-            | (Expr::Deref { .. }, Type::Bool)
-            | (Expr::Deref { .. }, Type::Nat { .. })
-            | (Expr::Deref { .. }, Type::Ref { .. })
-            | (Expr::Deref { .. }, Type::Sum { .. })
-            | (Expr::Deref { .. }, Type::Fn { .. })
-            | (Expr::Deref { .. }, Type::Tuple { .. })
-            | (Expr::Deref { .. }, Type::Record { .. })
-            | (Expr::Deref { .. }, Type::Variant { .. })
-            | (Expr::Deref { .. }, Type::List { .. })
-            | (Expr::Deref { .. }, Type::Unit { .. })
             | (Expr::TypeApplication { .. }, Type::Bool)
             | (Expr::TypeApplication { .. }, Type::Nat { .. })
             | (Expr::TypeApplication { .. }, Type::Ref { .. })

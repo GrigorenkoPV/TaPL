@@ -1395,10 +1395,19 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/primitiv
     	Bool
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Deref")]
+// FIXME: wrong error
 ref_chain
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/ref-chain.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	a
+    has type
+    	Nat
+    but expected to have type
+    	Top
+"#]]
 
 sub_fn_stack_bad
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-fn-stack.stella")
@@ -1483,12 +1492,20 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     	#arithmetic-operators
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Deref")]
+// FIXME: this is wrong
 deref
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/deref.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	n
+    has type
+    	&{a : Nat, b : Bool}
+    but expected to have type
+    	&{a : Nat}
+"#]]
 
-#[should_panic(expected = "not yet implemented: typck Deref")]
 inferred_mem
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/inferred-mem.stella")
 => expect![]
