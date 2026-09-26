@@ -1,7 +1,6 @@
 language core;
 extend with #records;
 extend with #let-bindings;
-extend with #let-patterns;
 extend with #structural-subtyping;
 extend with #unit-type;
 extend with #type-ascriptions;
@@ -10,7 +9,7 @@ extend with #structural-patterns;
 fn main(n : Nat) -> Nat {
   return let x = match 0 {
     0 => {a = 0}
-  | n => {a = 0,  b = 0} 
+  | n => {a = 0,  b = 0}
   } in 0;
 }
 

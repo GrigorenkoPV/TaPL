@@ -376,7 +376,6 @@ include_str!("../tests/Examples/pass/sub-asc.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-patterns
     	#structural-subtyping
 "#]]
 
@@ -387,7 +386,6 @@ include_str!("../tests/Examples/pass/sub-match.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-patterns
-    	#let-patterns
     	#structural-subtyping
 "#]]
 
@@ -483,10 +481,11 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-ty
 multiparameter_incorrect_number_of_arguments_fix
 include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-typed/incorrect_number_of_arguments/fix.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#let-patterns
+    113
+    ERROR_INCORRECT_NUMBER_OF_ARGUMENTS
+    function
+    	n
+    is called with 2 argument(s), but has arity of 1
 "#]]
 
 multiparameter_incorrect_number_of_arguments
@@ -531,10 +530,9 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/il
 nested_function_declarations_bad
 include_str!("../tests/ThatDraenGuy/stage1/extra/nested-function-declarations/ill-typed/undefined_variable/primitive.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#let-patterns
+    2
+    ERROR_UNDEFINED_VARIABLE
+    undefined variable `g`
 "#]]
 
 nested_factorial
@@ -885,10 +883,13 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/nonexhaustive_match_pattern
 fix
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/fix.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#let-patterns
+    4
+    ERROR_NOT_A_FUNCTION
+    expression
+    	0
+    has type
+    	Nat
+    but expected to be a function
 "#]]
 
 if_funcs_bad
@@ -1299,7 +1300,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_panic_type/primit
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-patterns
     	#panic
 "#]]
 
@@ -1309,7 +1309,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_reference_type/pr
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-patterns
     	#references
 "#]]
 
@@ -1319,7 +1318,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/missing_record_fields/subty
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-patterns
     	#structural-subtyping
 "#]]
 
@@ -1338,7 +1336,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_memory_address/p
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-patterns
     	#references
 "#]]
 
@@ -1357,7 +1354,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invarian
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-patterns
     	#references
     	#structural-subtyping
     	#top-type
@@ -1370,7 +1366,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invarian
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-patterns
     	#references
     	#structural-subtyping
     	#top-type
@@ -1383,7 +1378,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invarian
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-patterns
     	#references
     	#structural-subtyping
     	#top-type
@@ -1405,7 +1399,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/ref-chai
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-patterns
     	#references
     	#structural-subtyping
     	#top-type
@@ -1504,7 +1497,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/deref.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-patterns
     	#references
     	#structural-subtyping
     	#top-type
@@ -1526,7 +1518,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref-with-bot-in-
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-patterns
     	#references
     	#structural-subtyping
     	#top-type
@@ -1539,7 +1530,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-patterns
     	#references
     	#structural-subtyping
     	#top-type
@@ -1552,7 +1542,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/ref-assign.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#let-patterns
     	#references
     	#structural-subtyping
     	#top-type

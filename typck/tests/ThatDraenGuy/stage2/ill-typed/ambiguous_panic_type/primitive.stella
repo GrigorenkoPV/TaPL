@@ -1,6 +1,5 @@
 language core;
 extend with #let-bindings;
-extend with #let-patterns;
 extend with #panic;
 
 fn main(n : Nat) -> Nat {

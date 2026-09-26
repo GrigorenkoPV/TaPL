@@ -1,7 +1,6 @@
 language core;
 extend with #nested-function-declarations;
 extend with #let-bindings;
-extend with #let-patterns;
 
 
 fn twice(f : fn(Bool) -> Bool) -> (fn(Bool) -> Bool) {
