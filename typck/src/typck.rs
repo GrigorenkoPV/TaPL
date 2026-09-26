@@ -281,7 +281,6 @@ impl<'ctx> Context<'_, 'ctx> {
             Expr::True | Expr::False => Owned(Type::Bool),
             Expr::Unit => Owned(Type::Unit),
             Expr::Integer(_) => Owned(Type::Nat),
-            Expr::Panic => Owned(Type::Auto),
 
             Expr::Var(var) => self
                 .variables
@@ -418,6 +417,7 @@ impl<'ctx> Context<'_, 'ctx> {
             }
 
             Expr::Inl(_) | Expr::Inr(_) => throw!(Error::AmbiguousSumType(expr)),
+            Expr::Variant { .. } => throw!(Error::AmbiguousVariantType(expr)),
 
             Expr::List(elements) => match elements.as_slice() {
                 [] => throw!(Error::AmbiguousList(expr)),
@@ -549,11 +549,11 @@ impl<'ctx> Context<'_, 'ctx> {
             | Expr::Generic { .. }
             | Expr::BinOp { .. }
             | Expr::Cast { .. }
-            | Expr::Variant { .. }
             | Expr::Match { .. }
             | Expr::Deref(_)
             | Expr::TypeApplication { .. }
             | Expr::Throw(_)
+            | Expr::Panic
             | Expr::TryCatch { .. }
             | Expr::TryWith { .. }
             | Expr::TryCastAs { .. }

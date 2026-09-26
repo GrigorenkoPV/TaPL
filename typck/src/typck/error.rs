@@ -138,8 +138,7 @@ pub(crate) enum Error<'src> {
     /// Тип инъекции (`Inl` или `Inr`) невозможно определить (отсутствует ожидаемый тип-сумма).
     AmbiguousSumType(&'src Expr<'src>),
     /// Тип варианта (`Variant`) невозможно определить (отсутствует ожидаемый тип варианта).
-    #[expect(dead_code, reason = "WIP")]
-    AmbiguousVariantType,
+    AmbiguousVariantType(&'src Expr<'src>),
     /// Тип списка (`List` или `ConsList`) невозможно определить (отсутствует ожидаемый тип списка).
     AmbiguousList(&'src Expr<'src>),
     /// `match`-выражение с пустым списком альтернатив.
@@ -517,6 +516,11 @@ impl fmt::Display for Error<'_> {
                 debug_assert_matches!(expr, Expr::List(_));
                 writeln!(f, "cannot infer type of list element\n\t{expr}")
             }
+            Self::AmbiguousVariantType(expr) => {
+                debug_assert_matches!(expr, Expr::Variant { .. });
+                writeln!(f, "cannot infer type of variant\n\t{expr}")
+            }
+
             &Self::TupleIndexOutOfBounds {
                 tuple,
                 length,
@@ -572,7 +576,6 @@ impl fmt::Display for Error<'_> {
                 )
             }
             Self::UnexpectedVariantLabel
-            | Self::AmbiguousVariantType
             | Self::IllegalEmptyMatching
             | Self::NonexhaustiveMatchPatterns
             | Self::UnexpectedPatternForType
@@ -625,8 +628,8 @@ impl Error<'_> {
             Error::UnexpectedVariantLabel => nz!(18),
             Error::TupleIndexOutOfBounds { .. } => nz!(19),
             Error::UnexpectedTupleLength { .. } => nz!(20),
-            Error::AmbiguousSumType { .. } => nz!(21),
-            Error::AmbiguousVariantType => nz!(22),
+            Error::AmbiguousSumType(_) => nz!(21),
+            Error::AmbiguousVariantType(_) => nz!(22),
             Error::AmbiguousList(_) => nz!(23),
             Error::IllegalEmptyMatching => nz!(24),
             Error::NonexhaustiveMatchPatterns => nz!(25),
