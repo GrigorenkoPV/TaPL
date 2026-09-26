@@ -115,9 +115,7 @@ impl Extension {
             Self::ExceptionTypeDeclaration => false,
             Self::StructuralSubtyping => false,
             Self::TypeCast => false,
-            Self::TopType => false,
-            Self::BottomType => false,
-            Self::AmbiguousTypeAsBottom => true,
+            Self::TopType | Self::BottomType | Self::AmbiguousTypeAsBottom => true,
 
             // Stage 2 (optional)
             Self::OpenVariantExceptions => false,

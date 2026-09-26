@@ -120,7 +120,6 @@ include_str!("../tests/Examples/fail/ambitious-injection-on-top.stella")
     the following unsupported extensions are enabled:
     	#exceptions
     	#structural-subtyping
-    	#top-type
     	#open-variant-exceptions
 "#]]
 
@@ -345,7 +344,6 @@ include_str!("../tests/Examples/pass/exception01.stella")
     	#exceptions
     	#exception-type-declaration
     	#structural-subtyping
-    	#bottom-type
     	#open-variant-exceptions
 "#]]
 
@@ -1274,7 +1272,6 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/type-cast-patterns/ill-typed/un
     the following unsupported extensions are enabled:
     	#structural-patterns
     	#structural-subtyping
-    	#top-type
     	#type-cast-patterns
 "#]]
 
@@ -1286,7 +1283,6 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/type-cast-patterns/well-typed/p
     the following unsupported extensions are enabled:
     	#structural-patterns
     	#structural-subtyping
-    	#top-type
     	#type-cast-patterns
 "#]]
 
@@ -1349,8 +1345,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invarian
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-subtyping
-    	#top-type
-    	#bottom-type
 "#]]
 
 invariant_ref_with_top_in_ctx
@@ -1360,8 +1354,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invarian
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-subtyping
-    	#top-type
-    	#bottom-type
 "#]]
 
 invariant_ref_with_top
@@ -1371,8 +1363,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invarian
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-subtyping
-    	#top-type
-    	#bottom-type
 "#]]
 
 unexpected_subtype
@@ -1391,17 +1381,19 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/ref-chai
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-subtyping
-    	#top-type
-    	#bottom-type
 "#]]
 
 sub_fn_stack_bad
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-fn-stack.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#bottom-type
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	test(n)
+    has type
+    	fn({a : Nat}) -> Bot
+    but expected to have type
+    	fn({a : Nat, b : Bool}) -> Bool
 "#]]
 
 sub_list_stack_bad
@@ -1436,7 +1428,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#bottom-type
     	#arithmetic-operators
 "#]]
 
@@ -1472,7 +1463,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#bottom-type
     	#arithmetic-operators
 "#]]
 
@@ -1483,8 +1473,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/deref.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-subtyping
-    	#top-type
-    	#bottom-type
 "#]]
 
 #[should_panic(expected = "not yet implemented: typck Deref")]
@@ -1499,8 +1487,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref-with-bot-in-
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-subtyping
-    	#top-type
-    	#bottom-type
 "#]]
 
 invariant_ref
@@ -1510,8 +1496,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-subtyping
-    	#top-type
-    	#bottom-type
 "#]]
 
 ref_assign
@@ -1521,8 +1505,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/ref-assign.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-subtyping
-    	#top-type
-    	#bottom-type
 "#]]
 
 #[should_panic(expected = "not yet implemented: typck Assign")]
@@ -1537,7 +1519,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-fn-stack.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-subtyping
-    	#bottom-type
 "#]]
 
 sub_list_stack
@@ -1565,7 +1546,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-subtyping
-    	#bottom-type
     	#arithmetic-operators
 "#]]
 
@@ -1594,7 +1574,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-subtyping
-    	#bottom-type
     	#arithmetic-operators
 "#]]
 

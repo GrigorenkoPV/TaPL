@@ -449,7 +449,7 @@ impl<'ctx> Context<'_, 'ctx> {
                     if self.ambiguous_type_as_bottom {
                         Owned(Type::List(Box::new(Type::Bot)))
                     } else {
-                        throw!(Error::AmbiguousList{})
+                        throw!(Error::AmbiguousList {})
                     }
                 }
                 [head, tail @ ..] => {
@@ -610,8 +610,6 @@ impl<'ctx> Context<'_, 'ctx> {
             (_, t @ Type::Rec { .. }) => unsupported::mu(t),
 
             // Special types
-            (_, Type::Top) => todo!("top"),
-            (_, Type::Bot) => todo!("bot"),
             (_, Type::Auto) => todo!("auto"),
             (_, Type::Forall { .. }) => todo!("forall"),
 
@@ -1022,7 +1020,8 @@ impl<'ctx> Context<'_, 'ctx> {
                 | Type::Variant(_)
                 | Type::List(_)
                 | Type::Unit,
-            ) => {
+            )
+            | (_, Type::Bot | Type::Top) => {
                 let actual = self.infer(expr)?;
                 self.check_ty_coerces(&actual, expected).map_err(|()| {
                     Error::UnexpectedTypeForExpression {
