@@ -1133,12 +1133,7 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/factorial.stella")
 
 fix_primitive
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/fix-primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#let-patterns
-"#]]
+=> expect![]
 
 func_chain
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/func-chain.stella")
