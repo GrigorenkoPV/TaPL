@@ -23,6 +23,7 @@ mod tests;
 fn run_typck() -> Result<(), NonZero<u8>> {
     let input = io::read_to_string(io::stdin()).context("Error reading input from stdin")?;
     let program = parse(&input).context("parser error")?;
+    #[cfg(debug_assertions)]
     dbg!(&program);
     typck::typck(&program).map_err(|e| {
         println!("{e}");
