@@ -195,7 +195,6 @@ pub(crate) enum Expr<'src> {
     },
     DotTuple {
         lhs: Box<Self>,
-        #[expect(dead_code, reason = "WIP")]
         field: Integer,
     },
     Tuple(Vec<Self>),

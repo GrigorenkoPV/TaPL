@@ -2,7 +2,7 @@ use core::{debug_assert_matches, fmt, mem, num::NonZero};
 use std::{borrow::Cow, collections::btree_set::BTreeSet};
 
 use crate::{
-    ast::{Expr, Ident, Type},
+    ast::{Expr, Ident, Integer, Type},
     extensions::{Extension, Extensions},
 };
 
@@ -35,8 +35,10 @@ pub(crate) enum Error<'src> {
     },
     /// При попытке извлечь компонент кортежа (`DotTuple`) из выражения,
     /// выражение оказывается не кортежем (`TypeTuple`)
-    #[expect(dead_code, reason = "WIP")]
-    NotATuple,
+    NotATuple {
+        expr: &'src Expr<'src>,
+        actual: Type<'src>,
+    },
     /// При попытке извлечь поле записи (`DotRecord`) из выражения,
     /// выражение оказывается не записью (`TypeRecord`)
     #[expect(dead_code, reason = "WIP")]
@@ -106,8 +108,11 @@ pub(crate) enum Error<'src> {
     #[expect(dead_code, reason = "WIP")]
     UnexpectedVariantLabel,
     /// Попытка извлечь отсутствующий компонент кортежа (`DotTuple`).
-    #[expect(dead_code, reason = "WIP")]
-    TupleIndexOutOfBounds,
+    TupleIndexOutOfBounds {
+        tuple: &'src Expr<'src>,
+        length: usize,
+        index: Integer,
+    },
     /// Длина кортежа (`Tuple`) не соответствует ожидаемой длине.
     #[expect(dead_code, reason = "WIP")]
     UnexpectedTupleLength,
@@ -356,14 +361,27 @@ impl fmt::Display for Error<'_> {
                 "expected an abstraction\n\t{lambda}\nto be\n\t{expected}"
             ),
 
-            Self::NotAFunction { expr, actual } => writeln!(
-                f,
-                "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to be a function"
-            ),
-            Self::NotAList { expr, actual } => writeln!(
-                f,
-                "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to be a list"
-            ),
+            Self::NotAFunction { expr, actual } => {
+                debug_assert!(!matches!(actual, Type::Fn { .. }), "So *is* a function?");
+                writeln!(
+                    f,
+                    "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to be a function"
+                )
+            }
+            Self::NotAList { expr, actual } => {
+                debug_assert!(!matches!(actual, Type::List(_)), "So *is* a list?");
+                writeln!(
+                    f,
+                    "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to be a list"
+                )
+            }
+            Self::NotATuple { expr, actual } => {
+                debug_assert!(!matches!(actual, Type::Tuple(_)), "So *is* a tuple?");
+                writeln!(
+                    f,
+                    "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to be a tuple"
+                )
+            }
 
             Self::IncorrectNumberOfArguments {
                 expected,
@@ -417,16 +435,27 @@ impl fmt::Display for Error<'_> {
                 debug_assert_matches!(expr, Expr::List(_));
                 writeln!(f, "cannot infer type of list element\n\t{expr}")
             }
+            &Self::TupleIndexOutOfBounds {
+                tuple,
+                length,
+                index,
+            } => {
+                if let Ok(length) = Integer::try_from(length) {
+                    debug_assert!(index == 0 || index > length, "So not out of bounds?");
+                }
+                writeln!(
+                    f,
+                    "index {index} is out of bounds for a tuple\n\t{tuple}\nof length {length}"
+                )
+            }
 
-            Self::NotATuple
-            | Self::NotARecord
+            Self::NotARecord
             | Self::UnexpectedRecord
             | Self::UnexpectedVariant
             | Self::MissingRecordFields
             | Self::UnexpectedRecordFields
             | Self::UnexpectedFieldAccess
             | Self::UnexpectedVariantLabel
-            | Self::TupleIndexOutOfBounds
             | Self::UnexpectedTupleLength
             | Self::AmbiguousVariantType
             | Self::IllegalEmptyMatching
@@ -465,7 +494,7 @@ impl Error<'_> {
             Error::UndefinedVariable(_) => nz!(2),
             Error::UnexpectedTypeForExpression { .. } => nz!(3),
             Error::NotAFunction { .. } => nz!(4),
-            Error::NotATuple => nz!(5),
+            Error::NotATuple { .. } => nz!(5),
             Error::NotARecord => nz!(6),
             Error::NotAList { .. } => nz!(7),
             Error::UnexpectedLambda { .. } => nz!(8),
@@ -479,7 +508,7 @@ impl Error<'_> {
             Error::UnexpectedRecordFields => nz!(16),
             Error::UnexpectedFieldAccess => nz!(17),
             Error::UnexpectedVariantLabel => nz!(18),
-            Error::TupleIndexOutOfBounds => nz!(19),
+            Error::TupleIndexOutOfBounds { .. } => nz!(19),
             Error::UnexpectedTupleLength => nz!(20),
             Error::AmbiguousSumType { .. } => nz!(21),
             Error::AmbiguousVariantType => nz!(22),

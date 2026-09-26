@@ -104,10 +104,14 @@ fn main(n : Nat) -> Nat {
 "
 => expect![]
 
-#[should_panic(expected="not yet implemented: infer DotTuple")]
 ambiguous_list_bad
 include_str!("../tests/Examples/fail/ambiguous-list.stella")
-=> expect![]
+=> expect![[r#"
+    23
+    ERROR_AMBIGUOUS_LIST
+    cannot infer type of list element
+    	[]
+"#]]
 
 ambitious_injection_on_top
 include_str!("../tests/Examples/fail/ambitious-injection-on-top.stella")
@@ -189,10 +193,17 @@ include_str!("../tests/Examples/fail/not-a-record-01.stella")
     	#records
 "#]]
 
-#[should_panic(expected="not yet implemented: infer DotTuple")]
 not_a_tuple_01
 include_str!("../tests/Examples/fail/not-a-tuple-01.stella")
-=> expect![]
+=> expect![[r#"
+    5
+    ERROR_NOT_A_TUPLE
+    expression
+    	n
+    has type
+    	Nat
+    but expected to be a tuple
+"#]]
 
 not_a_tuple_02
 include_str!("../tests/Examples/fail/not-a-tuple-02.stella")
@@ -988,15 +999,27 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_record/primitive.stel
     	#records
 "#]]
 
-#[should_panic(expected="not yet implemented: infer DotTuple")]
 not_a_tuple
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_tuple/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    5
+    ERROR_NOT_A_TUPLE
+    expression
+    	n
+    has type
+    	Nat
+    but expected to be a tuple
+"#]]
 
-#[should_panic(expected="not yet implemented: infer DotTuple")]
 tuple_index_out_of_bounds
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/tuple_index_out_of_bounds/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    19
+    ERROR_TUPLE_INDEX_OUT_OF_BOUNDS
+    index 4 is out of bounds for a tuple
+    	n
+    of length 3
+"#]]
 
 undefined_variable
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/undefined_variable/primitive.stella")
@@ -1178,7 +1201,6 @@ math
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/math.stella")
 => expect![]
 
-#[should_panic(expected="not yet implemented: infer DotTuple")]
 pairs
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/pairs.stella")
 => expect![]

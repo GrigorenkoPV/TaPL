@@ -7,7 +7,7 @@ use std::{
 use culpa::{throw, throws};
 
 use crate::{
-    ast::{Decl, Expr, Function, Ident, Pattern, PatternBinding, Program, Type},
+    ast::{Decl, Expr, Function, Ident, Integer, Pattern, PatternBinding, Program, Type},
     extensions::unsupported,
 };
 
@@ -62,6 +62,11 @@ fn nat_rec_step_type(acc: Type<'_>) -> Type<'_> {
             ret: Box::new(acc),
         }),
     }
+}
+
+fn dot_tuple(types: Vec<Type<'_>>, index: Integer) -> Option<Type<'_>> {
+    let index = index.checked_sub(1)?.try_into().ok()?;
+    types.into_iter().nth(index)
 }
 
 impl<'ctx> Context<'_, 'ctx> {
@@ -460,7 +465,27 @@ impl<'ctx> Context<'_, 'ctx> {
                 Owned(Type::Bool)
             }
 
-            Expr::DotTuple { .. } => todo!("infer {expr:?}"),
+            &Expr::DotTuple {
+                lhs: ref tuple,
+                field: index,
+            } => {
+                // FIXME: this potentially clones too much
+                let actual = self.infer(tuple)?.into_owned();
+                let Type::Tuple(fields) = actual else {
+                    throw!(Error::NotATuple {
+                        expr: tuple,
+                        actual
+                    })
+                };
+                let actual_length = fields.len();
+                Owned(
+                    dot_tuple(fields, index).ok_or(Error::TupleIndexOutOfBounds {
+                        tuple,
+                        length: actual_length,
+                        index,
+                    })?,
+                )
+            }
             Expr::Tuple(elements) => Owned(Type::Tuple(
                 elements
                     .iter()
