@@ -32,7 +32,7 @@ fn check_main<'a>(program: &'a Program<'a>) {
         })
         .collect();
     match mains.as_slice() {
-        [] => throw!(Error::MissingMain),
+        [] => throw!(Error::MissingMain {}),
         [one, _two, ..] => {
             throw!(Error::DuplicateFunctionDeclaration(Borrowed(&one.name)))
         }
@@ -420,7 +420,7 @@ impl<'ctx> Context<'_, 'ctx> {
             Expr::Variant { .. } => throw!(Error::AmbiguousVariantType(expr)),
 
             Expr::List(elements) => match elements.as_slice() {
-                [] => throw!(Error::AmbiguousList(expr)),
+                [] => throw!(Error::AmbiguousList {}),
                 [head, tail @ ..] => {
                     let element_t = self.infer(head)?;
                     for element in tail {
@@ -547,6 +547,8 @@ impl<'ctx> Context<'_, 'ctx> {
                 self.infer(second)?
             }
 
+            Expr::Panic => throw!(Error::AmbiguousPanicType),
+
             Expr::Assign { .. }
             | Expr::Generic { .. }
             | Expr::BinOp { .. }
@@ -555,7 +557,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | Expr::Deref(_)
             | Expr::TypeApplication { .. }
             | Expr::Throw(_)
-            | Expr::Panic
             | Expr::TryCatch { .. }
             | Expr::TryWith { .. }
             | Expr::TryCastAs { .. } => todo!("infer {expr:?}"),
@@ -571,13 +572,13 @@ impl<'ctx> Context<'_, 'ctx> {
             (e @ (Expr::Fold { .. } | Expr::Unfold { .. }), _) => unsupported::fold_unfold(e),
             (_, t @ Type::Rec { .. }) => unsupported::mu(t),
 
-            // Special
+            // Special types
             (_, Type::Top) => todo!("top"),
             (_, Type::Bot) => todo!("bot"),
             (_, Type::Auto) => todo!("auto"),
             (_, Type::Forall { .. }) => todo!("forall"),
 
-            // Var
+            // Var type
             (expr, Type::Var(var)) => {
                 let expected = self
                     .type_aliases
@@ -585,6 +586,8 @@ impl<'ctx> Context<'_, 'ctx> {
                     .ok_or(Error::UndefinedTypeVariable(var.clone()))?;
                 self.ensure(expr, expected)?
             }
+
+            (Expr::Panic, _) => {}
 
             // Let
             (
@@ -963,7 +966,6 @@ impl<'ctx> Context<'_, 'ctx> {
                 | Expr::True
                 | Expr::False
                 | Expr::Integer(_)
-                | Expr::Panic
                 | Expr::Not(_)
                 | Expr::NatIsZero(_)
                 | Expr::ListIsEmpty(_)

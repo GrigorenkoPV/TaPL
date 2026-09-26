@@ -12,7 +12,8 @@ pub(crate) enum Error<'src> {
     // Stage 1:
     //
     /// В программе отсутствует функция `main`.
-    MissingMain,
+    #[expect(clippy::empty_enum_variants_with_brackets, reason = "intentional")]
+    MissingMain {},
     /// В выражении содержится необъявленная переменная.
     UndefinedVariable(Ident<'src>),
     /// Тип выражения отличается от ожидаемого.
@@ -141,7 +142,8 @@ pub(crate) enum Error<'src> {
     /// Тип варианта (`Variant`) невозможно определить (отсутствует ожидаемый тип варианта).
     AmbiguousVariantType(&'src Expr<'src>),
     /// Тип списка (`List` или `ConsList`) невозможно определить (отсутствует ожидаемый тип списка).
-    AmbiguousList(&'src Expr<'src>),
+    #[expect(clippy::empty_enum_variants_with_brackets, reason = "intentional")]
+    AmbiguousList {},
     /// `match`-выражение с пустым списком альтернатив.
     #[expect(dead_code, reason = "WIP")]
     IllegalEmptyMatching,
@@ -234,7 +236,6 @@ pub(crate) enum Error<'src> {
     /// Неоднозначный тип адреса памяти (`ConstMemory`).
     AmbiguousReferenceType,
     /// Неоднозначный тип ошибки (`Panic`).
-    #[expect(dead_code, reason = "WIP")]
     AmbiguousPanicType,
     /// Попытка разыменовать (`Deref`) или присвоить значение (`Assign`)
     /// выражению не ссылочного типа.
@@ -294,7 +295,7 @@ impl fmt::Display for Error<'_> {
         writeln!(f, "ERROR_{}", <&'static str>::from(self))?;
 
         match self {
-            Self::MissingMain => writeln!(f, "`main` is missing or is not a function"),
+            Self::MissingMain {} => writeln!(f, "`main` is missing or is not a function"),
 
             Self::MissingExtensions {
                 mandatory,
@@ -540,10 +541,6 @@ impl fmt::Display for Error<'_> {
                 debug_assert_matches!(expr, Expr::Inl(_) | Expr::Inr(_));
                 writeln!(f, "cannot infer type of an injection\n\t{expr}")
             }
-            Self::AmbiguousList(expr) => {
-                debug_assert_matches!(expr, Expr::List(_));
-                writeln!(f, "cannot infer type of list element\n\t{expr}")
-            }
             Self::AmbiguousVariantType(expr) => {
                 debug_assert_matches!(expr, Expr::Variant { .. });
                 writeln!(f, "cannot infer type of variant\n\t{expr}")
@@ -623,6 +620,9 @@ impl fmt::Display for Error<'_> {
             }
 
             Self::AmbiguousReferenceType {} => writeln!(f, "cannot infer reference type"),
+            Self::AmbiguousThrowType {} => writeln!(f, "cannot infer throw type"),
+            Self::AmbiguousPanicType {} => writeln!(f, "cannot infer panic type"),
+            Self::AmbiguousList {} => writeln!(f, "cannot infer element type of an empty list"),
 
             Self::IllegalEmptyMatching
             | Self::NonexhaustiveMatchPatterns
@@ -630,8 +630,6 @@ impl fmt::Display for Error<'_> {
             | Self::UnexpectedNonNullaryVariantPattern
             | Self::UnexpectedNullaryVariantPattern
             | Self::ExceptionTypeNotDeclared
-            | Self::AmbiguousThrowType
-            | Self::AmbiguousPanicType
             | Self::NotAReference
             | Self::UnexpectedSubtype
             | Self::OccursCheckInfiniteType
@@ -651,7 +649,7 @@ impl Error<'_> {
     #[must_use]
     pub(crate) const fn code(&self) -> NonZero<u8> {
         match self {
-            Error::MissingMain => nz!(1),
+            Error::MissingMain {} => nz!(1),
             Error::UndefinedVariable(_) => nz!(2),
             Error::UnexpectedTypeForExpression { .. } => nz!(3),
             Error::NotAFunction { .. } => nz!(4),
@@ -673,7 +671,7 @@ impl Error<'_> {
             Error::UnexpectedTupleLength { .. } => nz!(20),
             Error::AmbiguousSumType(_) => nz!(21),
             Error::AmbiguousVariantType(_) => nz!(22),
-            Error::AmbiguousList(_) => nz!(23),
+            Error::AmbiguousList {} => nz!(23),
             Error::IllegalEmptyMatching => nz!(24),
             Error::NonexhaustiveMatchPatterns => nz!(25),
             Error::UnexpectedPatternForType => nz!(26),

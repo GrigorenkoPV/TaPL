@@ -109,8 +109,7 @@ include_str!("../tests/Examples/fail/ambiguous-list.stella")
 => expect![[r#"
     23
     ERROR_AMBIGUOUS_LIST
-    cannot infer type of list element
-    	[]
+    cannot infer element type of an empty list
 "#]]
 
 ambitious_injection_on_top
@@ -798,8 +797,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/ambiguous_list/primitive.st
 => expect![[r#"
     23
     ERROR_AMBIGUOUS_LIST
-    cannot infer type of list element
-    	[]
+    cannot infer element type of an empty list
 "#]]
 
 #[should_panic(expected = "not yet implemented: typck Match")]
@@ -1296,10 +1294,9 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/type-cast-patterns/well-typed/p
 ambiguous_panic_type
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_panic_type/primitive.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#panic
+    34
+    ERROR_AMBIGUOUS_PANIC_TYPE
+    cannot infer panic type
 "#]]
 
 ambiguous_reference_type
@@ -1405,7 +1402,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#panic
     	#bottom-type
 "#]]
 
@@ -1441,7 +1437,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#panic
     	#bottom-type
     	#arithmetic-operators
 "#]]
@@ -1478,7 +1473,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#panic
     	#bottom-type
     	#arithmetic-operators
 "#]]
@@ -1543,7 +1537,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-fn-stack.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#panic
     	#structural-subtyping
     	#bottom-type
 "#]]
@@ -1572,7 +1565,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#panic
     	#structural-subtyping
     	#bottom-type
     	#arithmetic-operators
@@ -1602,7 +1594,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#panic
     	#structural-subtyping
     	#bottom-type
     	#arithmetic-operators
