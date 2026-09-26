@@ -111,7 +111,6 @@ include_str!("../tests/Examples/fail/ambiguous-list.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#pairs
-    	#lists
 "#]]
 
 ambitious_injection_on_top
@@ -120,7 +119,6 @@ include_str!("../tests/Examples/fail/ambitious-injection-on-top.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#lists
     	#variants
     	#exceptions
     	#structural-subtyping
@@ -181,7 +179,6 @@ include_str!("../tests/Examples/fail/not-a-list-01.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#tuples
-    	#lists
 "#]]
 
 not_a_record_01
@@ -311,7 +308,6 @@ include_str!("../tests/Examples/pass/ascription.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#lists
 "#]]
 
 empty_list
@@ -320,7 +316,6 @@ include_str!("../tests/Examples/pass/empty-list.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#lists
     	#variants
     	#exceptions
     	#structural-subtyping
@@ -353,7 +348,6 @@ include_str!("../tests/Examples/pass/letrec.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#tuples
-    	#lists
     	#structural-patterns
     	#letrec-bindings
     	#pattern-ascriptions
@@ -450,7 +444,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/letrec-bindings/ill-typed/unexp
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#tuples
-    	#lists
     	#structural-patterns
     	#letrec-bindings
     	#pattern-ascriptions
@@ -464,7 +457,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/letrec-bindings/well-typed/tupl
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#tuples
-    	#lists
     	#structural-patterns
     	#letrec-bindings
     	#pattern-ascriptions
@@ -478,7 +470,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/letrec-bindings/well-typed/tupl
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#tuples
-    	#lists
     	#structural-patterns
     	#letrec-bindings
     	#pattern-ascriptions
@@ -652,7 +643,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/d
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -665,7 +655,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -678,7 +667,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -691,7 +679,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -704,7 +691,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -717,7 +703,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -739,7 +724,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -752,7 +736,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -765,7 +748,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/u
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -778,7 +760,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/u
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -791,7 +772,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/u
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -804,7 +784,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -817,7 +796,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -830,7 +808,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -843,7 +820,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -865,7 +841,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -878,7 +853,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
@@ -891,19 +865,14 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#variants
     	#structural-patterns
 "#]]
 
+#[should_panic(expected = "not yet implemented: infer ListIsEmpty")]
 ambiguous_list
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/ambiguous_list/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#lists
-"#]]
+=> expect![]
 
 #[should_panic(expected = "not yet implemented: typck Match")]
 ambiguous_sum_type
@@ -1028,14 +997,10 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/triple.stell
     but expected to be a function
 "#]]
 
+#[should_panic(expected = "not yet implemented: infer ListIsEmpty")]
 not_a_list
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_list/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#lists
-"#]]
+=> expect![]
 
 not_a_record
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_record/primitive.stella")
@@ -1103,14 +1068,10 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_lambda/primitive
     	Nat
 "#]]
 
+#[should_panic(expected = "not yet implemented: typck List(")]
 unexpected_list
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_list/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#lists
-"#]]
+=> expect![]
 
 unexpected_pattern_for_type
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_pattern_for_type/primitive.stella")
@@ -1233,14 +1194,10 @@ if_funcs
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/if-funcs.stella")
 => expect![]
 
+#[should_panic(expected = "not yet implemented: infer ListIsEmpty")]
 lists
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/lists.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#lists
-"#]]
+=> expect![]
 
 logic
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/logic.stella")
@@ -1521,7 +1478,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/ref-chai
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#lists
     	#let-patterns
     	#sequencing
     	#references
@@ -1549,7 +1505,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
 "#]]
 
 sub_rec_stack_bad
@@ -1615,7 +1570,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/deref.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#lists
     	#let-patterns
     	#sequencing
     	#references
@@ -1668,7 +1622,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/ref-assign.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#records
-    	#lists
     	#let-patterns
     	#sequencing
     	#references
@@ -1707,7 +1660,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-list-stack.stella")
     the following unsupported extensions are enabled:
     	#tuples
     	#records
-    	#lists
     	#structural-subtyping
 "#]]
 

@@ -77,12 +77,12 @@ impl Extension {
             | Self::Panic
             | Self::TypeAscriptions
             | Self::SumTypes
+            | Self::Lists
             | Self::UnitType => true,
 
             Self::Pairs
             | Self::Tuples
             | Self::Records
-            | Self::Lists
             | Self::Variants
             | Self::FixpointCombinator
             | Self::StructuralPatterns
