@@ -8,7 +8,7 @@ use culpa::{throw, throws};
 
 use crate::{
     ast::{Binding, Decl, Expr, Function, Ident, Integer, Pattern, PatternBinding, Program, Type},
-    extensions::unsupported,
+    extensions::{Extension, unsupported},
 };
 
 mod error;
@@ -51,6 +51,7 @@ type Namespace<'a, 'ctx> = crate::namespace::Namespace<'a, Ident<'ctx>, Typed<'c
 struct Context<'a, 'ctx> {
     type_aliases: Namespace<'a, 'ctx>,
     variables: Namespace<'a, 'ctx>,
+    ambiguous_type_as_bottom: bool,
 }
 
 fn nat_rec_step_type(acc: Type<'_>) -> Type<'_> {
@@ -85,19 +86,24 @@ impl<'ctx> Context<'_, 'ctx> {
         Self {
             type_aliases: Namespace::empty(),
             variables: Namespace::empty(),
+            ambiguous_type_as_bottom: program
+                .extensions
+                .contains(&Extension::AmbiguousTypeAsBottom),
         }
         .check_decls(program.decls.iter())?
     }
 
     #[must_use]
     fn new_scope<'this>(&'this self) -> Context<'this, 'ctx> {
-        let Self {
-            type_aliases,
-            variables,
+        let &Self {
+            ref type_aliases,
+            ref variables,
+            ambiguous_type_as_bottom,
         } = self;
         Context {
             type_aliases: type_aliases.new_scope(),
             variables: variables.new_scope(),
+            ambiguous_type_as_bottom,
         }
     }
 
@@ -416,11 +422,36 @@ impl<'ctx> Context<'_, 'ctx> {
                 Borrowed(ty)
             }
 
-            Expr::Inl(_) | Expr::Inr(_) => throw!(Error::AmbiguousSumType(expr)),
+            Expr::Inl(expr) => {
+                if self.ambiguous_type_as_bottom {
+                    Owned(Type::Sum {
+                        left: Box::new(self.infer(expr)?.into_owned()),
+                        right: Box::new(Type::Bot),
+                    })
+                } else {
+                    throw!(Error::AmbiguousSumType(expr))
+                }
+            }
+            Expr::Inr(expr) => {
+                if self.ambiguous_type_as_bottom {
+                    Owned(Type::Sum {
+                        left: Box::new(Type::Bot),
+                        right: Box::new(self.infer(expr)?.into_owned()),
+                    })
+                } else {
+                    throw!(Error::AmbiguousSumType(expr))
+                }
+            }
             Expr::Variant { .. } => throw!(Error::AmbiguousVariantType(expr)),
 
             Expr::List(elements) => match elements.as_slice() {
-                [] => throw!(Error::AmbiguousList {}),
+                [] => {
+                    if self.ambiguous_type_as_bottom {
+                        Owned(Type::List(Box::new(Type::Bot)))
+                    } else {
+                        throw!(Error::AmbiguousList{})
+                    }
+                }
                 [head, tail @ ..] => {
                     let element_t = self.infer(head)?;
                     for element in tail {
@@ -547,7 +578,13 @@ impl<'ctx> Context<'_, 'ctx> {
                 self.infer(second)?
             }
 
-            Expr::Panic => throw!(Error::AmbiguousPanicType),
+            Expr::Panic => {
+                if self.ambiguous_type_as_bottom {
+                    Owned(Type::Bot)
+                } else {
+                    throw!(Error::AmbiguousPanicType {})
+                }
+            }
 
             Expr::Assign { .. }
             | Expr::Generic { .. }

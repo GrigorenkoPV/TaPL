@@ -331,7 +331,6 @@ include_str!("../tests/Examples/pass/empty-list.stella")
     the following unsupported extensions are enabled:
     	#exceptions
     	#structural-subtyping
-    	#ambiguous-type-as-bottom
     	#open-variant-exceptions
 "#]]
 
