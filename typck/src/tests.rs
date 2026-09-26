@@ -361,7 +361,6 @@ include_str!("../tests/Examples/pass/letrec.stella")
     	#letrec-bindings
     	#pattern-ascriptions
     	#let-patterns
-    	#sequencing
     	#references
     	#arithmetic-operators
 "#]]
@@ -1412,7 +1411,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/ref-chai
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#let-patterns
-    	#sequencing
     	#references
     	#structural-subtyping
     	#top-type
@@ -1425,7 +1423,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#sequencing
     	#panic
     	#bottom-type
 "#]]
@@ -1462,7 +1459,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#sequencing
     	#references
     	#panic
     	#bottom-type
@@ -1501,7 +1497,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#sequencing
     	#references
     	#panic
     	#bottom-type
@@ -1515,7 +1510,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/deref.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#let-patterns
-    	#sequencing
     	#references
     	#structural-subtyping
     	#top-type
@@ -1564,7 +1558,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/ref-assign.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#let-patterns
-    	#sequencing
     	#references
     	#structural-subtyping
     	#top-type
@@ -1577,7 +1570,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/refs.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#sequencing
     	#references
 "#]]
 
@@ -1587,7 +1579,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-fn-stack.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#sequencing
     	#panic
     	#structural-subtyping
     	#bottom-type
@@ -1617,7 +1608,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#sequencing
     	#references
     	#panic
     	#structural-subtyping
@@ -1649,7 +1639,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#sequencing
     	#references
     	#panic
     	#structural-subtyping

@@ -105,7 +105,9 @@ fn stage1() {
 }
 
 #[test]
-#[should_panic(expected = "Some Stage2 extensions are unsupported:")]
+#[should_panic(
+    expected = "Some Stage2 extensions are unsupported: {References, Panic, Exceptions, ExceptionTypeDeclaration, StructuralSubtyping, TypeCast, TopType, BottomType, AmbiguousTypeAsBottom}"
+)]
 fn stage2() {
     check_everything_supported(Stage::Stage2);
 }

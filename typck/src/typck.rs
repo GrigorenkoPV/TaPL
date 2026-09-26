@@ -543,9 +543,13 @@ impl<'ctx> Context<'_, 'ctx> {
                         .collect::<Result<_, _>>()?,
                 ))
             }
+            Expr::Seq(seq) => {
+                let [first, second] = seq.as_ref();
+                self.ensure(first, &Type::Unit)?;
+                self.infer(second)?
+            }
 
             Expr::Assign { .. }
-            | Expr::Seq(_)
             | Expr::Generic { .. }
             | Expr::BinOp { .. }
             | Expr::Cast { .. }
@@ -910,6 +914,13 @@ impl<'ctx> Context<'_, 'ctx> {
                 expected: expected.to_owned()
             }),
 
+            // Seq
+            (Expr::Seq(seq), expected) => {
+                let [first, second] = seq.as_ref();
+                self.ensure(first, &Type::Unit)?;
+                self.ensure(second, expected)?
+            }
+
             // fallback to infer + check_ty_coerces
             (
                 Expr::Var(_)
@@ -950,17 +961,7 @@ impl<'ctx> Context<'_, 'ctx> {
 
             // TODO:
             #[expect(clippy::unnested_or_patterns, reason = "WIP")]
-            (Expr::Seq { .. }, Type::Bool)
-            | (Expr::Seq { .. }, Type::Nat { .. })
-            | (Expr::Seq { .. }, Type::Ref { .. })
-            | (Expr::Seq { .. }, Type::Sum { .. })
-            | (Expr::Seq { .. }, Type::Fn { .. })
-            | (Expr::Seq { .. }, Type::Tuple { .. })
-            | (Expr::Seq { .. }, Type::Record { .. })
-            | (Expr::Seq { .. }, Type::Variant { .. })
-            | (Expr::Seq { .. }, Type::List { .. })
-            | (Expr::Seq { .. }, Type::Unit { .. })
-            | (Expr::Assign { .. }, Type::Bool)
+            (Expr::Assign { .. }, Type::Bool)
             | (Expr::Assign { .. }, Type::Nat { .. })
             | (Expr::Assign { .. }, Type::Ref { .. })
             | (Expr::Assign { .. }, Type::Sum { .. })

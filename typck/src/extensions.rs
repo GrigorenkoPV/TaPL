@@ -110,7 +110,7 @@ impl Extension {
             Self::LetPatterns => false,
 
             // Stage 2
-            Self::Sequencing => false,
+            Self::Sequencing => true,
             Self::References => false,
             Self::Panic => false,
             Self::Exceptions => false,
