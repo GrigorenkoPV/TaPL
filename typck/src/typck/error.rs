@@ -76,25 +76,30 @@ pub(crate) enum Error<'src> {
     /// Запись (`Record`) проверяется с типом, отличным от типа записи (`TypeRecord`).
     ///
     /// Ошибка до проверки полей.
-    #[expect(dead_code, reason = "WIP")]
-    UnexpectedRecord,
+    UnexpectedRecord {
+        record: &'src Expr<'src>,
+        expected: Type<'src>,
+    },
     /// Вариант (`Variant`) проверяется с типом, отличным от типа варианта (`TypeVariant`).
     ///
     /// Ошибка до проверки варианта
     #[expect(dead_code, reason = "WIP")]
-    UnexpectedVariant,
+    UnexpectedVariant {
+        variant: &'src Expr<'src>,
+        expected: Type<'src>,
+    },
     /// Список (`List` или `ConsList`) проверяется с типом, отличным от типа списка (`TypeList`).
     ///
     /// Ошибка до проверки элементов
     UnexpectedList {
-        expr: &'src Expr<'src>,
+        list: &'src Expr<'src>,
         expected: Type<'src>,
     },
     /// Инъекция (`Inl` или `Inr`) проверяется с типом, отличным от типа-суммы (`TypeSum`).
     ///
     /// Ошибка до проверки инъекции.
     UnexpectedInjection {
-        expr: &'src Expr<'src>,
+        injection: &'src Expr<'src>,
         expected: Type<'src>,
     },
     /// В записи (`Record`) отсутствуют ожидаемые поля.
@@ -437,38 +442,64 @@ impl fmt::Display for Error<'_> {
                 )
             }
 
-            Self::UnexpectedList { expr, expected } => {
-                debug_assert_matches!(expr, Expr::Cons { .. } | Expr::List(_));
+            Self::UnexpectedList { list, expected } => {
+                debug_assert_matches!(list, Expr::Cons { .. } | Expr::List(_));
                 debug_assert!(
                     !matches!(expected, Type::List { .. }),
                     "So it's an *expected* list?"
                 );
                 writeln!(
                     f,
-                    "expression\n\t{expr}\nis a list, but expected to be\n\t{expected}"
+                    "expression\n\t{list}\nis a list, but expected to be\n\t{expected}"
                 )
             }
-
-            Self::UnexpectedInjection { expr, expected } => {
-                debug_assert_matches!(expr, Expr::Inl(_) | Expr::Inr(_));
+            Self::UnexpectedInjection {
+                injection,
+                expected,
+            } => {
+                debug_assert_matches!(injection, Expr::Inl(_) | Expr::Inr(_));
                 debug_assert!(
                     !matches!(expected, Type::Sum { .. }),
                     "So it's an *expected* injection?"
                 );
                 writeln!(
                     f,
-                    "expression\n\t{expr}\nis an injections, but expected to be\n\t{expected}"
+                    "expression\n\t{injection}\nis an injections, but expected to be\n\t{expected}"
                 )
             }
             Self::UnexpectedTuple { tuple, expected } => {
                 debug_assert_matches!(tuple, Expr::Tuple(_));
                 debug_assert!(
                     !matches!(expected, Type::Tuple(_)),
-                    "So it's an *expected* tuplr?"
+                    "So it's an *expected* tuple?"
                 );
                 writeln!(
                     f,
                     "expression\n\t{tuple}\nis a tuple, but expected to be\n\t{expected}"
+                )
+            }
+
+            Self::UnexpectedRecord { record, expected } => {
+                debug_assert_matches!(record, Expr::Record(_));
+                debug_assert!(
+                    !matches!(expected, Type::Record(_)),
+                    "So it's an *expected* record?"
+                );
+                writeln!(
+                    f,
+                    "expression\n\t{record}\nis a record, but expected to be\n\t{expected}"
+                )
+            }
+
+            Self::UnexpectedVariant { variant, expected } => {
+                debug_assert_matches!(variant, Expr::Variant { .. });
+                debug_assert!(
+                    !matches!(expected, Type::Variant(_)),
+                    "So it's an *expected* variant?"
+                );
+                writeln!(
+                    f,
+                    "expression\n\t{variant}\nis a variant, but expected to be\n\t{expected}"
                 )
             }
 
@@ -508,9 +539,7 @@ impl fmt::Display for Error<'_> {
                 Ok(())
             }
 
-            Self::UnexpectedRecord
-            | Self::UnexpectedVariant
-            | Self::MissingRecordFields
+            Self::MissingRecordFields
             | Self::UnexpectedRecordFields
             | Self::UnexpectedVariantLabel
             | Self::AmbiguousVariantType
@@ -556,8 +585,8 @@ impl Error<'_> {
             Error::UnexpectedLambda { .. } => nz!(8),
             Error::UnexpectedTypeForParameter { .. } => nz!(9),
             Error::UnexpectedTuple { .. } => nz!(10),
-            Error::UnexpectedRecord => nz!(11),
-            Error::UnexpectedVariant => nz!(12),
+            Error::UnexpectedRecord { .. } => nz!(11),
+            Error::UnexpectedVariant { .. } => nz!(12),
             Error::UnexpectedList { .. } => nz!(13),
             Error::UnexpectedInjection { .. } => nz!(14),
             Error::MissingRecordFields => nz!(15),

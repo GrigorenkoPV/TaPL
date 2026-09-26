@@ -1071,10 +1071,16 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_pattern_for_type
     	#variants
 "#]]
 
-#[should_panic(expected="not yet implemented: typck Record")]
 unexpected_record
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_record/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    11
+    ERROR_UNEXPECTED_RECORD
+    expression
+    	{a = 0, b = false}
+    is a record, but expected to be
+    	Nat
+"#]]
 
 #[should_panic(expected="not yet implemented: typck Record")]
 unexpected_record_fields

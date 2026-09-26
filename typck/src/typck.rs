@@ -740,7 +740,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 | Type::List(_)
                 | Type::Unit,
             ) => throw!(Error::UnexpectedInjection {
-                expr,
+                injection: expr,
                 expected: expected.to_owned()
             }),
 
@@ -769,7 +769,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 | Type::Variant(_)
                 | Type::Unit,
             ) => throw!(Error::UnexpectedList {
-                expr,
+                list: expr,
                 expected: expected.to_owned()
             }),
 
@@ -813,6 +813,23 @@ impl<'ctx> Context<'_, 'ctx> {
                 | Type::Unit,
             ) => throw!(Error::UnexpectedTuple {
                 tuple: expr,
+                expected: expected.to_owned()
+            }),
+
+            (Expr::Record(_), Type::Record(_)) => todo!("typck {expr:?}"),
+            (
+                Expr::Record { .. },
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => throw!(Error::UnexpectedRecord {
+                record: expr,
                 expected: expected.to_owned()
             }),
 
@@ -956,16 +973,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::TypeApplication { .. }, Type::Variant { .. })
             | (Expr::TypeApplication { .. }, Type::List { .. })
             | (Expr::TypeApplication { .. }, Type::Unit { .. })
-            | (Expr::Record { .. }, Type::Bool)
-            | (Expr::Record { .. }, Type::Nat { .. })
-            | (Expr::Record { .. }, Type::Ref { .. })
-            | (Expr::Record { .. }, Type::Sum { .. })
-            | (Expr::Record { .. }, Type::Fn { .. })
-            | (Expr::Record { .. }, Type::Tuple { .. })
-            | (Expr::Record { .. }, Type::Record { .. })
-            | (Expr::Record { .. }, Type::Variant { .. })
-            | (Expr::Record { .. }, Type::List { .. })
-            | (Expr::Record { .. }, Type::Unit { .. })
             | (Expr::Throw { .. }, Type::Bool)
             | (Expr::Throw { .. }, Type::Nat { .. })
             | (Expr::Throw { .. }, Type::Ref { .. })
