@@ -120,8 +120,10 @@ pub(crate) enum Error<'src> {
         actual: Box<[(Ident<'src>, Type<'src>)]>,
     },
     /// В варианте (Variant) используется тег, которого нет в ожидаемом типе варианта.
-    #[expect(dead_code, reason = "WIP")]
-    UnexpectedVariantLabel,
+    UnexpectedVariantLabel {
+        expected: Type<'src>,
+        actual: Ident<'src>,
+    },
     /// Попытка извлечь отсутствующий компонент кортежа (`DotTuple`).
     TupleIndexOutOfBounds {
         tuple: &'src Expr<'src>,
@@ -574,8 +576,18 @@ impl fmt::Display for Error<'_> {
                     "expected\n\t{actual}\nto be\n\t{expected}\nbut it has an unexpected field `{unexpected}`"
                 )
             }
-            Self::UnexpectedVariantLabel
-            | Self::IllegalEmptyMatching
+            Self::UnexpectedVariantLabel { expected, actual } => {
+                let Type::Variant(options) = expected else {
+                    unreachable!("not a variant: {expected:?}")
+                };
+                debug_assert!(
+                    !options.iter().any(|(name, _)| name == actual),
+                    "not unexpected"
+                );
+                writeln!(f, "there is no variant `{actual}` in\n\t{expected}")
+            }
+
+            Self::IllegalEmptyMatching
             | Self::NonexhaustiveMatchPatterns
             | Self::UnexpectedPatternForType
             | Self::UnexpectedDataForNullaryLabel
@@ -624,7 +636,7 @@ impl Error<'_> {
             Error::MissingRecordFields { .. } => nz!(15),
             Error::UnexpectedRecordFields { .. } => nz!(16),
             Error::UnexpectedFieldAccess { .. } => nz!(17),
-            Error::UnexpectedVariantLabel => nz!(18),
+            Error::UnexpectedVariantLabel { .. } => nz!(18),
             Error::TupleIndexOutOfBounds { .. } => nz!(19),
             Error::UnexpectedTupleLength { .. } => nz!(20),
             Error::AmbiguousSumType(_) => nz!(21),

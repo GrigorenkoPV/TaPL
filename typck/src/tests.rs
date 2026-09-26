@@ -1123,10 +1123,14 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_variant/primitiv
     	Nat
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Variant")]
 unexpected_variant_label
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_variant_label/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    18
+    ERROR_UNEXPECTED_VARIANT_LABEL
+    there is no variant `c` in
+    	<|a: Bool, b: Nat|>
+"#]]
 
 abstraction
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/abstraction.stella")

@@ -872,7 +872,21 @@ impl<'ctx> Context<'_, 'ctx> {
             }),
 
             // Variant
-            (Expr::Variant { .. }, Type::Variant { .. }) => todo!("typck {expr:?}"),
+            (Expr::Variant { lhs, rhs }, Type::Variant(options)) => {
+                let expected = options
+                    .iter()
+                    .find_map(|(name, data)| if name == lhs { Some(data) } else { None })
+                    .ok_or(Error::UnexpectedVariantLabel {
+                        actual: Borrowed(lhs),
+                        expected: expected.to_owned(),
+                    })?;
+                match (rhs, expected) {
+                    (None, None) => Ok(()),
+                    (Some(actual), Some(expected)) => self.ensure(actual, expected),
+                    (None, Some(_)) => Err(Error::MissingDataForLabel {}),
+                    (Some(_), None) => Err(Error::UnexpectedDataForNullaryLabel {}),
+                }?
+            }
 
             (
                 Expr::Variant { .. },

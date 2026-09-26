@@ -63,9 +63,19 @@ impl Display for Type<'_> {
 
             Self::Sum { left, right } => paren_alt(f, |f| write!(f, "{left:#} + {right:#}")),
 
-            Self::Forall { .. } | Self::Variant(..) => {
-                todo!("Display {self:?}")
-            }
+            Self::Variant(options) => write!(
+                f,
+                "<|{}|>",
+                comma_sep_with(options, |f, (name, data)| {
+                    write!(f, "{name}")?;
+                    if let Some(data) = data {
+                        write!(f, ": {data}")?
+                    }
+                    Ok(())
+                })
+            ),
+
+            Self::Forall { .. } => todo!("Display {self:?}"),
 
             Self::Rec { .. } => unsupported::mu(self),
         }
