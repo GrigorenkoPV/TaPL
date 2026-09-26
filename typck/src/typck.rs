@@ -465,10 +465,8 @@ impl<'ctx> Context<'_, 'ctx> {
                 actual
             }
 
-            Expr::New(expr) => {
-                let inner = self.infer(expr)?;
-                Owned(Type::Ref(Box::new(inner.into_owned())))
-            }
+            Expr::New(expr) => Owned(Type::Ref(Box::new(self.infer(expr)?.into_owned()))),
+            Expr::Address(_) => throw!(Error::AmbiguousReferenceType {}),
 
             Expr::Not(expr) => {
                 self.ensure(expr, &Type::Bool)?;
@@ -560,8 +558,7 @@ impl<'ctx> Context<'_, 'ctx> {
             | Expr::Panic
             | Expr::TryCatch { .. }
             | Expr::TryWith { .. }
-            | Expr::TryCastAs { .. }
-            | Expr::Address(_) => todo!("infer {expr:?}"),
+            | Expr::TryCastAs { .. } => todo!("infer {expr:?}"),
 
             Expr::Fold { .. } | Expr::Unfold { .. } => unsupported::fold_unfold(expr),
         })
@@ -921,6 +918,44 @@ impl<'ctx> Context<'_, 'ctx> {
                 self.ensure(second, expected)?
             }
 
+            // ref
+            (Expr::New(actual), Type::Ref(expected)) => self.ensure(actual, expected)?,
+            (
+                Expr::New(_),
+                Type::Bool
+                | Type::Nat
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => throw!(Error::UnexpectedReference {
+                reference: expr,
+                expected: expected.to_owned()
+            }),
+
+            (Expr::Address(_), Type::Ref(_expected)) => {
+                // TODO:
+                // self.check_ty_wf(expected)?
+            }
+            (
+                Expr::Address(_),
+                Type::Bool
+                | Type::Nat
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => throw!(Error::UnexpectedMemoryAddress {
+                address: expr,
+                expected: expected.to_owned()
+            }),
+
             // fallback to infer + check_ty_coerces
             (
                 Expr::Var(_)
@@ -1011,16 +1046,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::Match { .. }, Type::Variant { .. })
             | (Expr::Match { .. }, Type::List { .. })
             | (Expr::Match { .. }, Type::Unit { .. })
-            | (Expr::New { .. }, Type::Bool)
-            | (Expr::New { .. }, Type::Nat { .. })
-            | (Expr::New { .. }, Type::Ref { .. })
-            | (Expr::New { .. }, Type::Sum { .. })
-            | (Expr::New { .. }, Type::Fn { .. })
-            | (Expr::New { .. }, Type::Tuple { .. })
-            | (Expr::New { .. }, Type::Record { .. })
-            | (Expr::New { .. }, Type::Variant { .. })
-            | (Expr::New { .. }, Type::List { .. })
-            | (Expr::New { .. }, Type::Unit { .. })
             | (Expr::Deref { .. }, Type::Bool)
             | (Expr::Deref { .. }, Type::Nat { .. })
             | (Expr::Deref { .. }, Type::Ref { .. })
@@ -1080,17 +1105,9 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::TryCastAs { .. }, Type::Record { .. })
             | (Expr::TryCastAs { .. }, Type::Variant { .. })
             | (Expr::TryCastAs { .. }, Type::List { .. })
-            | (Expr::TryCastAs { .. }, Type::Unit { .. })
-            | (Expr::Address { .. }, Type::Bool)
-            | (Expr::Address { .. }, Type::Nat { .. })
-            | (Expr::Address { .. }, Type::Ref { .. })
-            | (Expr::Address { .. }, Type::Sum { .. })
-            | (Expr::Address { .. }, Type::Fn { .. })
-            | (Expr::Address { .. }, Type::Tuple { .. })
-            | (Expr::Address { .. }, Type::Record { .. })
-            | (Expr::Address { .. }, Type::Variant { .. })
-            | (Expr::Address { .. }, Type::List { .. })
-            | (Expr::Address { .. }, Type::Unit { .. }) => todo!("typck {expr:?} is {expected:?}"),
+            | (Expr::TryCastAs { .. }, Type::Unit { .. }) => {
+                todo!("typck {expr:?} is {expected:?}")
+            }
         }
         Ok(())
     }

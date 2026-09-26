@@ -139,6 +139,7 @@ impl Display for Expr<'_> {
                 }
                 write!(f, "|>")
             }
+            Self::New(expr) => write!(f, "new({expr})"),
 
             Self::Seq(_)
             | Self::Let { .. }
@@ -148,7 +149,6 @@ impl Display for Expr<'_> {
             | Self::Ascription { .. }
             | Self::Cast { .. }
             | Self::Match { .. }
-            | Self::New(_)
             | Self::Deref(_)
             | Self::TypeApplication { .. }
             | Self::DotRecord { .. }

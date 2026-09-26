@@ -1302,10 +1302,13 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_panic_type/primit
     	#panic
 "#]]
 
-#[should_panic(expected = "not yet implemented: infer Address")]
 ambiguous_reference_type
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_reference_type/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    33
+    ERROR_AMBIGUOUS_REFERENCE_TYPE
+    cannot infer reference type
+"#]]
 
 subtyping
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/missing_record_fields/subtyping.stella")
@@ -1321,19 +1324,27 @@ not_a_reference
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/not_a_reference/primitive.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck Address")]
 unexpected_memory_address
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_memory_address/primitive.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
+    36
+    ERROR_UNEXPECTED_MEMORY_ADDRESS
+    expression
+    	<0x0>
+    is a memory address, but expected to be
+    	Nat
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck New")]
 unexpected_reference
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_reference/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    37
+    ERROR_UNEXPECTED_REFERENCE
+    expression
+    	new(0)
+    is a reference, but expected to be
+    	Unit
+"#]]
 
 invariant_ref_with_bot
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invariant-ref-with-bot.stella")

@@ -232,7 +232,6 @@ pub(crate) enum Error<'src> {
     #[expect(dead_code, reason = "WIP")]
     AmbiguousThrowType,
     /// Неоднозначный тип адреса памяти (`ConstMemory`).
-    #[expect(dead_code, reason = "WIP")]
     AmbiguousReferenceType,
     /// Неоднозначный тип ошибки (`Panic`).
     #[expect(dead_code, reason = "WIP")]
@@ -243,12 +242,16 @@ pub(crate) enum Error<'src> {
     NotAReference,
     /// Адрес памяти (`ConstMemory`) используется там,
     /// где ожидается тип, отличный от типа-ссылки (`TypeRef`).
-    #[expect(dead_code, reason = "WIP")]
-    UnexpectedMemoryAddress,
-    /// Выражение создания ссылки (`Ref`, т. е. `new(<выражение>)`)
+    UnexpectedMemoryAddress {
+        address: &'src Expr<'src>,
+        expected: Type<'src>,
+    },
+    /// Выражение создания ссылки (`Ref`, т.е. `new(<выражение>)`)
     /// используется там, где ожидается не ссылочный тип.
-    #[expect(dead_code, reason = "WIP")]
-    UnexpectedReference,
+    UnexpectedReference {
+        reference: &'src Expr<'src>,
+        expected: Type<'src>,
+    },
     /// Тип выражения не является подтипом ожидаемого.
     ///
     /// Эта ошибка должна возникать только если ни одна из более специфичных ошибок
@@ -513,6 +516,26 @@ impl fmt::Display for Error<'_> {
                 )
             }
 
+            Self::UnexpectedMemoryAddress { address, expected } => {
+                debug_assert_matches!(address, Expr::Address { .. });
+                debug_assert!(!matches!(expected, Type::Ref(_)), "not unexpected");
+                writeln!(
+                    f,
+                    "expression\n\t{address}\nis a memory address, but expected to be\n\t{expected}"
+                )
+            }
+            Self::UnexpectedReference {
+                reference,
+                expected,
+            } => {
+                debug_assert_matches!(reference, Expr::New { .. });
+                debug_assert!(!matches!(expected, Type::Ref(_)), "not unexpected");
+                writeln!(
+                    f,
+                    "expression\n\t{reference}\nis a reference, but expected to be\n\t{expected}"
+                )
+            }
+
             Self::AmbiguousSumType(expr) => {
                 debug_assert_matches!(expr, Expr::Inl(_) | Expr::Inr(_));
                 writeln!(f, "cannot infer type of an injection\n\t{expr}")
@@ -599,6 +622,8 @@ impl fmt::Display for Error<'_> {
                 writeln!(f, "no data for label `{label}`, but expected\n\t{expected}")
             }
 
+            Self::AmbiguousReferenceType {} => writeln!(f, "cannot infer reference type"),
+
             Self::IllegalEmptyMatching
             | Self::NonexhaustiveMatchPatterns
             | Self::UnexpectedPatternForType
@@ -606,11 +631,8 @@ impl fmt::Display for Error<'_> {
             | Self::UnexpectedNullaryVariantPattern
             | Self::ExceptionTypeNotDeclared
             | Self::AmbiguousThrowType
-            | Self::AmbiguousReferenceType
             | Self::AmbiguousPanicType
             | Self::NotAReference
-            | Self::UnexpectedMemoryAddress
-            | Self::UnexpectedReference
             | Self::UnexpectedSubtype
             | Self::OccursCheckInfiniteType
             | Self::NotAGenericFunction
@@ -677,8 +699,8 @@ impl Error<'_> {
             Error::AmbiguousReferenceType => nz!(33),
             Error::AmbiguousPanicType => nz!(34),
             Error::NotAReference => nz!(35),
-            Error::UnexpectedMemoryAddress => nz!(36),
-            Error::UnexpectedReference => nz!(37),
+            Error::UnexpectedMemoryAddress { .. } => nz!(36),
+            Error::UnexpectedReference { .. } => nz!(37),
             Error::UnexpectedSubtype => nz!(38),
 
             Error::OccursCheckInfiniteType => nz!(39),
