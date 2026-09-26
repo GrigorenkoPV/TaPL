@@ -1,5 +1,5 @@
 use core::{
-    fmt::{Display, Formatter, Result},
+    fmt::{self, Display, Formatter, Result},
     mem,
 };
 
@@ -19,6 +19,25 @@ fn paren_alt(f: &mut Formatter<'_>, cb: impl FnOnce(&mut Formatter<'_>) -> Resul
     Ok(())
 }
 
+fn comma_sep_with<T>(
+    things: &[T],
+    print: impl Fn(&mut Formatter<'_>, &T) -> Result,
+) -> impl Display {
+    fmt::from_fn(move |f| {
+        let first = &mut true;
+        for thing in things {
+            if !mem::take(first) {
+                f.write_str(", ")?
+            }
+            print(f, thing)?
+        }
+        Ok(())
+    })
+}
+fn comma_sep(things: &[impl Display]) -> impl Display {
+    comma_sep_with(things, |f, thing| write!(f, "{thing}"))
+}
+
 impl Display for Type<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         // FIXME: less parens
@@ -32,29 +51,11 @@ impl Display for Type<'_> {
             Self::Var(name) => f.write_str(name),
             Self::List(inner) => write!(f, "[{inner}]"),
             Self::Ref(inner) => write!(f, "&{inner:#}"),
-            Self::Fn { args, ret } => paren_alt(f, |f| {
-                f.write_str("fn(")?;
-                let first = &mut true;
-                for arg in args {
-                    if !mem::take(first) {
-                        f.write_str(", ")?
-                    }
-                    write!(f, "{arg}")?
-                }
-
-                write!(f, ") -> {ret:#}")
-            }),
-            Self::Tuple(elements) => {
-                f.write_str("{")?;
-                let first = &mut true;
-                for element in elements {
-                    if !mem::take(first) {
-                        f.write_str(", ")?
-                    }
-                    write!(f, "{element}")?
-                }
-                f.write_str("}")
+            Self::Fn { args, ret } => {
+                paren_alt(f, |f| write!(f, "fn({}) -> {ret:#}", comma_sep(args)))
             }
+            Self::Tuple(elements) => write!(f, "{{{}}}", comma_sep(elements)),
+
             Self::Sum { .. } | Self::Forall { .. } | Self::Record(..) | Self::Variant(..) => {
                 todo!("Display {self:?}")
             }
@@ -76,16 +77,11 @@ impl Display for Expr<'_> {
             Self::Address(addr) => f.write_str(addr),
 
             Self::Abstraction { params, ret } => paren_alt(f, |f| {
-                write!(f, "fn(")?;
-                let first = &mut true;
-                for (name, ty) in params {
-                    if !mem::take(first) {
-                        write!(f, ", ")?
-                    }
-                    write!(f, "{name}: {ty}")?
-                }
-
-                write!(f, ") {{ return {ret} }}")
+                write!(
+                    f,
+                    "fn({}) {{ return {ret} }}",
+                    comma_sep_with(params, |f, (name, ty)| write!(f, "{name}: {ty}"))
+                )
             }),
 
             Self::If {
@@ -100,18 +96,7 @@ impl Display for Expr<'_> {
             Self::NatPred(expr) => write!(f, "Nat::pred({expr})"),
             Self::NatIsZero(expr) => write!(f, "Nat::iszero({expr})"),
 
-            Self::Application { lhs, args } => {
-                write!(f, "{lhs:#}(")?;
-                let first = &mut true;
-                for arg in args {
-                    if !mem::take(first) {
-                        f.write_str(", ")?
-                    }
-                    write!(f, "{arg}")?
-                }
-                f.write_str(")")
-            }
-
+            Self::Application { lhs, args } => write!(f, "{lhs:#}({})", comma_sep(args)),
             Self::Inl(expr) => write!(f, "inl({expr})"),
             Self::Inr(expr) => write!(f, "inr({expr})"),
 
@@ -119,28 +104,8 @@ impl Display for Expr<'_> {
             Self::ListHead(list) => write!(f, "List::head({list})"),
             Self::ListTail(list) => write!(f, "List::tail({list})"),
             Self::ListIsEmpty(list) => write!(f, "List::isempty({list})"),
-            Self::List(elements) => {
-                f.write_str("[")?;
-                let first = &mut true;
-                for element in elements {
-                    if !mem::take(first) {
-                        f.write_str(", ")?
-                    }
-                    write!(f, "{element}")?
-                }
-                f.write_str("]")
-            }
-            Self::Tuple(elements) => {
-                f.write_str("{")?;
-                let first = &mut true;
-                for element in elements {
-                    if !mem::take(first) {
-                        f.write_str(", ")?
-                    }
-                    write!(f, "{element}")?
-                }
-                f.write_str("}")
-            }
+            Self::List(elements) => write!(f, "[{}]", comma_sep(elements)),
+            Self::Tuple(elements) => write!(f, "{{{}}}", comma_sep(elements)),
 
             Self::Seq(_)
             | Self::Let { .. }
