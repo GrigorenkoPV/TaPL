@@ -109,6 +109,17 @@ impl Display for Expr<'_> {
             Self::ListHead(list) => write!(f, "List::head({list})"),
             Self::ListTail(list) => write!(f, "List::tail({list})"),
             Self::ListIsEmpty(list) => write!(f, "List::isempty({list})"),
+            Self::List(elements) => {
+                f.write_str("[")?;
+                let first = &mut true;
+                for element in elements {
+                    if !mem::take(first) {
+                        f.write_str(", ")?
+                    }
+                    write!(f, "{element}")?
+                }
+                f.write_str("]")
+            }
 
             Self::Seq(_)
             | Self::Let { .. }
@@ -119,7 +130,6 @@ impl Display for Expr<'_> {
             | Self::Cast { .. }
             | Self::Variant { .. }
             | Self::Match { .. }
-            | Self::List(_)
             | Self::New(_)
             | Self::Deref(_)
             | Self::TypeApplication { .. }

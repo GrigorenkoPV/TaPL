@@ -43,8 +43,10 @@ pub(crate) enum Error<'src> {
     NotARecord,
     /// При попытке извлечь голову (Head), хвост (Tail) или проверить список (`IsEmpty`),
     /// аргумент оказывается не списком (`TypeList`)
-    #[expect(dead_code, reason = "WIP")]
-    NotAList,
+    NotAList {
+        expr: &'src Expr<'src>,
+        actual: Type<'src>,
+    },
     /// Анонимная функция (`Abstraction`) проверяется с не функциональным типом (`TypeFun`).
     ///
     /// Ошибка должна возникать до проверки типа самой функции.
@@ -113,8 +115,7 @@ pub(crate) enum Error<'src> {
     #[expect(dead_code, reason = "WIP")]
     AmbiguousVariantType,
     /// Тип списка (`List` или `ConsList`) невозможно определить (отсутствует ожидаемый тип списка).
-    #[expect(dead_code, reason = "WIP")]
-    AmbiguousList,
+    AmbiguousList(&'src Expr<'src>),
     /// `match`-выражение с пустым списком альтернатив.
     #[expect(dead_code, reason = "WIP")]
     IllegalEmptyMatching,
@@ -357,6 +358,10 @@ impl fmt::Display for Error<'_> {
                 f,
                 "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to be a function"
             ),
+            Self::NotAList { expr, actual } => writeln!(
+                f,
+                "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to be a list"
+            ),
 
             Self::IncorrectNumberOfArguments {
                 expected,
@@ -395,10 +400,13 @@ impl fmt::Display for Error<'_> {
                 debug_assert_matches!(expr, Expr::Inl(_) | Expr::Inr(_));
                 writeln!(f, "cannot infer type of an injection\n\t{expr}")
             }
+            Self::AmbiguousList(expr) => {
+                debug_assert_matches!(expr, Expr::List(_));
+                writeln!(f, "cannot infer type of list element\n\t{expr}")
+            }
 
             Self::NotATuple
             | Self::NotARecord
-            | Self::NotAList
             | Self::UnexpectedTuple
             | Self::UnexpectedRecord
             | Self::UnexpectedVariant
@@ -409,7 +417,6 @@ impl fmt::Display for Error<'_> {
             | Self::TupleIndexOutOfBounds
             | Self::UnexpectedTupleLength
             | Self::AmbiguousVariantType
-            | Self::AmbiguousList
             | Self::IllegalEmptyMatching
             | Self::NonexhaustiveMatchPatterns
             | Self::UnexpectedPatternForType
@@ -448,7 +455,7 @@ impl Error<'_> {
             Error::NotAFunction { .. } => nz!(4),
             Error::NotATuple => nz!(5),
             Error::NotARecord => nz!(6),
-            Error::NotAList => nz!(7),
+            Error::NotAList { .. } => nz!(7),
             Error::UnexpectedLambda { .. } => nz!(8),
             Error::UnexpectedTypeForParameter { .. } => nz!(9),
             Error::UnexpectedTuple => nz!(10),
@@ -464,7 +471,7 @@ impl Error<'_> {
             Error::UnexpectedTupleLength => nz!(20),
             Error::AmbiguousSumType { .. } => nz!(21),
             Error::AmbiguousVariantType => nz!(22),
-            Error::AmbiguousList => nz!(23),
+            Error::AmbiguousList(_) => nz!(23),
             Error::IllegalEmptyMatching => nz!(24),
             Error::NonexhaustiveMatchPatterns => nz!(25),
             Error::UnexpectedPatternForType => nz!(26),

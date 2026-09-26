@@ -869,10 +869,14 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     	#structural-patterns
 "#]]
 
-#[should_panic(expected = "not yet implemented: infer ListIsEmpty")]
 ambiguous_list
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/ambiguous_list/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    23
+    ERROR_AMBIGUOUS_LIST
+    cannot infer type of list element
+    	[]
+"#]]
 
 #[should_panic(expected = "not yet implemented: typck Match")]
 ambiguous_sum_type
@@ -997,10 +1001,17 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/triple.stell
     but expected to be a function
 "#]]
 
-#[should_panic(expected = "not yet implemented: infer ListIsEmpty")]
 not_a_list
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_list/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    7
+    ERROR_NOT_A_LIST
+    expression
+    	n
+    has type
+    	Nat
+    but expected to be a list
+"#]]
 
 not_a_record
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_record/primitive.stella")
@@ -1068,10 +1079,16 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_lambda/primitive
     	Nat
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck List(")]
 unexpected_list
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_list/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    13
+    ERROR_UNEXPECTED_LIST
+    expression
+    	[0, succ(0)]
+    is a list, but expected to be
+    	Nat
+"#]]
 
 unexpected_pattern_for_type
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_pattern_for_type/primitive.stella")
@@ -1194,7 +1211,6 @@ if_funcs
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/if-funcs.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: infer ListIsEmpty")]
 lists
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/lists.stella")
 => expect![]

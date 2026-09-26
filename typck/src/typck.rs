@@ -260,10 +260,9 @@ impl<'ctx> Context<'_, 'ctx> {
         }
     }
 
-    #[throws(Error<'ctx>)]
     #[expect(clippy::too_many_lines, reason = "big sw")]
-    fn infer(&self, expr: &'ctx Expr<'ctx>) -> Typed<'ctx> {
-        match expr {
+    fn infer(&self, expr: &'ctx Expr<'ctx>) -> Result<Typed<'ctx>, Error<'ctx>> {
+        Ok(match expr {
             Expr::True | Expr::False => Owned(Type::Bool),
             Expr::Unit => Owned(Type::Unit),
             Expr::Integer(_) => Owned(Type::Nat),
@@ -380,6 +379,62 @@ impl<'ctx> Context<'_, 'ctx> {
 
             Expr::Inl(_) | Expr::Inr(_) => throw!(Error::AmbiguousSumType(expr)),
 
+            Expr::List(elements) => match elements.as_slice() {
+                [] => throw!(Error::AmbiguousList(expr)),
+                [head, tail @ ..] => {
+                    let element_t = self.infer(head)?;
+                    for element in tail {
+                        self.ensure(element, &element_t)?
+                    }
+                    Owned(Type::List(Box::new(element_t.into_owned())))
+                }
+            },
+
+            Expr::Cons { head, tail } => {
+                let element_t = self.infer(head)?;
+                let list_t = Type::List(Box::new(element_t.into_owned()));
+                self.ensure(tail, &list_t)?;
+                Owned(list_t)
+            }
+
+            Expr::ListIsEmpty(expr) => {
+                let actual = self.infer(expr)?;
+                let Type::List(_) = actual.as_ref() else {
+                    throw!(Error::NotAList {
+                        expr,
+                        actual: actual.into_owned()
+                    })
+                };
+                Owned(Type::Bool)
+            }
+            Expr::ListHead(expr) => {
+                let actual = self.infer(expr)?.into_owned();
+                let Type::List(element_t) = actual else {
+                    throw!(Error::NotAList { expr, actual })
+                };
+                Owned(*element_t)
+            }
+            Expr::ListTail(expr) => {
+                let actual = self.infer(expr)?;
+                let Type::List(_) = actual.as_ref() else {
+                    throw!(Error::NotAList {
+                        expr,
+                        actual: actual.into_owned()
+                    })
+                };
+                actual
+            }
+
+            Expr::New(expr) => {
+                let inner = self.infer(expr)?;
+                Owned(Type::Ref(Box::new(inner.into_owned())))
+            }
+
+            Expr::Not(expr) => {
+                self.ensure(expr, &Type::Bool)?;
+                Owned(Type::Bool)
+            }
+
             Expr::Assign { .. }
             | Expr::Seq(_)
             | Expr::Generic { .. }
@@ -387,33 +442,25 @@ impl<'ctx> Context<'_, 'ctx> {
             | Expr::Cast { .. }
             | Expr::Variant { .. }
             | Expr::Match { .. }
-            | Expr::List(_)
-            | Expr::New(_)
             | Expr::Deref(_)
             | Expr::TypeApplication { .. }
             | Expr::DotRecord { .. }
             | Expr::DotTuple { .. }
             | Expr::Tuple(_)
-            | Expr::Cons { .. }
             | Expr::Record(_)
-            | Expr::ListHead(_)
-            | Expr::ListIsEmpty(_)
-            | Expr::ListTail(_)
             | Expr::Throw(_)
             | Expr::TryCatch { .. }
             | Expr::TryWith { .. }
             | Expr::TryCastAs { .. }
-            | Expr::Not(_)
             | Expr::Fix(_)
             | Expr::Address(_) => todo!("infer {expr:?}"),
 
             Expr::Fold { .. } | Expr::Unfold { .. } => unsupported::fold_unfold(expr),
-        }
+        })
     }
 
     #[expect(clippy::too_many_lines, reason = "giant match")]
-    #[throws(Error<'ctx>)]
-    fn ensure(&self, expr: &'ctx Expr<'ctx>, expected: &Type<'ctx>) {
+    fn ensure(&self, expr: &'ctx Expr<'ctx>, expected: &Type<'ctx>) -> Result<(), Error<'ctx>> {
         match (expr, expected) {
             // Unsupported
             (e @ (Expr::Fold { .. } | Expr::Unfold { .. }), _) => unsupported::fold_unfold(e),
@@ -451,6 +498,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 ctx.ensure(body, ty)?
             }
 
+            // If
             (
                 Expr::If {
                     cond,
@@ -464,6 +512,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 self.ensure(on_false, ty)?;
             }
 
+            // Lambda
             (
                 Expr::Abstraction {
                     params: args_actual,
@@ -519,6 +568,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 expected: expected.to_owned(),
             }),
 
+            // NatRec / fix
             (
                 Expr::NatRec {
                     iterations,
@@ -532,6 +582,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 self.ensure(step, &nat_rec_step_type(expected.to_owned()))?;
             }
 
+            // Sum
             (
                 Expr::Inl(expr),
                 Type::Sum {
@@ -550,7 +601,6 @@ impl<'ctx> Context<'_, 'ctx> {
                 // TODO:
                 // self.check_ty_wf(other)?
             }
-
             (
                 Expr::Inl(_) | Expr::Inr(_),
                 Type::Bool
@@ -567,6 +617,12 @@ impl<'ctx> Context<'_, 'ctx> {
                 expected: expected.to_owned()
             }),
 
+            // Lists
+            (Expr::List(elements), Type::List(element_t)) => {
+                for element in elements {
+                    self.ensure(element, element_t)?
+                }
+            }
             (Expr::Cons { head, tail }, list_t @ Type::List(element_t)) => {
                 self.ensure(head, element_t)?;
                 self.ensure(tail, list_t)?
@@ -575,7 +631,7 @@ impl<'ctx> Context<'_, 'ctx> {
             (Expr::ListTail(list), list_t @ Type::List(_)) => self.ensure(list, list_t)?,
 
             (
-                Expr::Cons { .. } | Expr::ListTail(_),
+                Expr::List(_) | Expr::Cons { .. } | Expr::ListTail(_),
                 Type::Bool
                 | Type::Nat
                 | Type::Ref(_)
@@ -600,6 +656,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 )?
             }
 
+            // fallback to infer + check_ty_coerces
             (
                 Expr::Var(_)
                 | Expr::Unit
@@ -635,6 +692,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 })?;
             }
 
+            // TODO:
             #[expect(clippy::unnested_or_patterns, reason = "WIP")]
             (Expr::Seq { .. }, Type::Bool)
             | (Expr::Seq { .. }, Type::Nat { .. })
@@ -706,16 +764,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::Match { .. }, Type::Variant { .. })
             | (Expr::Match { .. }, Type::List { .. })
             | (Expr::Match { .. }, Type::Unit { .. })
-            | (Expr::List { .. }, Type::Bool)
-            | (Expr::List { .. }, Type::Nat { .. })
-            | (Expr::List { .. }, Type::Ref { .. })
-            | (Expr::List { .. }, Type::Sum { .. })
-            | (Expr::List { .. }, Type::Fn { .. })
-            | (Expr::List { .. }, Type::Tuple { .. })
-            | (Expr::List { .. }, Type::Record { .. })
-            | (Expr::List { .. }, Type::Variant { .. })
-            | (Expr::List { .. }, Type::List { .. })
-            | (Expr::List { .. }, Type::Unit { .. })
             | (Expr::New { .. }, Type::Bool)
             | (Expr::New { .. }, Type::Nat { .. })
             | (Expr::New { .. }, Type::Ref { .. })
@@ -847,6 +895,7 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::Address { .. }, Type::List { .. })
             | (Expr::Address { .. }, Type::Unit { .. }) => todo!("typck {expr:?} is {expected:?}"),
         }
+        Ok(())
     }
 
     #[expect(clippy::self_only_used_in_recursion, reason = "WIP")]
@@ -887,6 +936,9 @@ impl<'ctx> Context<'_, 'ctx> {
                 self.check_ty_coerces(from_right, to_right)?;
                 Ok(())
             }
+
+            [Type::List(from), Type::List(to)] => self.check_ty_coerces(from, to),
+
             [from, to] => todo!("Check coercion from {from:?} to {to:?}"),
         }
     }
