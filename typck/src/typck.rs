@@ -56,6 +56,7 @@ struct Context<'a, 'ctx> {
     type_aliases: Namespace<'a, 'ctx>,
     variables: Namespace<'a, 'ctx>,
     ambiguous_type_as_bottom: bool,
+    structural_subtyping: bool,
 }
 
 fn nat_rec_step_type(acc: Type<'_>) -> Type<'_> {
@@ -88,6 +89,7 @@ impl<'ctx> Context<'_, 'ctx> {
             ambiguous_type_as_bottom: program
                 .extensions
                 .contains(&Extension::AmbiguousTypeAsBottom),
+            structural_subtyping: program.extensions.contains(&Extension::StructuralSubtyping),
         }
         .check_decls(program.decls.iter())?
     }
@@ -98,11 +100,13 @@ impl<'ctx> Context<'_, 'ctx> {
             ref type_aliases,
             ref variables,
             ambiguous_type_as_bottom,
+            structural_subtyping,
         } = self;
         Context {
             type_aliases: type_aliases.new_scope(),
             variables: variables.new_scope(),
             ambiguous_type_as_bottom,
+            structural_subtyping,
         }
     }
 }

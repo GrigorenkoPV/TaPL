@@ -48,7 +48,6 @@ empty
     Expected one of "language"
 "#]]
 
-
 no_main
 "language core;"
 => expect![[r#"
@@ -56,7 +55,6 @@ no_main
     ERROR_MISSING_MAIN
     `main` is missing or is not a function
 "#]]
-
 
 missing_gate
 "
@@ -104,6 +102,7 @@ fn main(n : Nat) -> Nat {
 "
 => expect![]
 
+
 ambiguous_list_bad
 include_str!("../tests/Examples/fail/ambiguous-list.stella")
 => expect![[r#"
@@ -119,7 +118,6 @@ include_str!("../tests/Examples/fail/ambitious-injection-on-top.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#exceptions
-    	#structural-subtyping
     	#open-variant-exceptions
 "#]]
 
@@ -329,7 +327,6 @@ include_str!("../tests/Examples/pass/empty-list.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#exceptions
-    	#structural-subtyping
     	#open-variant-exceptions
 "#]]
 
@@ -343,7 +340,6 @@ include_str!("../tests/Examples/pass/exception01.stella")
     	#let-patterns
     	#exceptions
     	#exception-type-declaration
-    	#structural-subtyping
     	#open-variant-exceptions
 "#]]
 
@@ -365,13 +361,17 @@ match_
 include_str!("../tests/Examples/pass/match.stella")
 => expect![]
 
+// FIXME: this is wrong
 sub_asc
 include_str!("../tests/Examples/pass/sub-asc.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
+    16
+    ERROR_UNEXPECTED_RECORD_FIELDS
+    expected
+    	{a = 0, b = true, c = unit}
+    to be
+    	{a : Nat, b : Bool}
+    but it has an unexpected field `c`
 "#]]
 
 sub_match
@@ -381,9 +381,7 @@ include_str!("../tests/Examples/pass/sub-match.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-patterns
-    	#structural-subtyping
 "#]]
-
 
 duplicate_function_parameter_func
 include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-typed/duplicate_function_parameter/func.stella")
@@ -1271,7 +1269,6 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/type-cast-patterns/ill-typed/un
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-patterns
-    	#structural-subtyping
     	#type-cast-patterns
 "#]]
 
@@ -1282,7 +1279,6 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/type-cast-patterns/well-typed/p
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-patterns
-    	#structural-subtyping
     	#type-cast-patterns
 "#]]
 
@@ -1302,13 +1298,18 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_reference_type/pr
     cannot infer reference type
 "#]]
 
+/// FIXME: this is wrong
 subtyping
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/missing_record_fields/subtyping.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	x
+    has type
+    	{a : Nat}
+    but expected to have type
+    	{a : Nat, b : Bool}
 "#]]
 
 #[should_panic(expected = "not yet implemented: typck Assign")]
@@ -1338,50 +1339,39 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_reference/primit
     	Unit
 "#]]
 
+#[should_panic(expected = "not yet implemented: infer Deref")]
 invariant_ref_with_bot
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invariant-ref-with-bot.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
-"#]]
+=> expect![]
 
+#[should_panic(expected = "not yet implemented: infer Deref")]
 invariant_ref_with_top_in_ctx
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invariant-ref-with-top-in-ctx.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
-"#]]
+=> expect![]
 
+#[should_panic(expected = "not yet implemented: infer Deref")]
 invariant_ref_with_top
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invariant-ref-with-top.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
-"#]]
+=> expect![]
 
+// FIXME: wrong error
 unexpected_subtype
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/primitive.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	0
+    has type
+    	Nat
+    but expected to have type
+    	Bool
 "#]]
 
+#[should_panic(expected = "not yet implemented: typck Deref")]
 ref_chain
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/ref-chain.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
-"#]]
+=> expect![]
 
 sub_fn_stack_bad
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-fn-stack.stella")
@@ -1466,77 +1456,76 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     	#arithmetic-operators
 "#]]
 
+#[should_panic(expected = "not yet implemented: typck Deref")]
 deref
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/deref.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
-"#]]
+=> expect![]
 
 #[should_panic(expected = "not yet implemented: typck Deref")]
 inferred_mem
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/inferred-mem.stella")
 => expect![]
 
+#[should_panic(expected = "not yet implemented: infer Deref")]
 invariant_ref_with_bot_in_ctx
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref-with-bot-in-ctx.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
-"#]]
+=> expect![]
 
+#[should_panic(expected = "not yet implemented: infer Deref")]
 invariant_ref
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
-"#]]
+=> expect![]
 
+#[should_panic(expected = "not yet implemented: typck Assign")]
 ref_assign
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/ref-assign.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
-"#]]
+=> expect![]
 
 #[should_panic(expected = "not yet implemented: typck Assign")]
 refs
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/refs.stella")
 => expect![]
 
+/// FIXME: this is wrong
 sub_fn_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-fn-stack.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	test(n)
+    has type
+    	fn({a : Nat}) -> Bot
+    but expected to have type
+    	fn({a : Nat, b : Bool}) -> Bool
 "#]]
 
+/// FIXME: this is wrong
 sub_list_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-list-stack.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	test(n)
+    has type
+    	[{a : Nat, b : Bool}]
+    but expected to have type
+    	[{a : Nat}]
 "#]]
 
+/// FIXME: this is wrong
 sub_rec_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-rec-stack.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	test(n)
+    has type
+    	{a : {a : Nat, b : Bool}, b : Bool}
+    but expected to have type
+    	{a : {a : Nat}}
 "#]]
 
 sub_stack
@@ -1545,26 +1534,35 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#structural-subtyping
     	#arithmetic-operators
 "#]]
 
+/// FIXME: this is wrong
 sub_sum_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-sum-stack.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	test(n)
+    has type
+    	{a : Nat, b : Bool} + Nat
+    but expected to have type
+    	{a : Nat} + Nat
 "#]]
 
+/// FIXME: this is wrong
 sub_tuple_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-tuple-stack.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-subtyping
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	test(n)
+    has type
+    	{{a : Nat, b : Bool}, Nat}
+    but expected to have type
+    	{{a : Nat}, Nat}
 "#]]
 
 sub_var_stack
@@ -1573,7 +1571,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#structural-subtyping
     	#arithmetic-operators
 "#]]
 

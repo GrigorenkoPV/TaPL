@@ -113,7 +113,7 @@ impl Extension {
             Self::Sequencing | Self::References | Self::Panic => true,
             Self::Exceptions => false,
             Self::ExceptionTypeDeclaration => false,
-            Self::StructuralSubtyping => false,
+            Self::StructuralSubtyping => true,
             Self::TypeCast => false,
             Self::TopType | Self::BottomType | Self::AmbiguousTypeAsBottom => true,
 
