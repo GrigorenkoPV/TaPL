@@ -460,6 +460,9 @@ impl<'ctx> Context<'_, 'ctx> {
                 Owned(Type::Bool)
             }
 
+            Expr::DotTuple { .. } => todo!("infer {expr:?}"),
+            Expr::Tuple(_) => todo!("infer {expr:?}"),
+
             Expr::Assign { .. }
             | Expr::Seq(_)
             | Expr::Generic { .. }
@@ -470,8 +473,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | Expr::Deref(_)
             | Expr::TypeApplication { .. }
             | Expr::DotRecord { .. }
-            | Expr::DotTuple { .. }
-            | Expr::Tuple(_)
             | Expr::Record(_)
             | Expr::Throw(_)
             | Expr::TryCatch { .. }
@@ -703,6 +704,25 @@ impl<'ctx> Context<'_, 'ctx> {
                 )?
             }
 
+            // Tuples
+            (Expr::Tuple { .. }, Type::Tuple { .. }) => todo!("typck {expr:?}"),
+            (Expr::DotTuple { .. }, ty) => todo!("typck {expr:?}"),
+            (
+                Expr::Tuple(_),
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => throw!(Error::UnexpectedTuple {
+                tuple: expr,
+                expected: expected.to_owned()
+            }),
+
             // fallback to infer + check_ty_coerces
             (
                 Expr::Var(_)
@@ -851,26 +871,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::DotRecord { .. }, Type::Variant { .. })
             | (Expr::DotRecord { .. }, Type::List { .. })
             | (Expr::DotRecord { .. }, Type::Unit { .. })
-            | (Expr::DotTuple { .. }, Type::Bool)
-            | (Expr::DotTuple { .. }, Type::Nat { .. })
-            | (Expr::DotTuple { .. }, Type::Ref { .. })
-            | (Expr::DotTuple { .. }, Type::Sum { .. })
-            | (Expr::DotTuple { .. }, Type::Fn { .. })
-            | (Expr::DotTuple { .. }, Type::Tuple { .. })
-            | (Expr::DotTuple { .. }, Type::Record { .. })
-            | (Expr::DotTuple { .. }, Type::Variant { .. })
-            | (Expr::DotTuple { .. }, Type::List { .. })
-            | (Expr::DotTuple { .. }, Type::Unit { .. })
-            | (Expr::Tuple { .. }, Type::Bool)
-            | (Expr::Tuple { .. }, Type::Nat { .. })
-            | (Expr::Tuple { .. }, Type::Ref { .. })
-            | (Expr::Tuple { .. }, Type::Sum { .. })
-            | (Expr::Tuple { .. }, Type::Fn { .. })
-            | (Expr::Tuple { .. }, Type::Tuple { .. })
-            | (Expr::Tuple { .. }, Type::Record { .. })
-            | (Expr::Tuple { .. }, Type::Variant { .. })
-            | (Expr::Tuple { .. }, Type::List { .. })
-            | (Expr::Tuple { .. }, Type::Unit { .. })
             | (Expr::Record { .. }, Type::Bool)
             | (Expr::Record { .. }, Type::Nat { .. })
             | (Expr::Record { .. }, Type::Ref { .. })

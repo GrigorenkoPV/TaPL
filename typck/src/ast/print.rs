@@ -120,6 +120,17 @@ impl Display for Expr<'_> {
                 }
                 f.write_str("]")
             }
+            Self::Tuple(elements) => {
+                f.write_str("{")?;
+                let first = &mut true;
+                for element in elements {
+                    if !mem::take(first) {
+                        f.write_str(", ")?
+                    }
+                    write!(f, "{element}")?
+                }
+                f.write_str("}")
+            }
 
             Self::Seq(_)
             | Self::Let { .. }
@@ -135,7 +146,6 @@ impl Display for Expr<'_> {
             | Self::TypeApplication { .. }
             | Self::DotRecord { .. }
             | Self::DotTuple { .. }
-            | Self::Tuple(_)
             | Self::Record(_)
             | Self::Throw(_)
             | Self::TryCatch { .. }

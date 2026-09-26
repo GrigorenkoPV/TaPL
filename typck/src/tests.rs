@@ -261,10 +261,16 @@ include_str!("../tests/Examples/fail/unexpected-param-type-01.stella")
     	Nat
 "#]]
 
-#[should_panic(expected="not yet implemented: typck Tuple")]
 unexpected_tuple_2
 include_str!("../tests/Examples/fail/unexpected-tuple.stella")
-=> expect![]
+=> expect![[r#"
+    10
+    ERROR_UNEXPECTED_TUPLE
+    expression
+    	{1, 2, 3}
+    is a tuple, but expected to be
+    	fn(Nat) -> Nat
+"#]]
 
 wrong_arity_main
 include_str!("../tests/Examples/fail/wrong_arity_main.stella")
@@ -1069,10 +1075,16 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_record_fields/pr
     	#records
 "#]]
 
-#[should_panic(expected="not yet implemented: typck Tuple")]
 unexpected_tuple
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_tuple/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    10
+    ERROR_UNEXPECTED_TUPLE
+    expression
+    	{0, false}
+    is a tuple, but expected to be
+    	Nat
+"#]]
 
 #[should_panic(expected="not yet implemented: typck Tuple")]
 unexpected_tuple_length

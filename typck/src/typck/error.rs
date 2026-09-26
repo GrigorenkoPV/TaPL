@@ -65,8 +65,10 @@ pub(crate) enum Error<'src> {
     /// Кортеж (`Tuple`) проверяется с типом, отличным от типа кортежа (`TypeTuple`).
     ///
     /// Ошибка до проверки элементов.
-    #[expect(dead_code, reason = "WIP")]
-    UnexpectedTuple,
+    UnexpectedTuple {
+        tuple: &'src Expr<'src>,
+        expected: Type<'src>,
+    },
     /// Запись (`Record`) проверяется с типом, отличным от типа записи (`TypeRecord`).
     ///
     /// Ошибка до проверки полей.
@@ -395,6 +397,17 @@ impl fmt::Display for Error<'_> {
                     "expression\n\t{expr}\nis an injections, but expected to be\n\t{expected}"
                 )
             }
+            Self::UnexpectedTuple { tuple, expected } => {
+                debug_assert_matches!(tuple, Expr::Tuple(_));
+                debug_assert!(
+                    !matches!(expected, Type::Tuple(_)),
+                    "So it's an *expected* tuplr?"
+                );
+                writeln!(
+                    f,
+                    "expression\n\t{tuple}\nis a tuple, but expected to be\n\t{expected}"
+                )
+            }
 
             Self::AmbiguousSumType(expr) => {
                 debug_assert_matches!(expr, Expr::Inl(_) | Expr::Inr(_));
@@ -407,7 +420,6 @@ impl fmt::Display for Error<'_> {
 
             Self::NotATuple
             | Self::NotARecord
-            | Self::UnexpectedTuple
             | Self::UnexpectedRecord
             | Self::UnexpectedVariant
             | Self::MissingRecordFields
@@ -458,7 +470,7 @@ impl Error<'_> {
             Error::NotAList { .. } => nz!(7),
             Error::UnexpectedLambda { .. } => nz!(8),
             Error::UnexpectedTypeForParameter { .. } => nz!(9),
-            Error::UnexpectedTuple => nz!(10),
+            Error::UnexpectedTuple { .. } => nz!(10),
             Error::UnexpectedRecord => nz!(11),
             Error::UnexpectedVariant => nz!(12),
             Error::UnexpectedList { .. } => nz!(13),
