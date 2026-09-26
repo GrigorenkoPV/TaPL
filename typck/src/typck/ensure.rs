@@ -5,7 +5,7 @@ use culpa::throw;
 
 use crate::{
     ast::{Binding, Expr, Type},
-    extensions::unsupported,
+    extensions::{Extension, unsupported},
 };
 
 use super::{Context, Error, check_no_duplicate_field_names, nat_rec_step_type};
@@ -111,14 +111,14 @@ impl<'ctx> Context<'_, 'ctx> {
             (
                 Expr::Abstraction { .. },
                 Type::Bool
-                | Type::Nat { .. }
-                | Type::Ref { .. }
+                | Type::Nat
+                | Type::Ref(_)
                 | Type::Sum { .. }
-                | Type::Tuple { .. }
-                | Type::Record { .. }
-                | Type::Variant { .. }
-                | Type::List { .. }
-                | Type::Unit { .. },
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
             ) => throw!(Error::UnexpectedLambda {
                 lambda: expr,
                 expected: expected.to_owned(),
@@ -433,7 +433,8 @@ impl<'ctx> Context<'_, 'ctx> {
                 | Expr::Ascription { .. }
                 | Expr::Application { .. }
                 | Expr::DotRecord { .. }
-                | Expr::DotTuple { .. },
+                | Expr::DotTuple { .. }
+                | Expr::Assign { .. },
                 Type::Bool
                 | Type::Nat
                 | Type::Ref(_)
@@ -456,109 +457,110 @@ impl<'ctx> Context<'_, 'ctx> {
                 })?;
             }
 
-            // TODO:
-            #[expect(clippy::unnested_or_patterns, reason = "WIP")]
-            (Expr::Assign { .. }, Type::Bool)
-            | (Expr::Assign { .. }, Type::Nat { .. })
-            | (Expr::Assign { .. }, Type::Ref { .. })
-            | (Expr::Assign { .. }, Type::Sum { .. })
-            | (Expr::Assign { .. }, Type::Fn { .. })
-            | (Expr::Assign { .. }, Type::Tuple { .. })
-            | (Expr::Assign { .. }, Type::Record { .. })
-            | (Expr::Assign { .. }, Type::Variant { .. })
-            | (Expr::Assign { .. }, Type::List { .. })
-            | (Expr::Assign { .. }, Type::Unit { .. })
-            | (Expr::Generic { .. }, Type::Bool)
-            | (Expr::Generic { .. }, Type::Nat { .. })
-            | (Expr::Generic { .. }, Type::Ref { .. })
-            | (Expr::Generic { .. }, Type::Sum { .. })
-            | (Expr::Generic { .. }, Type::Fn { .. })
-            | (Expr::Generic { .. }, Type::Tuple { .. })
-            | (Expr::Generic { .. }, Type::Record { .. })
-            | (Expr::Generic { .. }, Type::Variant { .. })
-            | (Expr::Generic { .. }, Type::List { .. })
-            | (Expr::Generic { .. }, Type::Unit { .. })
-            | (Expr::BinOp { .. }, Type::Bool)
-            | (Expr::BinOp { .. }, Type::Nat { .. })
-            | (Expr::BinOp { .. }, Type::Ref { .. })
-            | (Expr::BinOp { .. }, Type::Sum { .. })
-            | (Expr::BinOp { .. }, Type::Fn { .. })
-            | (Expr::BinOp { .. }, Type::Tuple { .. })
-            | (Expr::BinOp { .. }, Type::Record { .. })
-            | (Expr::BinOp { .. }, Type::Variant { .. })
-            | (Expr::BinOp { .. }, Type::List { .. })
-            | (Expr::BinOp { .. }, Type::Unit { .. })
-            | (Expr::Cast { .. }, Type::Bool)
-            | (Expr::Cast { .. }, Type::Nat { .. })
-            | (Expr::Cast { .. }, Type::Ref { .. })
-            | (Expr::Cast { .. }, Type::Sum { .. })
-            | (Expr::Cast { .. }, Type::Fn { .. })
-            | (Expr::Cast { .. }, Type::Tuple { .. })
-            | (Expr::Cast { .. }, Type::Record { .. })
-            | (Expr::Cast { .. }, Type::Variant { .. })
-            | (Expr::Cast { .. }, Type::List { .. })
-            | (Expr::Cast { .. }, Type::Unit { .. })
-            | (Expr::Match { .. }, Type::Bool)
-            | (Expr::Match { .. }, Type::Nat { .. })
-            | (Expr::Match { .. }, Type::Ref { .. })
-            | (Expr::Match { .. }, Type::Sum { .. })
-            | (Expr::Match { .. }, Type::Fn { .. })
-            | (Expr::Match { .. }, Type::Tuple { .. })
-            | (Expr::Match { .. }, Type::Record { .. })
-            | (Expr::Match { .. }, Type::Variant { .. })
-            | (Expr::Match { .. }, Type::List { .. })
-            | (Expr::Match { .. }, Type::Unit { .. })
-            | (Expr::TypeApplication { .. }, Type::Bool)
-            | (Expr::TypeApplication { .. }, Type::Nat { .. })
-            | (Expr::TypeApplication { .. }, Type::Ref { .. })
-            | (Expr::TypeApplication { .. }, Type::Sum { .. })
-            | (Expr::TypeApplication { .. }, Type::Fn { .. })
-            | (Expr::TypeApplication { .. }, Type::Tuple { .. })
-            | (Expr::TypeApplication { .. }, Type::Record { .. })
-            | (Expr::TypeApplication { .. }, Type::Variant { .. })
-            | (Expr::TypeApplication { .. }, Type::List { .. })
-            | (Expr::TypeApplication { .. }, Type::Unit { .. })
-            | (Expr::Throw { .. }, Type::Bool)
-            | (Expr::Throw { .. }, Type::Nat { .. })
-            | (Expr::Throw { .. }, Type::Ref { .. })
-            | (Expr::Throw { .. }, Type::Sum { .. })
-            | (Expr::Throw { .. }, Type::Fn { .. })
-            | (Expr::Throw { .. }, Type::Tuple { .. })
-            | (Expr::Throw { .. }, Type::Record { .. })
-            | (Expr::Throw { .. }, Type::Variant { .. })
-            | (Expr::Throw { .. }, Type::List { .. })
-            | (Expr::Throw { .. }, Type::Unit { .. })
-            | (Expr::TryCatch { .. }, Type::Bool)
-            | (Expr::TryCatch { .. }, Type::Nat { .. })
-            | (Expr::TryCatch { .. }, Type::Ref { .. })
-            | (Expr::TryCatch { .. }, Type::Sum { .. })
-            | (Expr::TryCatch { .. }, Type::Fn { .. })
-            | (Expr::TryCatch { .. }, Type::Tuple { .. })
-            | (Expr::TryCatch { .. }, Type::Record { .. })
-            | (Expr::TryCatch { .. }, Type::Variant { .. })
-            | (Expr::TryCatch { .. }, Type::List { .. })
-            | (Expr::TryCatch { .. }, Type::Unit { .. })
-            | (Expr::TryWith { .. }, Type::Bool)
-            | (Expr::TryWith { .. }, Type::Nat { .. })
-            | (Expr::TryWith { .. }, Type::Ref { .. })
-            | (Expr::TryWith { .. }, Type::Sum { .. })
-            | (Expr::TryWith { .. }, Type::Fn { .. })
-            | (Expr::TryWith { .. }, Type::Tuple { .. })
-            | (Expr::TryWith { .. }, Type::Record { .. })
-            | (Expr::TryWith { .. }, Type::Variant { .. })
-            | (Expr::TryWith { .. }, Type::List { .. })
-            | (Expr::TryWith { .. }, Type::Unit { .. })
-            | (Expr::TryCastAs { .. }, Type::Bool)
-            | (Expr::TryCastAs { .. }, Type::Nat { .. })
-            | (Expr::TryCastAs { .. }, Type::Ref { .. })
-            | (Expr::TryCastAs { .. }, Type::Sum { .. })
-            | (Expr::TryCastAs { .. }, Type::Fn { .. })
-            | (Expr::TryCastAs { .. }, Type::Tuple { .. })
-            | (Expr::TryCastAs { .. }, Type::Record { .. })
-            | (Expr::TryCastAs { .. }, Type::Variant { .. })
-            | (Expr::TryCastAs { .. }, Type::List { .. })
-            | (Expr::TryCastAs { .. }, Type::Unit { .. }) => {
-                todo!("typck {expr:?} is {expected:?}")
+            // Unknown stage
+            (
+                Expr::BinOp { .. },
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => {
+                debug_assert!(!Extension::ArithmeticOperators.supported(), "TODO");
+                unreachable!("ensure {expr:?} is {expected:?}")
+            }
+
+            // Stage 1
+            (
+                Expr::Match { .. },
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => {
+                todo!("check match")
+            }
+
+            // Stage 2
+            (
+                Expr::Cast { .. },
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => {
+                debug_assert!(!Extension::TypeCast.supported(), "TODO");
+                unreachable!("stage 2: ensure {expr:?} is {expected:?}")
+            }
+
+            (
+                Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. },
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => {
+                debug_assert!(!Extension::Exceptions.supported(), "TODO");
+                unreachable!("stage 2: ensure {expr:?} is {expected:?}")
+            }
+
+            // Stage 2 (optional)
+            (
+                Expr::TryCastAs { .. },
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => {
+                debug_assert!(!Extension::TryCastAs.supported(), "TODO");
+                unreachable!("stage 2: ensure {expr:?} is {expected:?}")
+            }
+
+            // Stage 3
+            (
+                Expr::Generic { .. } | Expr::TypeApplication { .. },
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => {
+                debug_assert!(!Extension::UniversalTypes.supported(), "TODO");
+                unreachable!("stage 3: ensure {expr:?} is {expected:?}")
             }
         }
         Ok(())

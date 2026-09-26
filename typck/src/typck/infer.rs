@@ -5,7 +5,7 @@ use culpa::throw;
 
 use crate::{
     ast::{Binding, Expr, Integer, Type},
-    extensions::unsupported,
+    extensions::{Extension, unsupported},
 };
 
 use super::{Context, Error, Typed, check_no_duplicate_field_names, nat_rec_step_type};
@@ -328,16 +328,43 @@ impl<'ctx> Context<'_, 'ctx> {
                 }
             }
 
-            Expr::Assign { .. }
-            | Expr::Generic { .. }
-            | Expr::BinOp { .. }
-            | Expr::Cast { .. }
-            | Expr::Match { .. }
-            | Expr::TypeApplication { .. }
-            | Expr::Throw(_)
-            | Expr::TryCatch { .. }
-            | Expr::TryWith { .. }
-            | Expr::TryCastAs { .. } => todo!("infer {expr:?}"),
+            // Unknown stage
+            Expr::BinOp { .. } => {
+                debug_assert!(!Extension::ArithmeticOperators.supported(), "TODO");
+                unreachable!("infer {expr:?}")
+            }
+
+            // Stage 1
+            Expr::Match { .. } => {
+                todo!("infer match")
+            }
+
+            // Stage 2
+            Expr::Assign { .. } => {
+                todo!("infer {expr:?}")
+            }
+
+            Expr::Cast { .. } => {
+                debug_assert!(!Extension::TypeCast.supported(), "TODO");
+                unreachable!("stage 2: infer {expr:?}")
+            }
+
+            Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. } => {
+                debug_assert!(!Extension::Exceptions.supported(), "TODO");
+                unreachable!("stage 2: infer {expr:?}")
+            }
+
+            // Stage 2 (optional)
+            Expr::TryCastAs { .. } => {
+                debug_assert!(!Extension::TryCastAs.supported(), "TODO");
+                unreachable!("stage 2: infer {expr:?}")
+            }
+
+            // Stage 3
+            Expr::Generic { .. } | Expr::TypeApplication { .. } => {
+                debug_assert!(!Extension::UniversalTypes.supported(), "TODO");
+                unreachable!("stage 3: infer {expr:?}")
+            }
 
             Expr::Fold { .. } | Expr::Unfold { .. } => unsupported::fold_unfold(expr),
         })

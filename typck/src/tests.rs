@@ -356,7 +356,7 @@ include_str!("../tests/Examples/pass/letrec.stella")
     	#arithmetic-operators
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Match")]
+#[should_panic(expected = "not yet implemented: check match")]
 match_
 include_str!("../tests/Examples/pass/match.stella")
 => expect![]
@@ -795,7 +795,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/ambiguous_list/primitive.st
     cannot infer element type of an empty list
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Match")]
+#[should_panic(expected = "not yet implemented: check match")]
 ambiguous_sum_type
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/ambiguous_sum_type/primitive.stella")
 => expect![]
@@ -842,7 +842,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_variant_type_fiel
     `num` is declared more than once
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Match")]
+#[should_panic(expected = "not yet implemented: check match")]
 illegal_empty_matching
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/illegal_empty_matching/primitive.stella")
 => expect![]
@@ -867,7 +867,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/missing_record_fields/primi
     but it is missing field `b`
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Match")]
+#[should_panic(expected = "not yet implemented: check match")]
 nonexhaustive_match_patterns
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/nonexhaustive_match_patterns/primitive.stella")
 => expect![]
@@ -1019,7 +1019,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_list/primitive.s
     	Nat
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Match")]
+#[should_panic(expected = "not yet implemented: check match")]
 unexpected_pattern_for_type
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_pattern_for_type/primitive.stella")
 => expect![]
@@ -1172,7 +1172,7 @@ square
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/square.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck Match")]
+#[should_panic(expected = "not yet implemented: check match")]
 sum_types
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/sum-types.stella")
 => expect![]
@@ -1312,7 +1312,7 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/missing_record_fields/subty
     	{a : Nat, b : Bool}
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Assign")]
+#[should_panic(expected = "not yet implemented: infer Assign")]
 not_a_reference
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/not_a_reference/primitive.stella")
 => expect![]
@@ -1538,12 +1538,12 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref.stella")
     	&{a : Nat, b : Bool}
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Assign")]
+#[should_panic(expected = "not yet implemented: infer Assign")]
 ref_assign
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/ref-assign.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: typck Assign")]
+#[should_panic(expected = "not yet implemented: infer Assign")]
 refs
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/refs.stella")
 => expect![]
