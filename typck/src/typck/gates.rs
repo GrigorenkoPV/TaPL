@@ -242,7 +242,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
             Expr::Inl(_) | Expr::Inr(_) => self.require(Extension::SumTypes),
 
             Expr::List(_)
-            | Expr::Cons(_)
+            | Expr::Cons { .. }
             | Expr::ListHead(_)
             | Expr::ListIsEmpty(_)
             | Expr::ListTail(_) => self.require(Extension::Lists),

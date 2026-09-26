@@ -78,8 +78,10 @@ pub(crate) enum Error<'src> {
     /// Список (`List` или `ConsList`) проверяется с типом, отличным от типа списка (`TypeList`).
     ///
     /// Ошибка до проверки элементов
-    #[expect(dead_code, reason = "WIP")]
-    UnexpectedList,
+    UnexpectedList {
+        expr: &'src Expr<'src>,
+        expected: Type<'src>,
+    },
     /// Инъекция (`Inl` или `Inr`) проверяется с типом, отличным от типа-суммы (`TypeSum`).
     ///
     /// Ошибка до проверки инъекции.
@@ -365,6 +367,18 @@ impl fmt::Display for Error<'_> {
                 "function\n\t{callee}\nis called with {actual} argument(s), but has arity of {expected}"
             ),
 
+            Self::UnexpectedList { expr, expected } => {
+                debug_assert_matches!(expr, Expr::Cons { .. } | Expr::List(_));
+                debug_assert!(
+                    !matches!(expected, Type::List { .. }),
+                    "So it's an *expected* list?"
+                );
+                writeln!(
+                    f,
+                    "expression\n\t{expr}\nis a list, but expected to be\n\t{expected}"
+                )
+            }
+
             Self::UnexpectedInjection { expr, expected } => {
                 debug_assert_matches!(expr, Expr::Inl(_) | Expr::Inr(_));
                 debug_assert!(
@@ -388,7 +402,6 @@ impl fmt::Display for Error<'_> {
             | Self::UnexpectedTuple
             | Self::UnexpectedRecord
             | Self::UnexpectedVariant
-            | Self::UnexpectedList
             | Self::MissingRecordFields
             | Self::UnexpectedRecordFields
             | Self::UnexpectedFieldAccess
@@ -441,7 +454,7 @@ impl Error<'_> {
             Error::UnexpectedTuple => nz!(10),
             Error::UnexpectedRecord => nz!(11),
             Error::UnexpectedVariant => nz!(12),
-            Error::UnexpectedList => nz!(13),
+            Error::UnexpectedList { .. } => nz!(13),
             Error::UnexpectedInjection { .. } => nz!(14),
             Error::MissingRecordFields => nz!(15),
             Error::UnexpectedRecordFields => nz!(16),

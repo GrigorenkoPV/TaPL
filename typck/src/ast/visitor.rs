@@ -235,7 +235,8 @@ impl<'src> HasVisitable<'src> for Expr<'src> {
             | Self::ListTail(expr)
             | Self::Throw(expr) => v.visit_expr(expr),
 
-            Self::Seq(exprs) | Self::Cons(exprs) => visit_all!(v.visit_expr, exprs.as_ref()),
+            Self::Seq(exprs) => visit_all!(v.visit_expr, exprs.as_ref()),
+            Self::Cons { head, tail } => visit_all!(v.visit_expr, [head, tail]),
             Self::NatRec {
                 iterations,
                 start,
@@ -262,9 +263,7 @@ impl<'src> HasVisitable<'src> for Expr<'src> {
                 on_true,
                 on_false,
             } => {
-                v.visit_expr(cond);
-                v.visit_expr(on_true);
-                v.visit_expr(on_false);
+                visit_all!(v.visit_expr, [cond, on_true, on_false]);
             }
             Self::Var(name) => v.visit_ident(name),
             Self::Generic { generics, expr } => {

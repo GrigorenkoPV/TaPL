@@ -199,7 +199,10 @@ pub(crate) enum Expr<'src> {
         field: Integer,
     },
     Tuple(Vec<Self>),
-    Cons(Box<[Self; 2]>),
+    Cons {
+        head: Box<Self>,
+        tail: Box<Self>,
+    },
     Record(Vec<Binding<'src>>),
     ListHead(Box<Self>),
     ListIsEmpty(Box<Self>),

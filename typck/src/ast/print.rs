@@ -105,6 +105,11 @@ impl Display for Expr<'_> {
             Self::Inl(expr) => write!(f, "inl({expr})"),
             Self::Inr(expr) => write!(f, "inr({expr})"),
 
+            Self::Cons { head, tail } => write!(f, "cons({head}, {tail})"),
+            Self::ListHead(list) => write!(f, "List::head({list})"),
+            Self::ListTail(list) => write!(f, "List::tail({list})"),
+            Self::ListIsEmpty(list) => write!(f, "List::isempty({list})"),
+
             Self::Seq(_)
             | Self::Let { .. }
             | Self::Assign { .. }
@@ -121,11 +126,7 @@ impl Display for Expr<'_> {
             | Self::DotRecord { .. }
             | Self::DotTuple { .. }
             | Self::Tuple(_)
-            | Self::Cons(_)
             | Self::Record(_)
-            | Self::ListHead(_)
-            | Self::ListIsEmpty(_)
-            | Self::ListTail(_)
             | Self::Throw(_)
             | Self::TryCatch { .. }
             | Self::TryWith { .. }

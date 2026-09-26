@@ -394,7 +394,7 @@ impl<'ctx> Context<'_, 'ctx> {
             | Expr::DotRecord { .. }
             | Expr::DotTuple { .. }
             | Expr::Tuple(_)
-            | Expr::Cons(_)
+            | Expr::Cons { .. }
             | Expr::Record(_)
             | Expr::ListHead(_)
             | Expr::ListIsEmpty(_)
@@ -566,6 +566,39 @@ impl<'ctx> Context<'_, 'ctx> {
                 expr,
                 expected: expected.to_owned()
             }),
+
+            (Expr::Cons { head, tail }, list_t @ Type::List(element_t)) => {
+                self.ensure(head, element_t)?;
+                self.ensure(tail, list_t)?
+            }
+
+            (Expr::ListTail(list), list_t @ Type::List(_)) => self.ensure(list, list_t)?,
+
+            (
+                Expr::Cons { .. } | Expr::ListTail(_),
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::Unit,
+            ) => throw!(Error::UnexpectedList {
+                expr,
+                expected: expected.to_owned()
+            }),
+
+            (Expr::ListHead(list), element_t) => {
+                self.ensure(
+                    list,
+                    &Type::List(
+                        // FIXME: `Rc` / `Cow`
+                        Box::new(element_t.to_owned()),
+                    ),
+                )?
+            }
 
             (
                 Expr::Var(_)
@@ -743,16 +776,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::Tuple { .. }, Type::Variant { .. })
             | (Expr::Tuple { .. }, Type::List { .. })
             | (Expr::Tuple { .. }, Type::Unit { .. })
-            | (Expr::Cons { .. }, Type::Bool)
-            | (Expr::Cons { .. }, Type::Nat { .. })
-            | (Expr::Cons { .. }, Type::Ref { .. })
-            | (Expr::Cons { .. }, Type::Sum { .. })
-            | (Expr::Cons { .. }, Type::Fn { .. })
-            | (Expr::Cons { .. }, Type::Tuple { .. })
-            | (Expr::Cons { .. }, Type::Record { .. })
-            | (Expr::Cons { .. }, Type::Variant { .. })
-            | (Expr::Cons { .. }, Type::List { .. })
-            | (Expr::Cons { .. }, Type::Unit { .. })
             | (Expr::Record { .. }, Type::Bool)
             | (Expr::Record { .. }, Type::Nat { .. })
             | (Expr::Record { .. }, Type::Ref { .. })
@@ -763,26 +786,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::Record { .. }, Type::Variant { .. })
             | (Expr::Record { .. }, Type::List { .. })
             | (Expr::Record { .. }, Type::Unit { .. })
-            | (Expr::ListHead { .. }, Type::Bool)
-            | (Expr::ListHead { .. }, Type::Nat { .. })
-            | (Expr::ListHead { .. }, Type::Ref { .. })
-            | (Expr::ListHead { .. }, Type::Sum { .. })
-            | (Expr::ListHead { .. }, Type::Fn { .. })
-            | (Expr::ListHead { .. }, Type::Tuple { .. })
-            | (Expr::ListHead { .. }, Type::Record { .. })
-            | (Expr::ListHead { .. }, Type::Variant { .. })
-            | (Expr::ListHead { .. }, Type::List { .. })
-            | (Expr::ListHead { .. }, Type::Unit { .. })
-            | (Expr::ListTail { .. }, Type::Bool)
-            | (Expr::ListTail { .. }, Type::Nat { .. })
-            | (Expr::ListTail { .. }, Type::Ref { .. })
-            | (Expr::ListTail { .. }, Type::Sum { .. })
-            | (Expr::ListTail { .. }, Type::Fn { .. })
-            | (Expr::ListTail { .. }, Type::Tuple { .. })
-            | (Expr::ListTail { .. }, Type::Record { .. })
-            | (Expr::ListTail { .. }, Type::Variant { .. })
-            | (Expr::ListTail { .. }, Type::List { .. })
-            | (Expr::ListTail { .. }, Type::Unit { .. })
             | (Expr::Throw { .. }, Type::Bool)
             | (Expr::Throw { .. }, Type::Nat { .. })
             | (Expr::Throw { .. }, Type::Ref { .. })
