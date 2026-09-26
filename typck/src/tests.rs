@@ -179,10 +179,17 @@ include_str!("../tests/Examples/fail/not-a-function-02.stella")
     but expected to be a function
 "#]]
 
-#[should_panic(expected="not yet implemented: typck Tuple")]
 not_a_list_01
 include_str!("../tests/Examples/fail/not-a-list-01.stella")
-=> expect![]
+=> expect![[r#"
+    7
+    ERROR_NOT_A_LIST
+    expression
+    	produce_tuple(n)
+    has type
+    	{}
+    but expected to be a list
+"#]]
 
 not_a_record_01
 include_str!("../tests/Examples/fail/not-a-record-01.stella")
@@ -1109,10 +1116,15 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_tuple/primitive.
     	Nat
 "#]]
 
-#[should_panic(expected="not yet implemented: typck Tuple")]
 unexpected_tuple_length
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_tuple_length/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    20
+    ERROR_UNEXPECTED_TUPLE_LENGTH
+    tuple
+    	{0, false, succ(0)}
+    has 3 elements(s), but expected to have 2
+"#]]
 
 unexpected_type_for_expression
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_expression/primitive.stella")
@@ -1231,7 +1243,6 @@ sum_types
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/sum-types.stella")
 => expect![]
 
-#[should_panic(expected="not yet implemented: typck Tuple")]
 tuples
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/tuples.stella")
 => expect![]

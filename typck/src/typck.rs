@@ -735,8 +735,21 @@ impl<'ctx> Context<'_, 'ctx> {
             }
 
             // Tuples
-            (Expr::Tuple(actual_elements), Type::Tuple(expected_elements)) => {
-                todo!("typck {expr:?}")
+            (Expr::Tuple(actual), Type::Tuple(expected)) => {
+                {
+                    let expected = expected.len();
+                    let actual = actual.len();
+                    if actual != expected {
+                        throw!(Error::UnexpectedTupleLength {
+                            tuple: expr,
+                            actual,
+                            expected
+                        })
+                    }
+                }
+                for (actual, expected) in zip(actual, expected) {
+                    self.ensure(actual, expected)?
+                }
             }
             (
                 Expr::Tuple(_),

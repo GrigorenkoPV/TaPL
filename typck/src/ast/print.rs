@@ -44,12 +44,22 @@ impl Display for Type<'_> {
 
                 write!(f, ") -> {ret:#}")
             }),
-            Self::Sum { .. }
-            | Self::Forall { .. }
-            | Self::Rec { .. }
-            | Self::Tuple(..)
-            | Self::Record(..)
-            | Self::Variant(..) => todo!("Display {self:?}"),
+            Self::Tuple(elements) => {
+                f.write_str("{")?;
+                let first = &mut true;
+                for element in elements {
+                    if !mem::take(first) {
+                        f.write_str(", ")?
+                    }
+                    write!(f, "{element}")?
+                }
+                f.write_str("}")
+            }
+            Self::Sum { .. } | Self::Forall { .. } | Self::Record(..) | Self::Variant(..) => {
+                todo!("Display {self:?}")
+            }
+
+            Self::Rec { .. } => unsupported::mu(self),
         }
     }
 }

@@ -114,8 +114,11 @@ pub(crate) enum Error<'src> {
         index: Integer,
     },
     /// Длина кортежа (`Tuple`) не соответствует ожидаемой длине.
-    #[expect(dead_code, reason = "WIP")]
-    UnexpectedTupleLength,
+    UnexpectedTupleLength {
+        tuple: &'src Expr<'src>,
+        actual: usize,
+        expected: usize,
+    },
     /// Тип инъекции (`Inl` или `Inr`) невозможно определить (отсутствует ожидаемый тип-сумма).
     AmbiguousSumType(&'src Expr<'src>),
     /// Тип варианта (`Variant`) невозможно определить (отсутствует ожидаемый тип варианта).
@@ -387,10 +390,25 @@ impl fmt::Display for Error<'_> {
                 expected,
                 actual,
                 callee,
-            } => writeln!(
-                f,
-                "function\n\t{callee}\nis called with {actual} argument(s), but has arity of {expected}"
-            ),
+            } => {
+                debug_assert_ne!(actual, expected, "not incorrect");
+                writeln!(
+                    f,
+                    "function\n\t{callee}\nis called with {actual} argument(s), but has arity of {expected}"
+                )
+            }
+            Self::UnexpectedTupleLength {
+                tuple,
+                actual,
+                expected,
+            } => {
+                debug_assert_matches!(tuple, Expr::Tuple(_));
+                debug_assert_ne!(actual, expected, "not unexpected");
+                writeln!(
+                    f,
+                    "tuple\n\t{tuple}\nhas {actual} elements(s), but expected to have {expected}"
+                )
+            }
 
             Self::UnexpectedList { expr, expected } => {
                 debug_assert_matches!(expr, Expr::Cons { .. } | Expr::List(_));
@@ -456,7 +474,6 @@ impl fmt::Display for Error<'_> {
             | Self::UnexpectedRecordFields
             | Self::UnexpectedFieldAccess
             | Self::UnexpectedVariantLabel
-            | Self::UnexpectedTupleLength
             | Self::AmbiguousVariantType
             | Self::IllegalEmptyMatching
             | Self::NonexhaustiveMatchPatterns
@@ -509,7 +526,7 @@ impl Error<'_> {
             Error::UnexpectedFieldAccess => nz!(17),
             Error::UnexpectedVariantLabel => nz!(18),
             Error::TupleIndexOutOfBounds { .. } => nz!(19),
-            Error::UnexpectedTupleLength => nz!(20),
+            Error::UnexpectedTupleLength { .. } => nz!(20),
             Error::AmbiguousSumType { .. } => nz!(21),
             Error::AmbiguousVariantType => nz!(22),
             Error::AmbiguousList(_) => nz!(23),
