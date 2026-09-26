@@ -122,6 +122,14 @@ impl Display for Expr<'_> {
             Self::Tuple(elements) => write!(f, "{{{}}}", comma_sep(elements)),
             Self::Record(fields) => write!(f, "{{{}}}", comma_sep(fields)),
 
+            Self::Variant { lhs, rhs } => {
+                write!(f, "<| {lhs} ")?;
+                if let Some(rhs) = rhs {
+                    write!(f, "= {rhs} ")?
+                }
+                write!(f, "|>")
+            }
+
             Self::Seq(_)
             | Self::Let { .. }
             | Self::Assign { .. }
@@ -129,7 +137,6 @@ impl Display for Expr<'_> {
             | Self::BinOp { .. }
             | Self::Ascription { .. }
             | Self::Cast { .. }
-            | Self::Variant { .. }
             | Self::Match { .. }
             | Self::New(_)
             | Self::Deref(_)

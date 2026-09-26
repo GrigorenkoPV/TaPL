@@ -1112,10 +1112,16 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_paramet
     	Nat
 "#]]
 
-#[should_panic(expected = "not yet implemented: typck Variant")]
 unexpected_variant
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_variant/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    12
+    ERROR_UNEXPECTED_VARIANT
+    expression
+    	<| a = succ(0) |>
+    is a variant, but expected to be
+    	Nat
+"#]]
 
 #[should_panic(expected = "not yet implemented: typck Variant")]
 unexpected_variant_label

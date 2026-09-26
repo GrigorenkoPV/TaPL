@@ -83,7 +83,6 @@ pub(crate) enum Error<'src> {
     /// Вариант (`Variant`) проверяется с типом, отличным от типа варианта (`TypeVariant`).
     ///
     /// Ошибка до проверки варианта
-    #[expect(dead_code, reason = "WIP")]
     UnexpectedVariant {
         variant: &'src Expr<'src>,
         expected: Type<'src>,

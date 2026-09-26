@@ -816,6 +816,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 expected: expected.to_owned()
             }),
 
+            // Records
             (Expr::Record(actual_fields), Type::Record(expected_fields)) => {
                 // TODO:
                 // self.check_ty_wf(expected)?;
@@ -867,6 +868,25 @@ impl<'ctx> Context<'_, 'ctx> {
                 | Type::Unit,
             ) => throw!(Error::UnexpectedRecord {
                 record: expr,
+                expected: expected.to_owned()
+            }),
+
+            // Variant
+            (Expr::Variant { .. }, Type::Variant { .. }) => todo!("typck {expr:?}"),
+
+            (
+                Expr::Variant { .. },
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => throw!(Error::UnexpectedVariant {
+                variant: expr,
                 expected: expected.to_owned()
             }),
 
@@ -960,16 +980,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::Cast { .. }, Type::Variant { .. })
             | (Expr::Cast { .. }, Type::List { .. })
             | (Expr::Cast { .. }, Type::Unit { .. })
-            | (Expr::Variant { .. }, Type::Bool)
-            | (Expr::Variant { .. }, Type::Nat { .. })
-            | (Expr::Variant { .. }, Type::Ref { .. })
-            | (Expr::Variant { .. }, Type::Sum { .. })
-            | (Expr::Variant { .. }, Type::Fn { .. })
-            | (Expr::Variant { .. }, Type::Tuple { .. })
-            | (Expr::Variant { .. }, Type::Record { .. })
-            | (Expr::Variant { .. }, Type::Variant { .. })
-            | (Expr::Variant { .. }, Type::List { .. })
-            | (Expr::Variant { .. }, Type::Unit { .. })
             | (Expr::Match { .. }, Type::Bool)
             | (Expr::Match { .. }, Type::Nat { .. })
             | (Expr::Match { .. }, Type::Ref { .. })
