@@ -856,10 +856,14 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_function_declarat
     function `func` is defined multiple times
 "#]]
 
-#[should_panic(expected="not yet implemented: infer Record")]
 duplicate_record_fields
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_record_fields/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    27
+    ERROR_DUPLICATE_RECORD_FIELDS
+    field `num` is declared more than once in
+    	{num = 0, bool = false, num = true}
+"#]]
 
 duplicate_record_type_fields
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_record_type_fields/primitive.stella")

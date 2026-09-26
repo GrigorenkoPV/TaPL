@@ -89,7 +89,10 @@ impl<'src> HasVisitable<'src> for PatternBinding<'src> {
 
 impl<'src> HasVisitable<'src> for Binding<'src> {
     fn visit_inner_with(&self, v: &mut impl Visitor<'src>) {
-        let Self { lhs, rhs } = self;
+        let Self {
+            name: lhs,
+            value: rhs,
+        } = self;
         v.visit_ident(lhs);
         v.visit_expr(rhs);
     }

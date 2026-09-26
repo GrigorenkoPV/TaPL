@@ -7,7 +7,7 @@ use std::{
 use culpa::{throw, throws};
 
 use crate::{
-    ast::{Decl, Expr, Function, Ident, Integer, Pattern, PatternBinding, Program, Type},
+    ast::{Binding, Decl, Expr, Function, Ident, Integer, Pattern, PatternBinding, Program, Type},
     extensions::unsupported,
 };
 
@@ -67,6 +67,16 @@ fn nat_rec_step_type(acc: Type<'_>) -> Type<'_> {
 fn dot_tuple(types: Vec<Type<'_>>, index: Integer) -> Option<Type<'_>> {
     let index = index.checked_sub(1)?.try_into().ok()?;
     types.into_iter().nth(index)
+}
+
+#[throws(Ident<'ctx>)]
+fn check_no_duplicate_field_names<'ctx>(fields: &[Binding<'ctx>]) {
+    let mut seen = HashSet::<&'ctx str>::new();
+    for Binding { name, value: _ } in fields {
+        if !seen.insert(name.as_ref()) {
+            throw!(name.clone())
+        }
+    }
 }
 
 impl<'ctx> Context<'_, 'ctx> {
@@ -521,6 +531,11 @@ impl<'ctx> Context<'_, 'ctx> {
                         })?,
                 )
             }
+            Expr::Record(fields) => {
+                check_no_duplicate_field_names(fields)
+                    .map_err(|field| Error::DuplicateRecordFields { expr, field })?;
+                todo!("infer {expr:?}")
+            }
 
             Expr::Assign { .. }
             | Expr::Seq(_)
@@ -531,7 +546,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | Expr::Match { .. }
             | Expr::Deref(_)
             | Expr::TypeApplication { .. }
-            | Expr::Record(_)
             | Expr::Throw(_)
             | Expr::TryCatch { .. }
             | Expr::TryWith { .. }

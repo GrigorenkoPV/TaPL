@@ -2,7 +2,7 @@ use core::{debug_assert_matches, fmt, mem, num::NonZero};
 use std::{borrow::Cow, collections::btree_set::BTreeSet};
 
 use crate::{
-    ast::{Expr, Ident, Integer, Type},
+    ast::{Binding, Expr, Ident, Integer, Type},
     extensions::{Extension, Extensions},
 };
 
@@ -142,8 +142,10 @@ pub(crate) enum Error<'src> {
     #[expect(dead_code, reason = "WIP")]
     UnexpectedPatternForType,
     /// В записи (`Record`) указаны повторяющиеся имена полей.
-    #[expect(dead_code, reason = "WIP")]
-    DuplicateRecordFields(Ident<'src>),
+    DuplicateRecordFields {
+        expr: &'src Expr<'src>,
+        field: Ident<'src>,
+    },
     /// В типе записи (`TypeRecord`) указаны повторяющиеся имена полей.
     DuplicateRecordTypeFields(Ident<'src>),
     /// В типе варианта (`TypeVariant`) указаны повторяющиеся имена вариантов (тегов/полей).
@@ -353,11 +355,24 @@ impl fmt::Display for Error<'_> {
                 "abstraction\n\t{lambda}\nhas {actual} arguments, but is expected to have {expected}"
             ),
 
+            Self::DuplicateRecordFields { expr, field } => {
+                let Expr::Record(fields) = expr else {
+                    unreachable!("{expr} is not a record")
+                };
+                debug_assert!(
+                    fields
+                        .iter()
+                        .filter(|Binding { name, value: _ }| name == field)
+                        .count()
+                        >= 2,
+                    "not a duplicate"
+                );
+                writeln!(f, "field `{field}` is declared more than once in\n\t{expr}")
+            }
             Self::DuplicateRecordTypeFields(name)
             | Self::DuplicateVariantTypeFields(name)
             | Self::DuplicateLetBinding(name)
             | Self::DuplicateTypeParameter(name)
-            | Self::DuplicateRecordFields(name)
             | Self::DuplicateRecordPatternFields(name) => {
                 writeln!(f, "`{name}` is declared more than once")
             }
@@ -557,7 +572,7 @@ impl Error<'_> {
             Error::IllegalEmptyMatching => nz!(24),
             Error::NonexhaustiveMatchPatterns => nz!(25),
             Error::UnexpectedPatternForType => nz!(26),
-            Error::DuplicateRecordFields(_) => nz!(27),
+            Error::DuplicateRecordFields { .. } => nz!(27),
             Error::DuplicateRecordTypeFields(_) => nz!(28),
             Error::DuplicateVariantTypeFields(_) => nz!(29),
             Error::DuplicateFunctionDeclaration(_) => nz!(30),

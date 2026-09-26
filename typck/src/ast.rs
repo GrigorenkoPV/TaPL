@@ -25,8 +25,8 @@ pub(crate) struct PatternBinding<'src> {
 
 #[derive(Debug)]
 pub(crate) struct Binding<'src> {
-    pub lhs: Ident<'src>,
-    pub rhs: Expr<'src>,
+    pub name: Ident<'src>,
+    pub value: Expr<'src>,
 }
 
 #[derive(Debug)]

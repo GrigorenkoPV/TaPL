@@ -4,7 +4,7 @@ use core::{
 };
 
 use crate::{
-    ast::{Expr, Type},
+    ast::{Binding, Expr, Type},
     extensions::unsupported,
 };
 
@@ -65,6 +65,13 @@ impl Display for Type<'_> {
     }
 }
 
+impl Display for Binding<'_> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        let Self { name, value } = self;
+        write!(f, "{name} = {value}")
+    }
+}
+
 impl Display for Expr<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
@@ -106,6 +113,7 @@ impl Display for Expr<'_> {
             Self::ListIsEmpty(list) => write!(f, "List::isempty({list})"),
             Self::List(elements) => write!(f, "[{}]", comma_sep(elements)),
             Self::Tuple(elements) => write!(f, "{{{}}}", comma_sep(elements)),
+            Self::Record(fields) => write!(f, "{{{}}}", comma_sep(fields)),
 
             Self::Seq(_)
             | Self::Let { .. }
@@ -121,7 +129,6 @@ impl Display for Expr<'_> {
             | Self::TypeApplication { .. }
             | Self::DotRecord { .. }
             | Self::DotTuple { .. }
-            | Self::Record(_)
             | Self::Throw(_)
             | Self::TryCatch { .. }
             | Self::TryWith { .. }

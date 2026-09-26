@@ -231,7 +231,7 @@ Pattern: Pattern<'input> = {
 }
 
 PatternBinding: PatternBinding<'input> = <lhs: Pattern> "=" <rhs: Expr> => PatternBinding { <> };
-Binding: Binding<'input> = <lhs: Ident> "=" <rhs: Expr> => Binding { <> };
+Binding: Binding<'input> = <name: Ident> "=" <value: Expr> => Binding { <> };
 
 Bindings = SepWith1<",", Binding>;
 PatternBindings = SepWith1<",", PatternBinding>;
