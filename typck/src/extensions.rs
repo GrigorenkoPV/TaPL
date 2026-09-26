@@ -81,44 +81,57 @@ impl fmt::Display for Extension {
 
 impl Extension {
     #[must_use]
+    #[expect(clippy::match_same_arms, reason = "preserving order of variants")]
     pub(crate) const fn supported(&self) -> bool {
         match self {
-            Self::NullaryFunctions
-            | Self::MultiparameterFunctions
-            | Self::NaturalLiterals
-            | Self::NestedFunctionDeclarations
-            | Self::LetBindings
-            | Self::Panic
-            | Self::TypeAscriptions
-            | Self::SumTypes
-            | Self::Lists
-            | Self::FixpointCombinator
+            // Stage 1
+            Self::UnitType
             | Self::Pairs
             | Self::Tuples
             | Self::Records
+            | Self::LetBindings
+            | Self::TypeAscriptions
+            | Self::SumTypes
+            | Self::Lists
             | Self::Variants
-            | Self::NullaryVariantLabels
-            | Self::UnitType => true,
+            | Self::FixpointCombinator => true,
 
-            Self::StructuralPatterns
-            | Self::LetrecBindings
-            | Self::PatternAscriptions
-            | Self::LetPatterns
-            | Self::Sequencing
-            | Self::References
-            | Self::Exceptions
-            | Self::ExceptionTypeDeclaration
-            | Self::StructuralSubtyping
-            | Self::TypeCast
-            | Self::TopType
-            | Self::BottomType
-            | Self::AmbiguousTypeAsBottom
-            | Self::OpenVariantExceptions
-            | Self::TryCastAs
-            | Self::TypeCastPatterns
-            | Self::TypeReconstruction
-            | Self::ArithmeticOperators
-            | Self::UniversalTypes => false,
+            // Stage 1 (optional)
+            Self::NaturalLiterals
+            | Self::NestedFunctionDeclarations
+            | Self::NullaryFunctions
+            | Self::MultiparameterFunctions
+            | Self::NullaryVariantLabels => true,
+            Self::StructuralPatterns => false,
+            Self::LetrecBindings => false,
+            Self::PatternAscriptions => false,
+
+            // Stage 1 (unclear if optional or mandatory)
+            Self::LetPatterns => false,
+
+            // Stage 2
+            Self::Sequencing => false,
+            Self::References => false,
+            Self::Panic => false,
+            Self::Exceptions => false,
+            Self::ExceptionTypeDeclaration => false,
+            Self::StructuralSubtyping => false,
+            Self::TypeCast => false,
+            Self::TopType => false,
+            Self::BottomType => false,
+            Self::AmbiguousTypeAsBottom => false,
+
+            // Stage 2 (optional)
+            Self::OpenVariantExceptions => false,
+            Self::TryCastAs => false,
+            Self::TypeCastPatterns => false,
+
+            // Stage 3
+            Self::TypeReconstruction => false,
+            Self::UniversalTypes => false,
+
+            // Never mentioned
+            Self::ArithmeticOperators => false,
         }
     }
 }

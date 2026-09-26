@@ -1306,6 +1306,7 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_panic_type/primit
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#let-patterns
+    	#panic
 "#]]
 
 ambiguous_reference_type
@@ -1425,6 +1426,7 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#sequencing
+    	#panic
     	#bottom-type
 "#]]
 
@@ -1462,6 +1464,7 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     the following unsupported extensions are enabled:
     	#sequencing
     	#references
+    	#panic
     	#bottom-type
     	#arithmetic-operators
 "#]]
@@ -1500,6 +1503,7 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     the following unsupported extensions are enabled:
     	#sequencing
     	#references
+    	#panic
     	#bottom-type
     	#arithmetic-operators
 "#]]
@@ -1584,6 +1588,7 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-fn-stack.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#sequencing
+    	#panic
     	#structural-subtyping
     	#bottom-type
 "#]]
@@ -1614,6 +1619,7 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
     the following unsupported extensions are enabled:
     	#sequencing
     	#references
+    	#panic
     	#structural-subtyping
     	#bottom-type
     	#arithmetic-operators
@@ -1645,6 +1651,7 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
     the following unsupported extensions are enabled:
     	#sequencing
     	#references
+    	#panic
     	#structural-subtyping
     	#bottom-type
     	#arithmetic-operators
