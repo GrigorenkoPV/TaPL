@@ -95,10 +95,10 @@ impl Extension {
             | Self::FixpointCombinator
             | Self::Pairs
             | Self::Tuples
+            | Self::Records
             | Self::UnitType => true,
 
-            Self::Records
-            | Self::Variants
+            Self::Variants
             | Self::StructuralPatterns
             | Self::NullaryVariantLabels
             | Self::LetrecBindings
