@@ -41,8 +41,10 @@ pub(crate) enum Error<'src> {
     },
     /// При попытке извлечь поле записи (`DotRecord`) из выражения,
     /// выражение оказывается не записью (`TypeRecord`)
-    #[expect(dead_code, reason = "WIP")]
-    NotARecord,
+    NotARecord {
+        expr: &'src Expr<'src>,
+        actual: Type<'src>,
+    },
     /// При попытке извлечь голову (Head), хвост (Tail) или проверить список (`IsEmpty`),
     /// аргумент оказывается не списком (`TypeList`)
     NotAList {
@@ -102,8 +104,11 @@ pub(crate) enum Error<'src> {
     #[expect(dead_code, reason = "WIP")]
     UnexpectedRecordFields,
     /// Попытка извлечь отсутствующее поле записи (`DotRecord`).
-    #[expect(dead_code, reason = "WIP")]
-    UnexpectedFieldAccess,
+    UnexpectedFieldAccess {
+        record: &'src Expr<'src>,
+        expected: Ident<'src>,
+        actual: Box<[(Ident<'src>, Type<'src>)]>,
+    },
     /// В варианте (Variant) используется тег, которого нет в ожидаемом типе варианта.
     #[expect(dead_code, reason = "WIP")]
     UnexpectedVariantLabel,
@@ -378,6 +383,13 @@ impl fmt::Display for Error<'_> {
                     "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to be a list"
                 )
             }
+            Self::NotARecord { expr, actual } => {
+                debug_assert!(!matches!(actual, Type::Record(_)), "So *is* a record?");
+                writeln!(
+                    f,
+                    "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to be a record"
+                )
+            }
             Self::NotATuple { expr, actual } => {
                 debug_assert!(!matches!(actual, Type::Tuple(_)), "So *is* a tuple?");
                 writeln!(
@@ -466,13 +478,25 @@ impl fmt::Display for Error<'_> {
                     "index {index} is out of bounds for a tuple\n\t{tuple}\nof length {length}"
                 )
             }
+            Self::UnexpectedFieldAccess {
+                record,
+                expected,
+                actual,
+            } => {
+                writeln!(
+                    f,
+                    "there is no field `{expected}` in\n\t{record}\nwhich is a record with the following fields:"
+                )?;
+                for (name, ty) in actual.as_ref() {
+                    writeln!(f, "\t{name} : {ty}")?
+                }
+                Ok(())
+            }
 
-            Self::NotARecord
-            | Self::UnexpectedRecord
+            Self::UnexpectedRecord
             | Self::UnexpectedVariant
             | Self::MissingRecordFields
             | Self::UnexpectedRecordFields
-            | Self::UnexpectedFieldAccess
             | Self::UnexpectedVariantLabel
             | Self::AmbiguousVariantType
             | Self::IllegalEmptyMatching
@@ -512,7 +536,7 @@ impl Error<'_> {
             Error::UnexpectedTypeForExpression { .. } => nz!(3),
             Error::NotAFunction { .. } => nz!(4),
             Error::NotATuple { .. } => nz!(5),
-            Error::NotARecord => nz!(6),
+            Error::NotARecord { .. } => nz!(6),
             Error::NotAList { .. } => nz!(7),
             Error::UnexpectedLambda { .. } => nz!(8),
             Error::UnexpectedTypeForParameter { .. } => nz!(9),
@@ -523,7 +547,7 @@ impl Error<'_> {
             Error::UnexpectedInjection { .. } => nz!(14),
             Error::MissingRecordFields => nz!(15),
             Error::UnexpectedRecordFields => nz!(16),
-            Error::UnexpectedFieldAccess => nz!(17),
+            Error::UnexpectedFieldAccess { .. } => nz!(17),
             Error::UnexpectedVariantLabel => nz!(18),
             Error::TupleIndexOutOfBounds { .. } => nz!(19),
             Error::UnexpectedTupleLength { .. } => nz!(20),

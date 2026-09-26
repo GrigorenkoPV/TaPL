@@ -493,6 +493,35 @@ impl<'ctx> Context<'_, 'ctx> {
                     .collect::<Result<_, _>>()?,
             )),
 
+            Expr::DotRecord { lhs: record, field } => {
+                let actual = self.infer(record)?;
+                let Type::Record(fields) = actual.as_ref() else {
+                    throw!(Error::NotARecord {
+                        expr: record,
+                        actual: actual.into_owned()
+                    })
+                };
+                Owned(
+                    fields
+                        .iter()
+                        .find_map(|(name, ty)| {
+                            if name == field {
+                                Some(
+                                    // FIXME: this clone can potentially be avoided
+                                    ty.to_owned(),
+                                )
+                            } else {
+                                None
+                            }
+                        })
+                        .ok_or(Error::UnexpectedFieldAccess {
+                            record,
+                            expected: Borrowed(field),
+                            actual: fields.to_owned().into(),
+                        })?,
+                )
+            }
+
             Expr::Assign { .. }
             | Expr::Seq(_)
             | Expr::Generic { .. }
@@ -502,7 +531,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | Expr::Match { .. }
             | Expr::Deref(_)
             | Expr::TypeApplication { .. }
-            | Expr::DotRecord { .. }
             | Expr::Record(_)
             | Expr::Throw(_)
             | Expr::TryCatch { .. }
@@ -782,6 +810,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 | Expr::NatPred(_)
                 | Expr::Ascription { .. }
                 | Expr::Application { .. }
+                | Expr::DotRecord { .. }
                 | Expr::DotTuple { .. },
                 Type::Bool
                 | Type::Nat
@@ -906,16 +935,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::TypeApplication { .. }, Type::Variant { .. })
             | (Expr::TypeApplication { .. }, Type::List { .. })
             | (Expr::TypeApplication { .. }, Type::Unit { .. })
-            | (Expr::DotRecord { .. }, Type::Bool)
-            | (Expr::DotRecord { .. }, Type::Nat { .. })
-            | (Expr::DotRecord { .. }, Type::Ref { .. })
-            | (Expr::DotRecord { .. }, Type::Sum { .. })
-            | (Expr::DotRecord { .. }, Type::Fn { .. })
-            | (Expr::DotRecord { .. }, Type::Tuple { .. })
-            | (Expr::DotRecord { .. }, Type::Record { .. })
-            | (Expr::DotRecord { .. }, Type::Variant { .. })
-            | (Expr::DotRecord { .. }, Type::List { .. })
-            | (Expr::DotRecord { .. }, Type::Unit { .. })
             | (Expr::Record { .. }, Type::Bool)
             | (Expr::Record { .. }, Type::Nat { .. })
             | (Expr::Record { .. }, Type::Ref { .. })

@@ -191,10 +191,17 @@ include_str!("../tests/Examples/fail/not-a-list-01.stella")
     but expected to be a list
 "#]]
 
-#[should_panic(expected="not yet implemented: typck DotRecord")]
 not_a_record_01
 include_str!("../tests/Examples/fail/not-a-record-01.stella")
-=> expect![]
+=> expect![[r#"
+    6
+    ERROR_NOT_A_RECORD
+    expression
+    	{}
+    has type
+    	{}
+    but expected to be a record
+"#]]
 
 not_a_tuple_01
 include_str!("../tests/Examples/fail/not-a-tuple-01.stella")
@@ -229,7 +236,7 @@ include_str!("../tests/Examples/fail/undefined-var-02.stella")
     undefined variable `increment_thrice`
 "#]]
 
-#[should_panic(expected="not yet implemented: typck DotRecord")]
+#[should_panic(expected="not yet implemented: infer Record")]
 unexpected_field_01
 include_str!("../tests/Examples/fail/unexpected-field-01.stella")
 => expect![]
@@ -300,7 +307,7 @@ include_str!("../tests/Examples/pass/02.stella")
     	#arithmetic-operators
 "#]]
 
-#[should_panic(expected="not yet implemented: typck DotRecord")]
+#[should_panic(expected="not yet implemented: infer Record")]
 ascription2
 include_str!("../tests/Examples/pass/ascription.stella")
 => expect![]
@@ -849,7 +856,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_function_declarat
     function `func` is defined multiple times
 "#]]
 
-#[should_panic(expected="not yet implemented: typck DotRecord")]
+#[should_panic(expected="not yet implemented: infer Record")]
 duplicate_record_fields
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_record_fields/primitive.stella")
 => expect![]
@@ -951,10 +958,17 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_list/primitive.stella
     but expected to be a list
 "#]]
 
-#[should_panic(expected="not yet implemented: typck DotRecord")]
 not_a_record
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_record/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    6
+    ERROR_NOT_A_RECORD
+    expression
+    	n
+    has type
+    	Nat
+    but expected to be a record
+"#]]
 
 not_a_tuple
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_tuple/primitive.stella")
@@ -986,10 +1000,17 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/undefined_variable/primitiv
     undefined variable `a`
 "#]]
 
-#[should_panic(expected="not yet implemented: typck DotRecord")]
 unexpected_field_access
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_field_access/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    17
+    ERROR_UNEXPECTED_FIELD_ACCESS
+    there is no field `status` in
+    	n
+    which is a record with the following fields:
+    	num : Nat
+    	bool : Bool
+"#]]
 
 unexpected_injection
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_injection/primitive.stella")
