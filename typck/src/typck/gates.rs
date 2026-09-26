@@ -246,9 +246,9 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
             | Expr::ListHead(_)
             | Expr::ListIsEmpty(_)
             | Expr::ListTail(_) => self.require(Extension::Lists),
-            Expr::Variant { lhs: _, rhs } => {
+            Expr::Variant { label: _, data } => {
                 self.require(Extension::Variants);
-                if rhs.is_none() {
+                if data.is_none() {
                     self.require(Extension::NullaryVariantLabels)
                 }
             }

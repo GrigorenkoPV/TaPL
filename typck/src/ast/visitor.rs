@@ -292,9 +292,9 @@ impl<'src> HasVisitable<'src> for Expr<'src> {
                 }
                 v.visit_expr(ret);
             }
-            Self::Variant { lhs, rhs } => {
-                v.visit_ident(lhs);
-                visit_opt!(v.visit_expr, rhs);
+            Self::Variant { label, data } => {
+                v.visit_ident(label);
+                visit_opt!(v.visit_expr, data);
             }
             Self::Match { switch, cases } => {
                 v.visit_expr(switch);

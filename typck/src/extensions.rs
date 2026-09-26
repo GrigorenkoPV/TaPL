@@ -97,10 +97,10 @@ impl Extension {
             | Self::Tuples
             | Self::Records
             | Self::Variants
+            | Self::NullaryVariantLabels
             | Self::UnitType => true,
 
             Self::StructuralPatterns
-            | Self::NullaryVariantLabels
             | Self::LetrecBindings
             | Self::PatternAscriptions
             | Self::LetPatterns

@@ -192,12 +192,16 @@ pub(crate) enum Error<'src> {
     //
     /// Вариант (`Variant`) содержит данные (`SomeExprData`),
     /// хотя ожидается тег без данных (`NoTyping`).
-    #[expect(dead_code, reason = "WIP")]
-    UnexpectedDataForNullaryLabel,
+    UnexpectedDataForNullaryLabel {
+        label: Ident<'src>,
+        unexpected: &'src Expr<'src>,
+    },
     /// Вариант (`Variant`) не содержит данные (`NoExprData`),
     /// хотя ожидается тег с данными (`SomeTyping`).
-    #[expect(dead_code, reason = "WIP")]
-    MissingDataForLabel,
+    MissingDataForLabel {
+        label: Ident<'src>,
+        expected: Type<'src>,
+    },
     /// Образец варианта (`PatternVariant`) содержит тег с данными (`SomePatternData`),
     /// хотя в типе разбираемого выражения этот тег указан без данных (`NoTyping`).
     #[expect(dead_code, reason = "WIP")]
@@ -584,14 +588,20 @@ impl fmt::Display for Error<'_> {
                     !options.iter().any(|(name, _)| name == actual),
                     "not unexpected"
                 );
-                writeln!(f, "there is no variant `{actual}` in\n\t{expected}")
+                writeln!(f, "there is no label `{actual}` in variant\n\t{expected}")
+            }
+
+            Self::UnexpectedDataForNullaryLabel { label, unexpected } => writeln!(
+                f,
+                "no data expected for label `{label}`, but found\n\t{unexpected}"
+            ),
+            Self::MissingDataForLabel { label, expected } => {
+                writeln!(f, "no data for label `{label}`, but expected\n\t{expected}")
             }
 
             Self::IllegalEmptyMatching
             | Self::NonexhaustiveMatchPatterns
             | Self::UnexpectedPatternForType
-            | Self::UnexpectedDataForNullaryLabel
-            | Self::MissingDataForLabel
             | Self::UnexpectedNonNullaryVariantPattern
             | Self::UnexpectedNullaryVariantPattern
             | Self::ExceptionTypeNotDeclared
@@ -654,8 +664,8 @@ impl Error<'_> {
             | Error::IncorrectNumberOfArguments { .. }
             | Error::UnexpectedNumberOfParametersInLambda { .. } => nz!(113),
             Error::DuplicateRecordPatternFields(_) => nz!(114),
-            Error::UnexpectedDataForNullaryLabel
-            | Error::MissingDataForLabel
+            Error::UnexpectedDataForNullaryLabel { .. }
+            | Error::MissingDataForLabel { .. }
             | Error::UnexpectedNonNullaryVariantPattern
             | Error::UnexpectedNullaryVariantPattern => nz!(115),
             Error::DuplicateFunctionParameter { .. }

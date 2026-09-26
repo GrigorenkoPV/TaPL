@@ -366,14 +366,10 @@ include_str!("../tests/Examples/pass/letrec.stella")
     	#arithmetic-operators
 "#]]
 
-r#match
+#[should_panic(expected = "not yet implemented: typck Match")]
+match_
 include_str!("../tests/Examples/pass/match.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#nullary-variant-labels
-"#]]
+=> expect![]
 
 sub_asc
 include_str!("../tests/Examples/pass/sub-asc.stella")
@@ -575,19 +571,19 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-functions/well-typed/pr
 missing_data_for_label
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-typed/missing_data_for_label/primitive.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#nullary-variant-labels
+    115
+    ERROR_MISSING_DATA_FOR_LABEL
+    no data for label `a`, but expected
+    	Nat
 "#]]
 
 unexpected_data_for_nullary_label
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-typed/unexpected_data_for_nullary_label/primitive.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#nullary-variant-labels
+    115
+    ERROR_UNEXPECTED_DATA_FOR_NULLARY_LABEL
+    no data expected for label `a`, but found
+    	0
 "#]]
 
 unexpected_non_nullary_variant_pattern
@@ -597,7 +593,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-type
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-patterns
-    	#nullary-variant-labels
 "#]]
 
 unexpected_nullary_variant_pattern
@@ -607,7 +602,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-type
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-patterns
-    	#nullary-variant-labels
 "#]]
 
 nullary_variant_labels_match
@@ -617,17 +611,11 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/well-typ
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-patterns
-    	#nullary-variant-labels
 "#]]
 
 nullary_variant_labels
 include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/well-typed/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#nullary-variant-labels
-"#]]
+=> expect![]
 
 duplicate_record_pattern_fields
 include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/duplicate_record_pattern_fields/record.stella")
@@ -1128,7 +1116,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_variant_label/pr
 => expect![[r#"
     18
     ERROR_UNEXPECTED_VARIANT_LABEL
-    there is no variant `c` in
+    there is no label `c` in variant
     	<|a: Bool, b: Nat|>
 "#]]
 

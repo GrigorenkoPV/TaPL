@@ -872,19 +872,25 @@ impl<'ctx> Context<'_, 'ctx> {
             }),
 
             // Variant
-            (Expr::Variant { lhs, rhs }, Type::Variant(options)) => {
+            (Expr::Variant { label, data }, Type::Variant(options)) => {
                 let expected = options
                     .iter()
-                    .find_map(|(name, data)| if name == lhs { Some(data) } else { None })
+                    .find_map(|(name, data)| if name == label { Some(data) } else { None })
                     .ok_or(Error::UnexpectedVariantLabel {
-                        actual: Borrowed(lhs),
+                        actual: Borrowed(label),
                         expected: expected.to_owned(),
                     })?;
-                match (rhs, expected) {
+                match (data, expected) {
                     (None, None) => Ok(()),
                     (Some(actual), Some(expected)) => self.ensure(actual, expected),
-                    (None, Some(_)) => Err(Error::MissingDataForLabel {}),
-                    (Some(_), None) => Err(Error::UnexpectedDataForNullaryLabel {}),
+                    (None, Some(expected)) => Err(Error::MissingDataForLabel {
+                        label: Borrowed(label),
+                        expected: expected.to_owned(),
+                    }),
+                    (Some(unexpected), None) => Err(Error::UnexpectedDataForNullaryLabel {
+                        label: Borrowed(label),
+                        unexpected,
+                    }),
                 }?
             }
 

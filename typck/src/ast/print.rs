@@ -132,10 +132,10 @@ impl Display for Expr<'_> {
             Self::Tuple(elements) => write!(f, "{{{}}}", comma_sep(elements)),
             Self::Record(fields) => write!(f, "{{{}}}", comma_sep(fields)),
 
-            Self::Variant { lhs, rhs } => {
-                write!(f, "<| {lhs} ")?;
-                if let Some(rhs) = rhs {
-                    write!(f, "= {rhs} ")?
+            Self::Variant { label, data } => {
+                write!(f, "<| {label} ")?;
+                if let Some(data) = data {
+                    write!(f, "= {data} ")?
                 }
                 write!(f, "|>")
             }

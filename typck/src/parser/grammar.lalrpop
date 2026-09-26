@@ -284,7 +284,7 @@ Expr3: Expr<'input> = {
     <expr: Box<Expr3>> "as" <ty: Type2> => Expr::Ascription { <> },
     <expr: Box<Expr3>> "cast" "as" <ty: Type2> => Expr::Cast { <> },
     "fn" "(" <params: FnParams> ")" "{" "return" <ret: Box<Expr>> "}" => Expr::Abstraction { <> },
-    "<|" <lhs: Ident> <rhs: ("=" <Box<Expr>>)?> "|>" => Expr::Variant { <> },
+    "<|" <label: Ident> <data: ("=" <Box<Expr>>)?> "|>" => Expr::Variant { <> },
     "match" <switch: Box<Expr2>> "{" <cases: SepWith0<"|", MatchCase>> "}" => Expr::Match { <> },
     "[" <CommaExprs> "]" => Expr::List(<>),
 

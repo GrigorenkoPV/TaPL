@@ -169,8 +169,8 @@ pub(crate) enum Expr<'src> {
         ret: Box<Self>,
     },
     Variant {
-        lhs: Ident<'src>,
-        rhs: Option<Box<Self>>,
+        label: Ident<'src>,
+        data: Option<Box<Self>>,
     },
     Match {
         switch: Box<Self>,
