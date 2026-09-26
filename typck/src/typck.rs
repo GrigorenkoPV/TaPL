@@ -1,4 +1,4 @@
-use core::iter::zip;
+use core::{iter::zip, mem};
 use std::{
     borrow::Cow::{self, Borrowed, Owned},
     collections::HashSet,
@@ -319,6 +319,31 @@ impl<'ctx> Context<'_, 'ctx> {
                 res
             }
 
+            Expr::Fix(expr) => {
+                let actual = self.infer(expr)?.into_owned();
+                let Type::Fn { args, ret } = actual else {
+                    throw!(Error::NotAFunction { expr, actual })
+                };
+                let [arg_ty] = args.as_slice() else {
+                    throw!(Error::IncorrectNumberOfArguments {
+                        expected: 1,
+                        actual: args.len(),
+                        callee: expr
+                    })
+                };
+                match self.check_ty_coerces(&ret, arg_ty) {
+                    Err(()) => throw!(Error::UnexpectedTypeForExpression {
+                        expr,
+                        expected: Type::Fn {
+                            args: vec![ret.as_ref().to_owned()],
+                            ret: ret.clone()
+                        },
+                        actual: Type::Fn { args, ret },
+                    }),
+                    Ok(()) => Owned(*ret),
+                }
+            }
+
             Expr::Application {
                 lhs,
                 args: args_actual,
@@ -452,7 +477,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | Expr::TryCatch { .. }
             | Expr::TryWith { .. }
             | Expr::TryCastAs { .. }
-            | Expr::Fix(_)
             | Expr::Address(_) => todo!("infer {expr:?}"),
 
             Expr::Fold { .. } | Expr::Unfold { .. } => unsupported::fold_unfold(expr),
@@ -568,7 +592,7 @@ impl<'ctx> Context<'_, 'ctx> {
                 expected: expected.to_owned(),
             }),
 
-            // NatRec / fix
+            // NatRec
             (
                 Expr::NatRec {
                     iterations,
@@ -579,8 +603,31 @@ impl<'ctx> Context<'_, 'ctx> {
             ) => {
                 self.ensure(iterations, &Type::Nat)?;
                 self.ensure(start, expected)?;
+
                 self.ensure(step, &nat_rec_step_type(expected.to_owned()))?;
             }
+
+            // Fix
+            (Expr::Fix(expr), ty) => self
+                .ensure(
+                    expr,
+                    &Type::Fn {
+                        ret: Box::new(ty.clone()),
+                        args: vec![ty.to_owned()],
+                    },
+                )
+                .map_err(|e| {
+                    if let Ok(actual) = self.infer(expr)
+                        && !matches!(actual.as_ref(), Type::Fn { .. })
+                    {
+                        Error::NotAFunction {
+                            expr,
+                            actual: actual.into_owned(),
+                        }
+                    } else {
+                        e
+                    }
+                })?,
 
             // Sum
             (
@@ -874,16 +921,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | (Expr::TryCastAs { .. }, Type::Variant { .. })
             | (Expr::TryCastAs { .. }, Type::List { .. })
             | (Expr::TryCastAs { .. }, Type::Unit { .. })
-            | (Expr::Fix { .. }, Type::Bool)
-            | (Expr::Fix { .. }, Type::Nat { .. })
-            | (Expr::Fix { .. }, Type::Ref { .. })
-            | (Expr::Fix { .. }, Type::Sum { .. })
-            | (Expr::Fix { .. }, Type::Fn { .. })
-            | (Expr::Fix { .. }, Type::Tuple { .. })
-            | (Expr::Fix { .. }, Type::Record { .. })
-            | (Expr::Fix { .. }, Type::Variant { .. })
-            | (Expr::Fix { .. }, Type::List { .. })
-            | (Expr::Fix { .. }, Type::Unit { .. })
             | (Expr::Address { .. }, Type::Bool)
             | (Expr::Address { .. }, Type::Nat { .. })
             | (Expr::Address { .. }, Type::Ref { .. })
@@ -902,8 +939,9 @@ impl<'ctx> Context<'_, 'ctx> {
     // TODO: is this just equality?
     fn check_ty_coerces(&self, from: &Type<'_>, to: &Type<'_>) -> Result<(), ()> {
         match [from, to] {
+            [rec @ Type::Rec { .. }, _] | [_, rec @ Type::Rec { .. }] => unsupported::mu(rec),
+
             [Type::Bool, Type::Bool] | [Type::Nat, Type::Nat] | [Type::Unit, Type::Unit] => Ok(()),
-            [Type::Nat, Type::Bool] | [Type::Bool, Type::Nat] => Err(()),
             [
                 Type::Fn {
                     args: args_from,
@@ -939,7 +977,14 @@ impl<'ctx> Context<'_, 'ctx> {
 
             [Type::List(from), Type::List(to)] => self.check_ty_coerces(from, to),
 
-            [from, to] => todo!("Check coercion from {from:?} to {to:?}"),
+            [from, to] => {
+                assert_ne!(
+                    mem::discriminant(from),
+                    mem::discriminant(to),
+                    "TODO: check coercion from {from:?} to {to:?}"
+                );
+                Err(())
+            }
         }
     }
 }

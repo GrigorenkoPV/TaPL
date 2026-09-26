@@ -78,13 +78,13 @@ impl Extension {
             | Self::TypeAscriptions
             | Self::SumTypes
             | Self::Lists
+            | Self::FixpointCombinator
             | Self::UnitType => true,
 
             Self::Pairs
             | Self::Tuples
             | Self::Records
             | Self::Variants
-            | Self::FixpointCombinator
             | Self::StructuralPatterns
             | Self::NullaryVariantLabels
             | Self::LetrecBindings

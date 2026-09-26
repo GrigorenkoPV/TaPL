@@ -137,10 +137,14 @@ include_str!("../tests/Examples/fail/duplicate-func.stella")
 malformed_fix
 include_str!("../tests/Examples/fail/malformed-fix.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#fixpoint-combinator
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	step
+    has type
+    	fn(Nat) -> Bool
+    but expected to have type
+    	fn(Nat) -> Nat
 "#]]
 
 no_main_nat_add
@@ -166,10 +170,13 @@ include_str!("../tests/Examples/fail/not-a-function-01.stella")
 not_a_function_02
 include_str!("../tests/Examples/fail/not-a-function-02.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#fixpoint-combinator
+    4
+    ERROR_NOT_A_FUNCTION
+    expression
+    	n
+    has type
+    	Nat
+    but expected to be a function
 "#]]
 
 not_a_list_01
@@ -296,7 +303,6 @@ include_str!("../tests/Examples/pass/02.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#tuples
-    	#fixpoint-combinator
     	#structural-patterns
     	#arithmetic-operators
 "#]]
@@ -490,7 +496,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/multiparameter-functions/ill-ty
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#fixpoint-combinator
     	#let-patterns
 "#]]
 
@@ -961,7 +966,6 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_function/fix.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#fixpoint-combinator
     	#let-patterns
 "#]]
 
@@ -1195,7 +1199,6 @@ include_str!("../tests/ThatDraenGuy/stage1/well-typed/fix-primitive.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#fixpoint-combinator
     	#let-patterns
 "#]]
 
