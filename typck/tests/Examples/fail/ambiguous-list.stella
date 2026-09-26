@@ -2,6 +2,6 @@ language core;
 
 extend with #lists, #natural-literals, #nullary-functions, #pairs;
 
-fn main() -> Nat {
+fn main(x : Nat) -> Nat {
     return {[], 1}.1
 }

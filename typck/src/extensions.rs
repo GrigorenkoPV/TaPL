@@ -93,11 +93,11 @@ impl Extension {
             | Self::SumTypes
             | Self::Lists
             | Self::FixpointCombinator
+            | Self::Pairs
+            | Self::Tuples
             | Self::UnitType => true,
 
-            Self::Pairs
-            | Self::Tuples
-            | Self::Records
+            Self::Records
             | Self::Variants
             | Self::StructuralPatterns
             | Self::NullaryVariantLabels
