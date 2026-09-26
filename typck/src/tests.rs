@@ -361,7 +361,6 @@ include_str!("../tests/Examples/pass/letrec.stella")
     	#letrec-bindings
     	#pattern-ascriptions
     	#let-patterns
-    	#references
     	#arithmetic-operators
 "#]]
 
@@ -1303,14 +1302,10 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_panic_type/primit
     	#panic
 "#]]
 
+#[should_panic(expected = "not yet implemented: infer Address")]
 ambiguous_reference_type
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_reference_type/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#references
-"#]]
+=> expect![]
 
 subtyping
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/missing_record_fields/subtyping.stella")
@@ -1321,32 +1316,24 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/missing_record_fields/subty
     	#structural-subtyping
 "#]]
 
+#[should_panic(expected = "not yet implemented: typck Assign")]
 not_a_reference
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/not_a_reference/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#references
-"#]]
+=> expect![]
 
+#[should_panic(expected = "not yet implemented: typck Address")]
 unexpected_memory_address
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_memory_address/primitive.stella")
 => expect![[r#"
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#references
 "#]]
 
+#[should_panic(expected = "not yet implemented: typck New")]
 unexpected_reference
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_reference/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#references
-"#]]
+=> expect![]
 
 invariant_ref_with_bot
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invariant-ref-with-bot.stella")
@@ -1354,7 +1341,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invarian
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#references
     	#structural-subtyping
     	#top-type
     	#bottom-type
@@ -1366,7 +1352,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invarian
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#references
     	#structural-subtyping
     	#top-type
     	#bottom-type
@@ -1378,7 +1363,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invarian
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#references
     	#structural-subtyping
     	#top-type
     	#bottom-type
@@ -1399,7 +1383,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/ref-chai
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#references
     	#structural-subtyping
     	#top-type
     	#bottom-type
@@ -1447,7 +1430,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#references
     	#panic
     	#bottom-type
     	#arithmetic-operators
@@ -1485,7 +1467,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#references
     	#panic
     	#bottom-type
     	#arithmetic-operators
@@ -1497,20 +1478,15 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/deref.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#references
     	#structural-subtyping
     	#top-type
     	#bottom-type
 "#]]
 
+#[should_panic(expected = "not yet implemented: typck Deref")]
 inferred_mem
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/inferred-mem.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#references
-"#]]
+=> expect![]
 
 invariant_ref_with_bot_in_ctx
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref-with-bot-in-ctx.stella")
@@ -1518,7 +1494,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref-with-bot-in-
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#references
     	#structural-subtyping
     	#top-type
     	#bottom-type
@@ -1530,7 +1505,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#references
     	#structural-subtyping
     	#top-type
     	#bottom-type
@@ -1542,20 +1516,15 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/ref-assign.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#references
     	#structural-subtyping
     	#top-type
     	#bottom-type
 "#]]
 
+#[should_panic(expected = "not yet implemented: typck Assign")]
 refs
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/refs.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#references
-"#]]
+=> expect![]
 
 sub_fn_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-fn-stack.stella")
@@ -1592,7 +1561,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#references
     	#panic
     	#structural-subtyping
     	#bottom-type
@@ -1623,7 +1591,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#references
     	#panic
     	#structural-subtyping
     	#bottom-type
