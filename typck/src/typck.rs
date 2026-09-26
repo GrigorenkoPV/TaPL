@@ -534,7 +534,14 @@ impl<'ctx> Context<'_, 'ctx> {
             Expr::Record(fields) => {
                 check_no_duplicate_field_names(fields)
                     .map_err(|field| Error::DuplicateRecordFields { expr, field })?;
-                todo!("infer {expr:?}")
+                Owned(Type::Record(
+                    fields
+                        .iter()
+                        .map(|Binding { name, value }| {
+                            Ok((Borrowed(name.as_ref()), self.infer(value)?.into_owned()))
+                        })
+                        .collect::<Result<_, _>>()?,
+                ))
             }
 
             Expr::Assign { .. }

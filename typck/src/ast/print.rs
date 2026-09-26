@@ -55,8 +55,13 @@ impl Display for Type<'_> {
                 paren_alt(f, |f| write!(f, "fn({}) -> {ret:#}", comma_sep(args)))
             }
             Self::Tuple(elements) => write!(f, "{{{}}}", comma_sep(elements)),
+            Self::Record(fields) => write!(
+                f,
+                "{{{}}}",
+                comma_sep_with(fields, |f, (name, ty)| write!(f, "{name} : {ty}"))
+            ),
 
-            Self::Sum { .. } | Self::Forall { .. } | Self::Record(..) | Self::Variant(..) => {
+            Self::Sum { .. } | Self::Forall { .. } | Self::Variant(..) => {
                 todo!("Display {self:?}")
             }
 

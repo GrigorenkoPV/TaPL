@@ -215,10 +215,17 @@ include_str!("../tests/Examples/fail/not-a-tuple-01.stella")
     but expected to be a tuple
 "#]]
 
-#[should_panic(expected="not yet implemented: infer Record")]
 not_a_tuple_02
 include_str!("../tests/Examples/fail/not-a-tuple-02.stella")
-=> expect![]
+=> expect![[r#"
+    5
+    ERROR_NOT_A_TUPLE
+    expression
+    	{current = n, next = succ(n)}
+    has type
+    	{current : Nat, next : Nat}
+    but expected to be a tuple
+"#]]
 
 undefined_var_01
 include_str!("../tests/Examples/fail/undefined-var-01.stella")
@@ -236,10 +243,17 @@ include_str!("../tests/Examples/fail/undefined-var-02.stella")
     undefined variable `increment_thrice`
 "#]]
 
-#[should_panic(expected="not yet implemented: infer Record")]
 unexpected_field_01
 include_str!("../tests/Examples/fail/unexpected-field-01.stella")
-=> expect![]
+=> expect![[r#"
+    17
+    ERROR_UNEXPECTED_FIELD_ACCESS
+    there is no field `c` in
+    	{a = true, b = 1}
+    which is a record with the following fields:
+    	a : Bool
+    	b : Nat
+"#]]
 
 unexpected_lambda_01
 include_str!("../tests/Examples/fail/unexpected-lambda-01.stella")
@@ -307,7 +321,6 @@ include_str!("../tests/Examples/pass/02.stella")
     	#arithmetic-operators
 "#]]
 
-#[should_panic(expected="not yet implemented: infer Record")]
 ascription2
 include_str!("../tests/Examples/pass/ascription.stella")
 => expect![]
