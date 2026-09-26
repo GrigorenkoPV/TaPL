@@ -1339,20 +1339,47 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_reference/primit
     	Unit
 "#]]
 
-#[should_panic(expected = "not yet implemented: infer Deref")]
+// FIXME: wrong error
 invariant_ref_with_bot
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invariant-ref-with-bot.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	x
+    has type
+    	&Bot
+    but expected to have type
+    	&{a : Nat, b : Bool}
+"#]]
 
-#[should_panic(expected = "not yet implemented: infer Deref")]
+// FIXME: wrong error
 invariant_ref_with_top_in_ctx
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invariant-ref-with-top-in-ctx.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	n
+    has type
+    	Top
+    but expected to have type
+    	{a : Nat, b : Bool}
+"#]]
 
-#[should_panic(expected = "not yet implemented: infer Deref")]
+// FIXME: wrong error
 invariant_ref_with_top
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invariant-ref-with-top.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	x
+    has type
+    	&Top
+    but expected to have type
+    	&{a : Nat, b : Bool}
+"#]]
 
 // FIXME: wrong error
 unexpected_subtype
@@ -1466,15 +1493,33 @@ inferred_mem
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/inferred-mem.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: infer Deref")]
+// FIXME: this is wrong
 invariant_ref_with_bot_in_ctx
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref-with-bot-in-ctx.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	n
+    has type
+    	Bot
+    but expected to have type
+    	{a : Nat, b : Bool}
+"#]]
 
-#[should_panic(expected = "not yet implemented: infer Deref")]
+// FIXME: this is wrong
 invariant_ref
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref.stella")
-=> expect![]
+=> expect![[r#"
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	x
+    has type
+    	&{b : Bool, a : Nat}
+    but expected to have type
+    	&{a : Nat, b : Bool}
+"#]]
 
 #[should_panic(expected = "not yet implemented: typck Assign")]
 ref_assign

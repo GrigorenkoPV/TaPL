@@ -52,7 +52,9 @@ impl<'ctx> Context<'_, 'ctx> {
                 Ok(())
             }
 
-            [Type::List(from), Type::List(to)] => self.check_ty_coerces(from, to),
+            [Type::List(from), Type::List(to)] | [Type::Ref(from), Type::Ref(to)] => {
+                self.check_ty_coerces(from, to)
+            }
 
             [Type::Tuple(from), Type::Tuple(to)] => {
                 if from.len() != to.len() {
@@ -75,7 +77,6 @@ impl<'ctx> Context<'_, 'ctx> {
                 }
                 Ok(())
             }
-
             [from, to] => {
                 assert_ne!(
                     mem::discriminant(from),

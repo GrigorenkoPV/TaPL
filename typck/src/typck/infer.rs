@@ -233,6 +233,13 @@ impl<'ctx> Context<'_, 'ctx> {
 
             Expr::New(expr) => Owned(Type::Ref(Box::new(self.infer(expr)?.into_owned()))),
             Expr::Address(_) => throw!(Error::AmbiguousReferenceType {}),
+            Expr::Deref(expr) => {
+                let actual = self.infer(expr)?.into_owned();
+                let Type::Ref(result) = actual else {
+                    throw!(Error::NotAReference { expr, actual })
+                };
+                Owned(*result)
+            }
 
             Expr::Not(expr) => {
                 self.ensure(expr, &Type::Bool)?;
@@ -326,7 +333,6 @@ impl<'ctx> Context<'_, 'ctx> {
             | Expr::BinOp { .. }
             | Expr::Cast { .. }
             | Expr::Match { .. }
-            | Expr::Deref(_)
             | Expr::TypeApplication { .. }
             | Expr::Throw(_)
             | Expr::TryCatch { .. }

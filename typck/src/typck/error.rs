@@ -239,8 +239,10 @@ pub(crate) enum Error<'src> {
     AmbiguousPanicType,
     /// Попытка разыменовать (`Deref`) или присвоить значение (`Assign`)
     /// выражению не ссылочного типа.
-    #[expect(dead_code, reason = "WIP")]
-    NotAReference,
+    NotAReference {
+        expr: &'src Expr<'src>,
+        actual: Type<'src>,
+    },
     /// Адрес памяти (`ConstMemory`) используется там,
     /// где ожидается тип, отличный от типа-ссылки (`TypeRef`).
     UnexpectedMemoryAddress {
@@ -429,6 +431,13 @@ impl fmt::Display for Error<'_> {
                 writeln!(
                     f,
                     "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to be a tuple"
+                )
+            }
+            Self::NotAReference { expr, actual } => {
+                debug_assert!(!matches!(actual, Type::Ref(_)), "So *is* a tuple?");
+                writeln!(
+                    f,
+                    "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to be a reference"
                 )
             }
 
@@ -630,7 +639,6 @@ impl fmt::Display for Error<'_> {
             | Self::UnexpectedNonNullaryVariantPattern
             | Self::UnexpectedNullaryVariantPattern
             | Self::ExceptionTypeNotDeclared
-            | Self::NotAReference
             | Self::UnexpectedSubtype
             | Self::OccursCheckInfiniteType
             | Self::NotAGenericFunction
@@ -696,7 +704,7 @@ impl Error<'_> {
             Error::AmbiguousThrowType => nz!(32),
             Error::AmbiguousReferenceType => nz!(33),
             Error::AmbiguousPanicType => nz!(34),
-            Error::NotAReference => nz!(35),
+            Error::NotAReference { .. } => nz!(35),
             Error::UnexpectedMemoryAddress { .. } => nz!(36),
             Error::UnexpectedReference { .. } => nz!(37),
             Error::UnexpectedSubtype => nz!(38),
