@@ -461,7 +461,12 @@ impl<'ctx> Context<'_, 'ctx> {
             }
 
             Expr::DotTuple { .. } => todo!("infer {expr:?}"),
-            Expr::Tuple(_) => todo!("infer {expr:?}"),
+            Expr::Tuple(elements) => Owned(Type::Tuple(
+                elements
+                    .iter()
+                    .map(|element| self.infer(element).map(Cow::into_owned))
+                    .collect::<Result<_, _>>()?,
+            )),
 
             Expr::Assign { .. }
             | Expr::Seq(_)
@@ -705,8 +710,9 @@ impl<'ctx> Context<'_, 'ctx> {
             }
 
             // Tuples
-            (Expr::Tuple { .. }, Type::Tuple { .. }) => todo!("typck {expr:?}"),
-            (Expr::DotTuple { .. }, ty) => todo!("typck {expr:?}"),
+            (Expr::Tuple(actual_elements), Type::Tuple(expected_elements)) => {
+                todo!("typck {expr:?}")
+            }
             (
                 Expr::Tuple(_),
                 Type::Bool
@@ -737,7 +743,8 @@ impl<'ctx> Context<'_, 'ctx> {
                 | Expr::Succ(_)
                 | Expr::NatPred(_)
                 | Expr::Ascription { .. }
-                | Expr::Application { .. },
+                | Expr::Application { .. }
+                | Expr::DotTuple { .. },
                 Type::Bool
                 | Type::Nat
                 | Type::Ref(_)

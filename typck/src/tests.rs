@@ -104,7 +104,7 @@ fn main(n : Nat) -> Nat {
 "
 => expect![]
 
-#[should_panic(expected="not yet implemented: typck DotTuple")]
+#[should_panic(expected="not yet implemented: infer DotTuple")]
 ambiguous_list_bad
 include_str!("../tests/Examples/fail/ambiguous-list.stella")
 => expect![]
@@ -189,7 +189,7 @@ include_str!("../tests/Examples/fail/not-a-record-01.stella")
     	#records
 "#]]
 
-#[should_panic(expected="not yet implemented: typck DotTuple")]
+#[should_panic(expected="not yet implemented: infer DotTuple")]
 not_a_tuple_01
 include_str!("../tests/Examples/fail/not-a-tuple-01.stella")
 => expect![]
@@ -988,12 +988,12 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_record/primitive.stel
     	#records
 "#]]
 
-#[should_panic(expected="not yet implemented: typck DotTuple")]
+#[should_panic(expected="not yet implemented: infer DotTuple")]
 not_a_tuple
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/not_a_tuple/primitive.stella")
 => expect![]
 
-#[should_panic(expected="not yet implemented: typck DotTuple")]
+#[should_panic(expected="not yet implemented: infer DotTuple")]
 tuple_index_out_of_bounds
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/tuple_index_out_of_bounds/primitive.stella")
 => expect![]
@@ -1178,7 +1178,7 @@ math
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/math.stella")
 => expect![]
 
-#[should_panic(expected="not yet implemented: typck DotTuple")]
+#[should_panic(expected="not yet implemented: infer DotTuple")]
 pairs
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/pairs.stella")
 => expect![]
