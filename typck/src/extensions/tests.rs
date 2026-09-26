@@ -100,7 +100,6 @@ fn check_everything_supported(stage: Stage) {
 }
 
 #[test]
-#[should_panic(expected = "Some Stage1 extensions are unsupported: {Variants}")]
 fn stage1() {
     check_everything_supported(Stage::Stage1);
 }

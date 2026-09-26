@@ -119,7 +119,6 @@ include_str!("../tests/Examples/fail/ambitious-injection-on-top.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#exceptions
     	#structural-subtyping
     	#top-type
@@ -331,7 +330,6 @@ include_str!("../tests/Examples/pass/empty-list.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#exceptions
     	#structural-subtyping
     	#ambiguous-type-as-bottom
@@ -344,7 +342,6 @@ include_str!("../tests/Examples/pass/exception01.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
     	#let-patterns
     	#exceptions
@@ -375,7 +372,6 @@ include_str!("../tests/Examples/pass/match.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#nullary-variant-labels
 "#]]
 
@@ -582,7 +578,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-type
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#nullary-variant-labels
 "#]]
 
@@ -592,7 +587,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-type
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#nullary-variant-labels
 "#]]
 
@@ -602,7 +596,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-type
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
     	#nullary-variant-labels
 "#]]
@@ -613,7 +606,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/ill-type
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
     	#nullary-variant-labels
 "#]]
@@ -624,7 +616,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/well-typ
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
     	#nullary-variant-labels
 "#]]
@@ -635,7 +626,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/nullary-variant-labels/well-typ
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#nullary-variant-labels
 "#]]
 
@@ -645,7 +635,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/d
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -655,7 +644,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -665,7 +653,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -675,7 +662,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -685,7 +671,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -695,7 +680,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -714,7 +698,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -724,7 +707,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/n
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -734,7 +716,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/u
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -744,7 +725,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/u
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -754,7 +734,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/ill-typed/u
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -764,7 +743,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -774,7 +752,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -784,7 +761,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -794,7 +770,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -813,7 +788,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -823,7 +797,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -833,7 +806,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/structural-patterns/well-typed/
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -857,7 +829,6 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/ambiguous_variant_type/prim
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#structural-patterns
 "#]]
 
@@ -889,10 +860,9 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_record_type_field
 duplicate_variant_type_fields
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_variant_type_fields/primitive.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#variants
+    29
+    ERROR_DUPLICATE_VARIANT_TYPE_FIELDS
+    `num` is declared more than once
 "#]]
 
 #[should_panic(expected = "not yet implemented: typck Match")]
@@ -1069,14 +1039,10 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_list/primitive.s
     	Nat
 "#]]
 
+#[should_panic(expected = "not yet implemented: typck Match")]
 unexpected_pattern_for_type
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_pattern_for_type/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#variants
-"#]]
+=> expect![]
 
 unexpected_record
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_record/primitive.stella")
@@ -1146,23 +1112,15 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_type_for_paramet
     	Nat
 "#]]
 
+#[should_panic(expected = "not yet implemented: typck Variant")]
 unexpected_variant
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_variant/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#variants
-"#]]
+=> expect![]
 
+#[should_panic(expected = "not yet implemented: typck Variant")]
 unexpected_variant_label
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_variant_label/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#variants
-"#]]
+=> expect![]
 
 abstraction
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/abstraction.stella")
@@ -1248,7 +1206,6 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typ
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#exception-type-declaration
     	#open-variant-exceptions
 "#]]
@@ -1259,7 +1216,6 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typ
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#exception-type-declaration
 "#]]
 
@@ -1269,7 +1225,6 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typ
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#exception-type-declaration
     	#open-variant-exceptions
 "#]]
@@ -1280,7 +1235,6 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typ
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#exception-type-declaration
 "#]]
 
@@ -1290,7 +1244,6 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typ
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#exception-type-declaration
     	#open-variant-exceptions
 "#]]
@@ -1301,7 +1254,6 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/well-ty
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#exceptions
     	#exception-type-declaration
     	#open-variant-exceptions
@@ -1510,7 +1462,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#sequencing
     	#references
     	#bottom-type
@@ -1549,7 +1500,6 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#sequencing
     	#references
     	#bottom-type
@@ -1664,7 +1614,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#sequencing
     	#references
     	#structural-subtyping
@@ -1696,7 +1645,6 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#variants
     	#sequencing
     	#references
     	#structural-subtyping

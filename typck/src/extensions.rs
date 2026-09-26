@@ -96,10 +96,10 @@ impl Extension {
             | Self::Pairs
             | Self::Tuples
             | Self::Records
+            | Self::Variants
             | Self::UnitType => true,
 
-            Self::Variants
-            | Self::StructuralPatterns
+            Self::StructuralPatterns
             | Self::NullaryVariantLabels
             | Self::LetrecBindings
             | Self::PatternAscriptions
