@@ -2,7 +2,6 @@ language core;
 
 extend with
   #tuples,
-  #arithmetic-operators,
   #natural-literals;
 
 extend with

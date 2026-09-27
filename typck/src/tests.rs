@@ -313,7 +313,6 @@ include_str!("../tests/Examples/pass/02.stella")
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
     	#structural-patterns
-    	#arithmetic-operators
 "#]]
 
 ascription2
@@ -343,18 +342,9 @@ include_str!("../tests/Examples/pass/exception01.stella")
     	#open-variant-exceptions
 "#]]
 
-letrec
-include_str!("../tests/Examples/pass/letrec.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#structural-patterns
-    	#letrec-bindings
-    	#pattern-ascriptions
-    	#let-patterns
-    	#arithmetic-operators
-"#]]
+cons
+include_str!("../tests/Examples/pass/cons.stella")
+=> expect![]
 
 #[should_panic(expected = "not yet implemented: check match")]
 match_
@@ -1458,10 +1448,14 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
 sub_stack_bad
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-stack.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#arithmetic-operators
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	test(n)
+    has type
+    	{a : <|c: Nat|>, b : Bool}
+    but expected to have type
+    	{a : <|c: Nat, d: Bool|>}
 "#]]
 
 sub_sum_stack_bad
@@ -1493,10 +1487,14 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
 sub_var_stack_bad
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_expression/sub-var-stack.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#arithmetic-operators
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	test(n)
+    has type
+    	<|c: <|c: Nat|>|>
+    but expected to have type
+    	<|c: <|c: Nat, d: Bool|>, d: Bool|>
 "#]]
 
 // FIXME: this is wrong
@@ -1608,10 +1606,14 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-rec-stack.stella")
 sub_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#arithmetic-operators
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	test(n)
+    has type
+    	{a : <|c: Nat|>, b : Bool}
+    but expected to have type
+    	{a : <|c: Nat, d: Bool|>}
 "#]]
 
 /// FIXME: this is wrong
@@ -1642,13 +1644,18 @@ include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-tuple-stack.stella")
     	{{a : Nat}, Nat}
 "#]]
 
+/// FIXME: this is wrong
 sub_var_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#arithmetic-operators
+    3
+    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    expression
+    	test(n)
+    has type
+    	<|c: <|c: Nat|>|>
+    but expected to have type
+    	<|c: <|c: Nat, d: Bool|>, d: Bool|>
 "#]]
 
 sum_type

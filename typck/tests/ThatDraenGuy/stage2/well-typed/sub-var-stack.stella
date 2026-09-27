@@ -3,7 +3,6 @@ language core;
 extend with
   #unit-type,
   #references,
-  #arithmetic-operators,
   #sequencing,
   #natural-literals,
   #structural-subtyping;

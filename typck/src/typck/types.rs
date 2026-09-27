@@ -77,6 +77,22 @@ impl<'ctx> Context<'_, 'ctx> {
                 }
                 Ok(())
             }
+            [Type::Variant(from), Type::Variant(to)] => {
+                if from.len() != to.len() {
+                    throw!(())
+                }
+                for ((from_name, from), (to_name, to)) in zip(from, to) {
+                    if from_name != to_name {
+                        throw!(())
+                    }
+                    match [from, to] {
+                        [None, None] => Ok(()),
+                        [None, Some(_)] | [Some(_), None] => Err(()),
+                        [Some(from), Some(to)] => self.check_ty_coerces(from, to),
+                    }?
+                }
+                Ok(())
+            }
             [from, to] => {
                 assert_ne!(
                     mem::discriminant(from),
