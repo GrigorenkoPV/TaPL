@@ -274,23 +274,29 @@ impl<'ctx> Context<'_, 'ctx> {
                 check_no_duplicate_field_names(actual_fields)
                     .map_err(|field| Error::DuplicateRecordFields { expr, field })?;
                 for Binding { name, value } in actual_fields {
-                    self.ensure(
-                        value,
-                        expected_fields
-                            .iter()
-                            .find_map(|(expected_name, expected_ty)| {
-                                if name == expected_name {
-                                    Some(expected_ty)
-                                } else {
-                                    None
-                                }
-                            })
-                            .ok_or(Error::UnexpectedRecordFields {
-                                actual: expr,
-                                expected: expected.to_owned(),
-                                unexpected: Borrowed(name),
-                            })?,
-                    )?
+                    match expected_fields
+                        .iter()
+                        .find_map(|(expected_name, expected_ty)| {
+                            if name == expected_name {
+                                Some(expected_ty)
+                            } else {
+                                None
+                            }
+                        }) {
+                        Some(expected_ty) => self.ensure(value, expected_ty)?,
+                        None => {
+                            if self.structural_subtyping {
+                                let inferred = self.infer(value)?;
+                                drop(inferred);
+                            } else {
+                                throw!(Error::UnexpectedRecordFields {
+                                    actual: expr,
+                                    expected: expected.to_owned(),
+                                    unexpected: Borrowed(name),
+                                })
+                            }
+                        }
+                    }
                 }
 
                 for (needle, _) in expected_fields {
@@ -407,14 +413,27 @@ impl<'ctx> Context<'_, 'ctx> {
             }),
 
             // ref consumption
-            (Expr::Deref(expr), expected) => {
-                self.ensure(
-                    expr,
+            (Expr::Deref(inner), expected) => {
+                match self.ensure(
+                    inner,
                     &Type::Ref(
                         // FIXME: `Rc` / `Cow`
                         Box::new(expected.to_owned()),
                     ),
-                )?
+                ) {
+                    // References are invariant, but dereferencing is covariant
+                    Err(_) if self.structural_subtyping => {
+                        let actual = self.infer(inner)?;
+                        let Type::Ref(actual) = actual.as_ref() else {
+                            throw!(Error::NotAReference {
+                                expr,
+                                actual: actual.into_owned()
+                            })
+                        };
+                        self.check_subtype(actual, expected, Some(expr))?
+                    }
+                    otherwise => otherwise?,
+                }
             }
 
             // fallback to infer + check_ty_coerces

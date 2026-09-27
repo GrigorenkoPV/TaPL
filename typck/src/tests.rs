@@ -351,18 +351,9 @@ match_
 include_str!("../tests/Examples/pass/match.stella")
 => expect![]
 
-// FIXME: this is wrong
 sub_asc
 include_str!("../tests/Examples/pass/sub-asc.stella")
-=> expect![[r#"
-    16
-    ERROR_UNEXPECTED_RECORD_FIELDS
-    expected
-    	{a = 0, b = true, c = unit}
-    to be
-    	{a : Nat, b : Bool}
-    but it has an unexpected field `c`
-"#]]
+=> expect![]
 
 sub_match
 include_str!("../tests/Examples/pass/sub-match.stella")
@@ -1483,18 +1474,9 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     	<|c: <|c: Nat, d: Bool|>, d: Bool|>
 "#]]
 
-// FIXME: this is wrong
 deref
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/deref.stella")
-=> expect![[r#"
-    15
-    ERROR_MISSING_RECORD_FIELDS
-    expected
-    	{a : Nat}
-    to be a subtype of
-    	{a : Nat, b : Bool}
-    but it is missing field `b`
-"#]]
+=> expect![]
 
 inferred_mem
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/inferred-mem.stella")
