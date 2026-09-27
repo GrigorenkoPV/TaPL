@@ -127,8 +127,33 @@ impl<'ctx> Context<'_, 'ctx> {
                 Ok(())
             }
 
-            [Type::Variant(from), Type::Variant(to)] => {
-                todo!("subtyping of variants")
+            [
+                Type::Variant(actual_variant),
+                Type::Variant(expected_variant),
+            ] => {
+                for (actual_label, actual_data) in actual_variant {
+                    let Some(expected_data) = expected_variant.iter().find_map(|(label, data)| {
+                        if label == actual_label {
+                            Some(data)
+                        } else {
+                            None
+                        }
+                    }) else {
+                        throw!(Error::<'ctx>::UnexpectedVariantLabel {
+                            expected: expected.clone(),
+                            actual: actual_label.clone()
+                        })
+                    };
+                    match [actual_data, expected_data] {
+                        [Some(_) | None, None] => Ok(()),
+                        [None, Some(to)] => Err(Error::MissingDataForLabel {
+                            label: actual_label.clone(),
+                            expected: to.clone(),
+                        }),
+                        [Some(from), Some(to)] => self.check_subtype(from, to, None),
+                    }?
+                }
+                Ok(())
             }
 
             // No special handling

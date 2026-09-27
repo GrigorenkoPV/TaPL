@@ -1528,7 +1528,6 @@ sub_rec_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-rec-stack.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: subtyping of variants")]
 sub_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
 => expect![]
@@ -1541,7 +1540,6 @@ sub_tuple_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-tuple-stack.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: subtyping of variants")]
 sub_var_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
 => expect![]
