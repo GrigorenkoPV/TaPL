@@ -38,12 +38,6 @@ impl<'ctx> Context<'_, 'ctx> {
                 unreachable!("stage 1: infer {expr:?}")
             }
 
-            // Stage 2
-            Expr::Cast { .. } => {
-                const { debug_assert!(!Extension::TypeCast.supported(), "TODO") }
-                unreachable!("stage 2: infer {expr:?}")
-            }
-
             Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. } => {
                 const { debug_assert!(!Extension::Exceptions.supported(), "TODO") }
                 unreachable!("stage 2: infer {expr:?}")
@@ -195,6 +189,11 @@ impl<'ctx> Context<'_, 'ctx> {
 
             Expr::Ascription { expr, ty } => {
                 self.ensure(expr, ty)?;
+                Borrowed(ty)
+            }
+            Expr::Cast { expr, ty } => {
+                let inferred = self.infer(expr)?;
+                drop(inferred);
                 Borrowed(ty)
             }
 

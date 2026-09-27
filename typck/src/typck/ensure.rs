@@ -46,24 +46,6 @@ impl<'ctx> Context<'_, 'ctx> {
                 unreachable!("stage 1: ensure {expr:?} is {expected:?}")
             }
 
-            // Stage 2
-            (
-                Expr::Cast { .. },
-                Type::Bool
-                | Type::Nat
-                | Type::Ref(_)
-                | Type::Sum { .. }
-                | Type::Fn { .. }
-                | Type::Tuple(_)
-                | Type::Record(_)
-                | Type::Variant(_)
-                | Type::List(_)
-                | Type::Unit,
-            ) => {
-                const { debug_assert!(!Extension::TypeCast.supported(), "TODO") }
-                unreachable!("stage 2: ensure {expr:?} is {expected:?}")
-            }
-
             (
                 Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. },
                 Type::Bool
@@ -537,6 +519,12 @@ impl<'ctx> Context<'_, 'ctx> {
                 }
             }
 
+            (Expr::Cast { expr: inner, ty }, expected) => {
+                let actual = self.infer(inner)?;
+                drop(actual);
+                self.check_coe(Borrowed(ty), expected, expr)?
+            }
+
             // fallback to infer + check_ty_coerces
             (
                 Expr::Var(_)
@@ -567,15 +555,7 @@ impl<'ctx> Context<'_, 'ctx> {
             )
             | (_, Type::Bot | Type::Top) => {
                 let actual = self.infer(expr)?;
-                if self.structural_subtyping {
-                    self.check_subtype(actual.as_ref(), expected, Some(expr))?
-                } else if expected != actual.as_ref() {
-                    throw!(Error::UnexpectedTypeForExpression {
-                        expr,
-                        actual: actual.into_owned(),
-                        expected: expected.to_owned(),
-                    })
-                }
+                self.check_coe(actual, expected, expr)?
             }
         }
         Ok(())

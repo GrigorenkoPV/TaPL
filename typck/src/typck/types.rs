@@ -1,10 +1,11 @@
 use core::iter::zip;
 
-use culpa::throw;
+use culpa::{throw, throws};
 
 use crate::{
     ast::{Expr, Type},
     extensions::{Extension, unsupported},
+    typck::Typed,
 };
 
 use super::{
@@ -13,6 +14,24 @@ use super::{
 };
 
 impl<'ctx> Context<'_, 'ctx> {
+    #[throws(Error<'ctx>)]
+    pub(super) fn check_coe(
+        &self,
+        actual: Typed<'ctx>,
+        expected: &Type<'ctx>,
+        expr: &'ctx Expr<'ctx>,
+    ) {
+        if self.structural_subtyping {
+            self.check_subtype(actual.as_ref(), expected, Some(expr))?
+        } else if expected != actual.as_ref() {
+            throw!(Error::UnexpectedTypeForExpression {
+                expr,
+                actual: actual.into_owned(),
+                expected: expected.to_owned(),
+            })
+        }
+    }
+
     #[expect(clippy::too_many_lines, reason = "big switch")]
     pub(super) fn check_subtype(
         &self,
