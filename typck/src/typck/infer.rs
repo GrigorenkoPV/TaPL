@@ -240,6 +240,17 @@ impl<'ctx> Context<'_, 'ctx> {
                 };
                 Owned(*result)
             }
+            Expr::Assign { lhs, rhs } => {
+                let ref_t = self.infer(lhs)?;
+                let Type::Ref(expected) = ref_t.as_ref() else {
+                    throw!(Error::NotAReference {
+                        expr: lhs,
+                        actual: ref_t.into_owned(),
+                    })
+                };
+                self.ensure(rhs, expected)?;
+                Owned(Type::Unit)
+            }
 
             Expr::Not(expr) => {
                 self.ensure(expr, &Type::Bool)?;
@@ -340,10 +351,6 @@ impl<'ctx> Context<'_, 'ctx> {
             }
 
             // Stage 2
-            Expr::Assign { .. } => {
-                todo!("infer {expr:?}")
-            }
-
             Expr::Cast { .. } => {
                 debug_assert!(!Extension::TypeCast.supported(), "TODO");
                 unreachable!("stage 2: infer {expr:?}")
