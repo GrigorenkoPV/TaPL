@@ -18,6 +18,12 @@ fn subextensions() {
             "it's nullary VARIANT labels"
         )
     }
+    if Extension::Exceptions.supported() {
+        assert!(
+            Extension::ExceptionTypeDeclaration.supported(),
+            "throwing an untyped exception?"
+        )
+    }
 }
 
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]

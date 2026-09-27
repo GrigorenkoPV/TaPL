@@ -19,6 +19,50 @@ impl<'ctx> Context<'_, 'ctx> {
     #[expect(clippy::too_many_lines, reason = "big match")]
     pub(super) fn infer(&self, expr: &'ctx Expr<'ctx>) -> Result<Typed<'ctx>, Error<'ctx>> {
         Ok(match expr {
+            // Unsupported:
+
+            // Unknown stage
+            Expr::BinOp { .. } => {
+                const { debug_assert!(!Extension::ArithmeticOperators.supported(), "TODO") }
+                unreachable!("infer {expr:?}")
+            }
+
+            // Stage 1
+            Expr::Match { .. } => {
+                todo!("infer match")
+            }
+
+            // Stage 1 (optional)
+            Expr::Let { rec: true, .. } => {
+                const { debug_assert!(!Extension::LetrecBindings.supported(), "TODO") }
+                unreachable!("stage 1: infer {expr:?}")
+            }
+
+            // Stage 2
+            Expr::Cast { .. } => {
+                const { debug_assert!(!Extension::TypeCast.supported(), "TODO") }
+                unreachable!("stage 2: infer {expr:?}")
+            }
+
+            Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. } => {
+                const { debug_assert!(!Extension::Exceptions.supported(), "TODO") }
+                unreachable!("stage 2: infer {expr:?}")
+            }
+
+            // Stage 2 (optional)
+            Expr::TryCastAs { .. } => {
+                const { debug_assert!(!Extension::TryCastAs.supported(), "TODO") }
+                unreachable!("stage 2: infer {expr:?}")
+            }
+
+            // Stage 3
+            Expr::Generic { .. } | Expr::TypeApplication { .. } => {
+                const { debug_assert!(!Extension::UniversalTypes.supported(), "TODO") }
+                unreachable!("stage 3: infer {expr:?}")
+            }
+
+            Expr::Fold { .. } | Expr::Unfold { .. } => unsupported::fold_unfold(expr),
+
             Expr::True | Expr::False => Owned(Type::Bool),
             Expr::Unit => Owned(Type::Unit),
             Expr::Integer(_) => Owned(Type::Nat),
@@ -51,13 +95,10 @@ impl<'ctx> Context<'_, 'ctx> {
             }
 
             Expr::Let {
-                rec,
+                rec: false,
                 bindings,
                 body,
             } => {
-                if *rec {
-                    todo!("infer letrec")
-                }
                 let mut ctx = self.new_scope();
                 ctx.check_bindings(bindings)?;
                 ctx.infer(body)?
@@ -338,42 +379,6 @@ impl<'ctx> Context<'_, 'ctx> {
                     throw!(Error::AmbiguousPanicType {})
                 }
             }
-
-            // Unknown stage
-            Expr::BinOp { .. } => {
-                debug_assert!(!Extension::ArithmeticOperators.supported(), "TODO");
-                unreachable!("infer {expr:?}")
-            }
-
-            // Stage 1
-            Expr::Match { .. } => {
-                todo!("infer match")
-            }
-
-            // Stage 2
-            Expr::Cast { .. } => {
-                debug_assert!(!Extension::TypeCast.supported(), "TODO");
-                unreachable!("stage 2: infer {expr:?}")
-            }
-
-            Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. } => {
-                debug_assert!(!Extension::Exceptions.supported(), "TODO");
-                unreachable!("stage 2: infer {expr:?}")
-            }
-
-            // Stage 2 (optional)
-            Expr::TryCastAs { .. } => {
-                debug_assert!(!Extension::TryCastAs.supported(), "TODO");
-                unreachable!("stage 2: infer {expr:?}")
-            }
-
-            // Stage 3
-            Expr::Generic { .. } | Expr::TypeApplication { .. } => {
-                debug_assert!(!Extension::UniversalTypes.supported(), "TODO");
-                unreachable!("stage 3: infer {expr:?}")
-            }
-
-            Expr::Fold { .. } | Expr::Unfold { .. } => unsupported::fold_unfold(expr),
         })
     }
 }

@@ -23,6 +23,105 @@ impl<'ctx> Context<'_, 'ctx> {
             (e @ (Expr::Fold { .. } | Expr::Unfold { .. }), _) => unsupported::fold_unfold(e),
             (_, t @ Type::Rec { .. }) => unsupported::mu(t),
 
+            // Unknown stage
+            (
+                Expr::BinOp { .. },
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => {
+                const { debug_assert!(!Extension::ArithmeticOperators.supported(), "TODO") }
+                unreachable!("ensure {expr:?} is {expected:?}")
+            }
+            // Stage 1 (optional)
+            (Expr::Let { rec: true, .. }, _) => {
+                const { debug_assert!(!Extension::LetrecBindings.supported(), "TODO") }
+                unreachable!("stage 1: ensure {expr:?} is {expected:?}")
+            }
+
+            // Stage 2
+            (
+                Expr::Cast { .. },
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => {
+                const { debug_assert!(!Extension::TypeCast.supported(), "TODO") }
+                unreachable!("stage 2: ensure {expr:?} is {expected:?}")
+            }
+
+            (
+                Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. },
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => {
+                const { debug_assert!(!Extension::Exceptions.supported(), "TODO") }
+                unreachable!("stage 2: ensure {expr:?} is {expected:?}")
+            }
+
+            // Stage 2 (optional)
+            (
+                Expr::TryCastAs { .. },
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => {
+                const { debug_assert!(!Extension::TryCastAs.supported(), "TODO") }
+                unreachable!("stage 2: ensure {expr:?} is {expected:?}")
+            }
+
+            // Stage 3
+            (
+                Expr::Generic { .. } | Expr::TypeApplication { .. },
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            )
+            | (_, Type::Forall { .. }) => {
+                const { debug_assert!(!Extension::UniversalTypes.supported(), "TODO") }
+                unreachable!("stage 3: ensure {expr:?} is {expected:?}")
+            }
+            (_, Type::Auto) => {
+                const { debug_assert!(!Extension::TypeReconstruction.supported(), "TODO") }
+                unreachable!("stage 3: ensure {expr:?} is {expected:?}")
+            }
+
             // TypeAliases
             (expr, Type::Var(var)) => {
                 let expected = self
@@ -37,15 +136,12 @@ impl<'ctx> Context<'_, 'ctx> {
             // Let
             (
                 Expr::Let {
-                    rec,
+                    rec: false,
                     bindings,
                     body,
                 },
                 ty,
             ) => {
-                if *rec {
-                    todo!("typck letrec")
-                }
                 let mut ctx = self.new_scope();
                 ctx.check_bindings(bindings)?;
                 ctx.ensure(body, ty)?
@@ -480,100 +576,6 @@ impl<'ctx> Context<'_, 'ctx> {
                         expected: expected.to_owned(),
                     })
                 }
-            }
-
-            // Unknown stage
-            (
-                Expr::BinOp { .. },
-                Type::Bool
-                | Type::Nat
-                | Type::Ref(_)
-                | Type::Sum { .. }
-                | Type::Fn { .. }
-                | Type::Tuple(_)
-                | Type::Record(_)
-                | Type::Variant(_)
-                | Type::List(_)
-                | Type::Unit,
-            ) => {
-                debug_assert!(!Extension::ArithmeticOperators.supported(), "TODO");
-                unreachable!("ensure {expr:?} is {expected:?}")
-            }
-
-            // Stage 2
-            (
-                Expr::Cast { .. },
-                Type::Bool
-                | Type::Nat
-                | Type::Ref(_)
-                | Type::Sum { .. }
-                | Type::Fn { .. }
-                | Type::Tuple(_)
-                | Type::Record(_)
-                | Type::Variant(_)
-                | Type::List(_)
-                | Type::Unit,
-            ) => {
-                debug_assert!(!Extension::TypeCast.supported(), "TODO");
-                unreachable!("stage 2: ensure {expr:?} is {expected:?}")
-            }
-
-            (
-                Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. },
-                Type::Bool
-                | Type::Nat
-                | Type::Ref(_)
-                | Type::Sum { .. }
-                | Type::Fn { .. }
-                | Type::Tuple(_)
-                | Type::Record(_)
-                | Type::Variant(_)
-                | Type::List(_)
-                | Type::Unit,
-            ) => {
-                debug_assert!(!Extension::Exceptions.supported(), "TODO");
-                unreachable!("stage 2: ensure {expr:?} is {expected:?}")
-            }
-
-            // Stage 2 (optional)
-            (
-                Expr::TryCastAs { .. },
-                Type::Bool
-                | Type::Nat
-                | Type::Ref(_)
-                | Type::Sum { .. }
-                | Type::Fn { .. }
-                | Type::Tuple(_)
-                | Type::Record(_)
-                | Type::Variant(_)
-                | Type::List(_)
-                | Type::Unit,
-            ) => {
-                debug_assert!(!Extension::TryCastAs.supported(), "TODO");
-                unreachable!("stage 2: ensure {expr:?} is {expected:?}")
-            }
-
-            // Stage 3
-            (
-                Expr::Generic { .. } | Expr::TypeApplication { .. },
-                Type::Bool
-                | Type::Nat
-                | Type::Ref(_)
-                | Type::Sum { .. }
-                | Type::Fn { .. }
-                | Type::Tuple(_)
-                | Type::Record(_)
-                | Type::Variant(_)
-                | Type::List(_)
-                | Type::Unit,
-            )
-            | (_, Type::Forall { .. }) => {
-                debug_assert!(!Extension::UniversalTypes.supported(), "TODO");
-                unreachable!("stage 3: ensure {expr:?} is {expected:?}")
-            }
-            (_, Type::Auto) => {
-                debug_assert!(!Extension::TypeReconstruction.supported(), "TODO");
-                unreachable!("stage 3: ensure {expr:?} is {expected:?}")
             }
         }
         Ok(())

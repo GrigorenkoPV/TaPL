@@ -7,7 +7,7 @@ use culpa::{throw, throws};
 
 use crate::{
     ast::{Decl, Function, Type},
-    extensions::unsupported,
+    extensions::{Extension, unsupported},
 };
 
 use super::{Context, Error};
@@ -32,7 +32,14 @@ impl<'ctx> Context<'_, 'ctx> {
                         todo!("Duplicate type alias {name:?}: old: {old:?}, new: {new:?}")
                     })?
             }
-            Decl::ExceptionType(_) | Decl::ExceptionVariant { .. } => todo!(),
+            Decl::ExceptionType(_) => {
+                const { debug_assert!(!Extension::ExceptionTypeDeclaration.supported(), "TODO") }
+                unreachable!()
+            }
+            Decl::ExceptionVariant { .. } => {
+                const { debug_assert!(!Extension::OpenVariantExceptions.supported(), "TODO") }
+                unreachable!()
+            }
         }
     }
 
