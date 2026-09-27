@@ -1183,8 +1183,6 @@ illegal_local_open_variant_exception
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/illegal_local_open_variant_exception/primitive.stella")
 => expect![]
 
-
-#[should_panic(expected = "not yet implemented: ensure Throw")]
 open_variant_exceptions
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/well-typed/primitive.stella")
 => expect![]

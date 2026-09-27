@@ -1,6 +1,6 @@
 use std::{
-    borrow::Cow::{self, Borrowed},
-    collections::{HashMap, HashSet},
+    borrow::Cow::{self, Borrowed, Owned},
+    collections::{HashSet, btree_map::BTreeMap},
 };
 
 use culpa::{throw, throws};
@@ -55,7 +55,24 @@ enum ExceptionType<'ctx, 'src> {
     None,
     FromParent(&'ctx ExceptionType<'ctx, 'src>),
     Simple(&'src Type<'src>),
-    Open(HashMap<Ident<'src>, &'src Type<'src>>),
+    Open(BTreeMap<Ident<'src>, &'src Type<'src>>),
+}
+
+impl<'src> ExceptionType<'_, 'src> {
+    #[must_use]
+    fn get_exception_type(&self) -> Option<Cow<'src, Type<'src>>> {
+        match self {
+            Self::None => None,
+            Self::FromParent(parent) => parent.get_exception_type(),
+            Self::Simple(ty) => Some(Borrowed(ty)),
+            Self::Open(variants) => Some(Owned(Type::Variant(
+                variants
+                    .iter()
+                    .map(|(label, &data)| (label.clone(), Some(data.to_owned())))
+                    .collect(),
+            ))),
+        }
+    }
 }
 
 struct Context<'ctx, 'src> {
@@ -118,6 +135,12 @@ impl<'src> Context<'_, 'src> {
             ambiguous_type_as_bottom,
             structural_subtyping,
         }
+    }
+
+    fn get_exception_type(&self) -> Result<Cow<'src, Type<'src>>, Error<'src>> {
+        self.exception_type
+            .get_exception_type()
+            .ok_or(Error::ExceptionTypeNotDeclared {})
     }
 }
 

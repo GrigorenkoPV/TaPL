@@ -376,7 +376,23 @@ impl<'src> Context<'_, 'src> {
                 todo!("infer match")
             }
 
-            Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. } => {
+            Expr::Throw(exc) => {
+                let exception_type = self.get_exception_type()?;
+                self.ensure(exc, &exception_type)?;
+                if self.ambiguous_type_as_bottom {
+                    Owned(Type::Bot)
+                } else {
+                    throw!(Error::AmbiguousThrowType {})
+                }
+            }
+
+            Expr::TryWith { r#try, with } => {
+                let result = self.infer(r#try)?;
+                self.ensure(with, &result)?;
+                result
+            }
+
+            Expr::TryCatch { .. } => {
                 todo!("infer {expr:?}")
             }
         })

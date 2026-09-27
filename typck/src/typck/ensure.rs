@@ -508,8 +508,18 @@ impl<'src> Context<'_, 'src> {
                 self.check_coe(Borrowed(ty), expected, expr)?
             }
 
+            (Expr::Throw(exc), _) => {
+                let exception_type = self.get_exception_type()?;
+                self.ensure(exc, &exception_type)?;
+            }
+
+            (Expr::TryWith { r#try, with }, expected) => {
+                self.ensure(r#try, expected)?;
+                self.ensure(with, expected)?;
+            }
+
             (
-                Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. },
+                Expr::TryCatch { .. },
                 Type::Bool
                 | Type::Nat
                 | Type::Ref(_)

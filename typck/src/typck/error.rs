@@ -237,11 +237,11 @@ pub(crate) enum Error<'src> {
     // Stage 2:
     //
     /// В программе используются исключения, но не объявлен их тип.
-    #[expect(dead_code, reason = "WIP")]
-    ExceptionTypeNotDeclared,
+    #[expect(clippy::empty_enum_variants_with_brackets, reason = "intentional")]
+    ExceptionTypeNotDeclared {},
     /// Неоднозначный тип `throw`-выражения (`Throw`).
-    #[expect(dead_code, reason = "WIP")]
-    AmbiguousThrowType,
+    #[expect(clippy::empty_enum_variants_with_brackets, reason = "intentional")]
+    AmbiguousThrowType {},
     /// Неоднозначный тип адреса памяти (`ConstMemory`).
     AmbiguousReferenceType,
     /// Неоднозначный тип ошибки (`Panic`).
@@ -682,13 +682,13 @@ impl fmt::Display for Error<'_> {
             Self::AmbiguousThrowType {} => writeln!(f, "cannot infer throw type"),
             Self::AmbiguousPanicType {} => writeln!(f, "cannot infer panic type"),
             Self::AmbiguousList {} => writeln!(f, "cannot infer element type of an empty list"),
+            Self::ExceptionTypeNotDeclared {} => Ok(()),
 
             Self::IllegalEmptyMatching
             | Self::NonexhaustiveMatchPatterns
             | Self::UnexpectedPatternForType
             | Self::UnexpectedNonNullaryVariantPattern
             | Self::UnexpectedNullaryVariantPattern
-            | Self::ExceptionTypeNotDeclared
             | Self::OccursCheckInfiniteType
             | Self::NotAGenericFunction
             | Self::IncorrectNumberOfTypeArguments => todo!("format Error::{self:?}"),
@@ -749,8 +749,8 @@ impl Error<'_> {
             | Error::DuplicateLetBinding(_)
             | Error::DuplicateTypeParameter(_) => nz!(117),
 
-            Error::ExceptionTypeNotDeclared => nz!(31),
-            Error::AmbiguousThrowType => nz!(32),
+            Error::ExceptionTypeNotDeclared {} => nz!(31),
+            Error::AmbiguousThrowType {} => nz!(32),
             Error::AmbiguousReferenceType => nz!(33),
             Error::AmbiguousPanicType => nz!(34),
             Error::NotAReference { .. } => nz!(35),
