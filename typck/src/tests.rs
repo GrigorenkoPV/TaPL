@@ -776,10 +776,14 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/ambiguous_list/primitive.st
     cannot infer element type of an empty list
 "#]]
 
-#[should_panic(expected = "not yet implemented: check match")]
 ambiguous_sum_type
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/ambiguous_sum_type/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    21
+    ERROR_AMBIGUOUS_SUM_TYPE
+    cannot infer type of an injection
+    	inl(0)
+"#]]
 
 ambiguous_variant_type
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/ambiguous_variant_type/primitive.stella")

@@ -367,6 +367,11 @@ impl<'ctx> Context<'_, 'ctx> {
                 expected: expected.to_owned()
             }),
 
+            (Expr::Match { switch, cases }, expected) => {
+                let switch_actual = self.infer(switch)?;
+                todo!("check match (_ : {switch_actual}) {cases:?} : {expected}")
+            }
+
             // Seq
             (Expr::Seq(seq), expected) => {
                 let [first, second] = seq.as_ref();
@@ -493,23 +498,6 @@ impl<'ctx> Context<'_, 'ctx> {
             ) => {
                 debug_assert!(!Extension::ArithmeticOperators.supported(), "TODO");
                 unreachable!("ensure {expr:?} is {expected:?}")
-            }
-
-            // Stage 1
-            (
-                Expr::Match { .. },
-                Type::Bool
-                | Type::Nat
-                | Type::Ref(_)
-                | Type::Sum { .. }
-                | Type::Fn { .. }
-                | Type::Tuple(_)
-                | Type::Record(_)
-                | Type::Variant(_)
-                | Type::List(_)
-                | Type::Unit,
-            ) => {
-                todo!("check match")
             }
 
             // Stage 2

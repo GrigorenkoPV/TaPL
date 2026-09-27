@@ -157,10 +157,10 @@ impl<'ctx> Context<'_, 'ctx> {
                 Borrowed(ty)
             }
 
-            Expr::Inl(expr) => {
+            Expr::Inl(inner) => {
                 if self.ambiguous_type_as_bottom {
                     Owned(Type::Sum {
-                        left: Box::new(self.infer(expr)?.into_owned()),
+                        left: Box::new(self.infer(inner)?.into_owned()),
                         right: Box::new(Type::Bot),
                     })
                 } else {
