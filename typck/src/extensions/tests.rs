@@ -111,9 +111,6 @@ fn stage1() {
 }
 
 #[test]
-#[should_panic(
-    expected = "Some Stage2 extensions are unsupported: {Exceptions, ExceptionTypeDeclaration}"
-)]
 fn stage2() {
     check_everything_supported(Stage::Stage2);
 }

@@ -114,11 +114,10 @@ include_str!("../tests/Examples/fail/ambiguous-list.stella")
 ambitious_injection_on_top
 include_str!("../tests/Examples/fail/ambitious-injection-on-top.stella")
 => expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#exceptions
-    	#open-variant-exceptions
+    21
+    ERROR_AMBIGUOUS_SUM_TYPE
+    cannot infer type of an injection
+    	inl(n)
 "#]]
 
 duplicate_func
@@ -321,13 +320,7 @@ include_str!("../tests/Examples/pass/ascription.stella")
 
 empty_list
 include_str!("../tests/Examples/pass/empty-list.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#exceptions
-    	#open-variant-exceptions
-"#]]
+=> expect![]
 
 exception01
 include_str!("../tests/Examples/pass/exception01.stella")
@@ -337,9 +330,6 @@ include_str!("../tests/Examples/pass/exception01.stella")
     the following unsupported extensions are enabled:
     	#structural-patterns
     	#let-patterns
-    	#exceptions
-    	#exception-type-declaration
-    	#open-variant-exceptions
 "#]]
 
 cons
@@ -1170,64 +1160,34 @@ unit
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/unit.stella")
 => expect![]
 
+#[should_panic(expected = "not yet implemented: report conflicted exception type")]
 conflicting_exception_declarations
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/conflicting_exception_declarations/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#exception-type-declaration
-    	#open-variant-exceptions
-"#]]
+=> expect![]
 
+#[should_panic(expected = "not yet implemented: report redefinition of exception type")]
 duplicate_exception_type
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/duplicate_exception_type/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#exception-type-declaration
-"#]]
+=> expect![]
 
+#[should_panic(expected = "not yet implemented: report redefinition of exception variant")]
 duplicate_exception_variant
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/duplicate_exception_variant/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#exception-type-declaration
-    	#open-variant-exceptions
-"#]]
+=> expect![]
 
 illegal_local_exception_type
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/illegal_local_exception_type/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#exception-type-declaration
-"#]]
+=> expect![]
 
 illegal_local_open_variant_exception
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/illegal_local_open_variant_exception/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#exception-type-declaration
-    	#open-variant-exceptions
-"#]]
+=> expect![]
 
+
+#[should_panic(expected = "not yet implemented: ensure Throw")]
 open_variant_exceptions
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/well-typed/primitive.stella")
-=> expect![[r#"
-    253
-    ERROR_UNSUPPORTED_EXTENSIONS
-    the following unsupported extensions are enabled:
-    	#exceptions
-    	#exception-type-declaration
-    	#open-variant-exceptions
-"#]]
+=> expect![]
 
 try_cast_as_bad
 include_str!("../tests/ThatDraenGuy/stage2/extra/try-cast-as/ill-typed/unexpected_type_for_expression/primitive.stella")

@@ -162,7 +162,7 @@ Decl: Decl<'input> = {
     Box<Function> => Decl::Function(<>),
     "type" <name: Ident> "=" <ty: Type> => Decl::TypeAlias { <> },
     "exception" "type" "=" <Type> => Decl::ExceptionType(<>),
-    "exception" "variant" <name: Ident> ":" <ty: Type> => Decl::ExceptionVariant { <> },
+    "exception" "variant" <label: Ident> ":" <data: Type> => Decl::ExceptionVariant { <> },
 }
 
 ReturnType: Option<Type<'input>> = ("->" <Type>)?;

@@ -46,23 +46,6 @@ impl<'src> Context<'_, 'src> {
                 unreachable!("stage 1: ensure {expr:?} is {expected:?}")
             }
 
-            (
-                Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. },
-                Type::Bool
-                | Type::Nat
-                | Type::Ref(_)
-                | Type::Sum { .. }
-                | Type::Fn { .. }
-                | Type::Tuple(_)
-                | Type::Record(_)
-                | Type::Variant(_)
-                | Type::List(_)
-                | Type::Unit,
-            ) => {
-                const { debug_assert!(!Extension::Exceptions.supported(), "TODO") }
-                unreachable!("stage 2: ensure {expr:?} is {expected:?}")
-            }
-
             // Stage 2 (optional)
             (
                 Expr::TryCastAs { .. },
@@ -523,6 +506,22 @@ impl<'src> Context<'_, 'src> {
                 let actual = self.infer(inner)?;
                 drop(actual);
                 self.check_coe(Borrowed(ty), expected, expr)?
+            }
+
+            (
+                Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. },
+                Type::Bool
+                | Type::Nat
+                | Type::Ref(_)
+                | Type::Sum { .. }
+                | Type::Fn { .. }
+                | Type::Tuple(_)
+                | Type::Record(_)
+                | Type::Variant(_)
+                | Type::List(_)
+                | Type::Unit,
+            ) => {
+                todo!("ensure {expr:?} is {expected:?}")
             }
 
             // fallback to infer + check_ty_coerces

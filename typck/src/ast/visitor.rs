@@ -128,7 +128,11 @@ impl<'src> HasVisitable<'src> for Decl<'src> {
     fn visit_inner_with(&self, v: &mut impl Visitor<'src>) {
         match self {
             Self::Function(function) => v.visit_function(function),
-            Self::TypeAlias { name, ty } | Self::ExceptionVariant { name, ty } => {
+            Self::TypeAlias { name, ty }
+            | Self::ExceptionVariant {
+                label: name,
+                data: ty,
+            } => {
                 v.visit_ident(name);
                 v.visit_ty(ty);
             }

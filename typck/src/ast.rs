@@ -53,8 +53,8 @@ pub(crate) enum Decl<'src> {
     },
     ExceptionType(Type<'src>),
     ExceptionVariant {
-        name: Ident<'src>,
-        ty: Type<'src>,
+        label: Ident<'src>,
+        data: Type<'src>,
     },
 }
 

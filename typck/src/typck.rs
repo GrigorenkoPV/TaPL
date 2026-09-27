@@ -1,6 +1,6 @@
 use std::{
     borrow::Cow::{self, Borrowed},
-    collections::HashSet,
+    collections::{HashMap, HashSet},
 };
 
 use culpa::{throw, throws};
@@ -51,9 +51,17 @@ fn check_main<'a>(program: &'a Program<'a>) {
 
 type Namespace<'ctx, 'src> = crate::namespace::Namespace<'ctx, Ident<'src>, Cow<'src, Type<'src>>>;
 
+enum ExceptionType<'ctx, 'src> {
+    None,
+    FromParent(&'ctx ExceptionType<'ctx, 'src>),
+    Simple(&'src Type<'src>),
+    Open(HashMap<Ident<'src>, &'src Type<'src>>),
+}
+
 struct Context<'ctx, 'src> {
     type_aliases: Namespace<'ctx, 'src>,
     variables: Namespace<'ctx, 'src>,
+    exception_type: ExceptionType<'ctx, 'src>,
     ambiguous_type_as_bottom: bool,
     structural_subtyping: bool,
 }
@@ -85,6 +93,7 @@ impl<'src> Context<'_, 'src> {
         Self {
             type_aliases: Namespace::empty(),
             variables: Namespace::empty(),
+            exception_type: ExceptionType::None,
             ambiguous_type_as_bottom: program
                 .extensions
                 .contains(&Extension::AmbiguousTypeAsBottom),
@@ -98,12 +107,14 @@ impl<'src> Context<'_, 'src> {
         let &Self {
             ref type_aliases,
             ref variables,
+            ref exception_type,
             ambiguous_type_as_bottom,
             structural_subtyping,
         } = self;
         Context {
             type_aliases: type_aliases.new_scope(),
             variables: variables.new_scope(),
+            exception_type: ExceptionType::FromParent(exception_type),
             ambiguous_type_as_bottom,
             structural_subtyping,
         }

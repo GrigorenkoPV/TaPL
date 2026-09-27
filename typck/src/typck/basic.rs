@@ -1,3 +1,4 @@
+use core::mem;
 use std::{
     borrow::Cow::{Borrowed, Owned},
     collections::HashSet,
@@ -6,11 +7,11 @@ use std::{
 use culpa::{throw, throws};
 
 use crate::{
-    ast::{Decl, Function, Type},
-    extensions::{Extension, unsupported},
+    ast::{Decl, Function, Ident, Type},
+    extensions::unsupported,
 };
 
-use super::{Context, Error};
+use super::{Context, Error, ExceptionType};
 
 impl<'src> Context<'_, 'src> {
     #[throws(Error<'src>)]
@@ -32,13 +33,27 @@ impl<'src> Context<'_, 'src> {
                         todo!("Duplicate type alias {name:?}: old: {old:?}, new: {new:?}")
                     })?
             }
-            Decl::ExceptionType(_) => {
-                const { debug_assert!(!Extension::ExceptionTypeDeclaration.supported(), "TODO") }
-                unreachable!()
+            Decl::ExceptionType(ty) => {
+                match mem::replace(&mut self.exception_type, ExceptionType::Simple(ty)) {
+                    ExceptionType::None | ExceptionType::FromParent(_) => {}
+                    ExceptionType::Simple(_) => todo!("report redefinition of exception type"),
+                    ExceptionType::Open(_) => todo!("report conflicted exception type"),
+                }
             }
-            Decl::ExceptionVariant { .. } => {
-                const { debug_assert!(!Extension::OpenVariantExceptions.supported(), "TODO") }
-                unreachable!()
+            Decl::ExceptionVariant { label, data } => {
+                let old_label = label;
+                let label: Ident<'src> = Borrowed(old_label);
+                match &mut self.exception_type {
+                    overridable @ (ExceptionType::None | ExceptionType::FromParent(_)) => {
+                        *overridable = ExceptionType::Open([(label, data)].into())
+                    }
+                    ExceptionType::Simple(_) => todo!("report conflicted exception type"),
+                    ExceptionType::Open(variants) => {
+                        if let Some(prev) = variants.insert(label, data) {
+                            todo!("report redefinition of exception variant: {old_label} = {prev}")
+                        }
+                    }
+                }
             }
         }
     }

@@ -30,20 +30,10 @@ impl<'src> Context<'_, 'src> {
                 unreachable!("infer {expr:?}")
             }
 
-            // Stage 1
-            Expr::Match { .. } => {
-                todo!("infer match")
-            }
-
             // Stage 1 (optional)
             Expr::Let { rec: true, .. } => {
                 const { debug_assert!(!Extension::LetrecBindings.supported(), "TODO") }
                 unreachable!("stage 1: infer {expr:?}")
-            }
-
-            Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. } => {
-                const { debug_assert!(!Extension::Exceptions.supported(), "TODO") }
-                unreachable!("stage 2: infer {expr:?}")
             }
 
             // Stage 2 (optional)
@@ -380,6 +370,14 @@ impl<'src> Context<'_, 'src> {
                 } else {
                     throw!(Error::AmbiguousPanicType {})
                 }
+            }
+
+            Expr::Match { .. } => {
+                todo!("infer match")
+            }
+
+            Expr::Throw(_) | Expr::TryWith { .. } | Expr::TryCatch { .. } => {
+                todo!("infer {expr:?}")
             }
         })
     }
