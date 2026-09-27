@@ -1288,10 +1288,19 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_reference_type/pr
     cannot infer reference type
 "#]]
 
-#[should_panic(expected = "not yet implemented: subtyping of records")]
 subtyping
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/missing_record_fields/subtyping.stella")
-=> expect![]
+=> expect![[r#"
+    15
+    ERROR_MISSING_RECORD_FIELDS
+    expected
+    	x
+    which is
+    	{a : Nat}
+    to be a subtype of
+    	{a : Nat, b : Bool}
+    but it is missing field `b`
+"#]]
 
 not_a_reference
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/not_a_reference/primitive.stella")

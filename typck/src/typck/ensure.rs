@@ -6,6 +6,7 @@ use culpa::throw;
 use crate::{
     ast::{Binding, Expr, Type},
     extensions::{Extension, unsupported},
+    typck::error::RecordWithMissingFields,
 };
 
 use super::{Context, Error, check_no_duplicate_field_names, nat_rec_step_type};
@@ -298,7 +299,7 @@ impl<'ctx> Context<'_, 'ctx> {
                         .any(|Binding { name, value: _ }| name == needle)
                     {
                         throw!(Error::MissingRecordFields {
-                            actual: expr,
+                            actual: RecordWithMissingFields::Literal(expr),
                             expected: expected.to_owned(),
                             missing: needle.clone()
                         })

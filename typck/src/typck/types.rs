@@ -7,7 +7,10 @@ use crate::{
     extensions::{Extension, unsupported},
 };
 
-use super::{Context, Error};
+use super::{
+    Context,
+    error::{Error, RecordWithMissingFields},
+};
 
 impl<'ctx> Context<'_, 'ctx> {
     #[expect(clippy::too_many_lines, reason = "big switch")]
@@ -28,6 +31,7 @@ impl<'ctx> Context<'_, 'ctx> {
             expr,
         };
 
+        let actual_expr = expr;
         #[expect(
             unused,
             reason = "prevent the function argument `expr` from being used
@@ -100,7 +104,19 @@ impl<'ctx> Context<'_, 'ctx> {
                 self.check_subtype(ret_from, ret_to, None)
             }
 
-            [Type::Record(from), Type::Record(to)] => {
+            [Type::Record(actual_fields), Type::Record(expected_fields)] => {
+                for (expected_name, _) in expected_fields {
+                    if !actual_fields.iter().any(|(name, _)| name == expected_name) {
+                        throw!(Error::<'ctx>::MissingRecordFields {
+                            actual: RecordWithMissingFields::Subtyping {
+                                actual_expr,
+                                actual_type: actual.to_owned()
+                            },
+                            expected: expected.to_owned(),
+                            missing: expected_name.clone(),
+                        })
+                    }
+                }
                 todo!("subtyping of records")
             }
 

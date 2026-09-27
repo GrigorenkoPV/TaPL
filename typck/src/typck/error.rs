@@ -6,6 +6,15 @@ use crate::{
     extensions::{Extension, Extensions},
 };
 
+#[derive(Debug)]
+pub(crate) enum RecordWithMissingFields<'src> {
+    Literal(&'src Expr<'src>),
+    Subtyping {
+        actual_expr: Option<&'src Expr<'src>>,
+        actual_type: Type<'src>,
+    },
+}
+
 #[derive(Debug, strum::IntoStaticStr)]
 #[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub(crate) enum Error<'src> {
@@ -104,7 +113,7 @@ pub(crate) enum Error<'src> {
     },
     /// В записи (`Record`) отсутствуют ожидаемые поля.
     MissingRecordFields {
-        actual: &'src Expr<'src>,
+        actual: RecordWithMissingFields<'src>,
         expected: Type<'src>,
         missing: Ident<'src>,
     },
@@ -601,16 +610,40 @@ impl fmt::Display for Error<'_> {
             }
 
             Self::MissingRecordFields {
-                actual,
+                actual: RecordWithMissingFields::Literal(actual),
                 expected,
                 missing,
             } => {
                 debug_assert_matches!(actual, Expr::Record(_));
                 debug_assert_matches!(expected, Type::Record(_));
+
                 // TODO: debug_assert that field is missing
                 writeln!(
                     f,
                     "expected\n\t{actual}\nto be\n\t{expected}\nbut it is missing field `{missing}`"
+                )
+            }
+            Self::MissingRecordFields {
+                actual:
+                    RecordWithMissingFields::Subtyping {
+                        actual_expr,
+                        actual_type,
+                    },
+                expected,
+                missing,
+            } => {
+                debug_assert_matches!(actual_type, Type::Record(_));
+                debug_assert_matches!(expected, Type::Record(_));
+                // TODO: debug_assert that field is missing
+                writeln!(
+                    f,
+                    "expected\n{}\t{actual_type}\nto be a subtype of\n\t{expected}\nbut it is missing field `{missing}`",
+                    fmt::from_fn(|f| {
+                        if let Some(actual_expr) = actual_expr {
+                            writeln!(f, "\t{actual_expr}\nwhich is")?
+                        }
+                        Ok(())
+                    })
                 )
             }
             Self::UnexpectedRecordFields {
