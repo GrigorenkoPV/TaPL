@@ -49,12 +49,11 @@ fn check_main<'a>(program: &'a Program<'a>) {
     }
 }
 
-type Typed<'ctx> = Cow<'ctx, Type<'ctx>>;
-type Namespace<'a, 'ctx> = crate::namespace::Namespace<'a, Ident<'ctx>, Typed<'ctx>>;
+type Namespace<'ctx, 'src> = crate::namespace::Namespace<'ctx, Ident<'src>, Cow<'src, Type<'src>>>;
 
-struct Context<'a, 'ctx> {
-    type_aliases: Namespace<'a, 'ctx>,
-    variables: Namespace<'a, 'ctx>,
+struct Context<'ctx, 'src> {
+    type_aliases: Namespace<'ctx, 'src>,
+    variables: Namespace<'ctx, 'src>,
     ambiguous_type_as_bottom: bool,
     structural_subtyping: bool,
 }
@@ -70,9 +69,9 @@ fn nat_rec_step_type(acc: Type<'_>) -> Type<'_> {
     }
 }
 
-#[throws(Ident<'ctx>)]
-fn check_no_duplicate_field_names<'ctx>(fields: &[Binding<'ctx>]) {
-    let mut seen = HashSet::<&'ctx str>::new();
+#[throws(Ident<'src>)]
+fn check_no_duplicate_field_names<'src>(fields: &[Binding<'src>]) {
+    let mut seen = HashSet::<&'src str>::new();
     for Binding { name, value: _ } in fields {
         if !seen.insert(name.as_ref()) {
             throw!(name.clone())
@@ -80,9 +79,9 @@ fn check_no_duplicate_field_names<'ctx>(fields: &[Binding<'ctx>]) {
     }
 }
 
-impl<'ctx> Context<'_, 'ctx> {
-    #[throws(Error<'ctx>)]
-    fn check_program(program: &'ctx Program<'ctx>) {
+impl<'src> Context<'_, 'src> {
+    #[throws(Error<'src>)]
+    fn check_program(program: &'src Program<'src>) {
         Self {
             type_aliases: Namespace::empty(),
             variables: Namespace::empty(),
@@ -95,7 +94,7 @@ impl<'ctx> Context<'_, 'ctx> {
     }
 
     #[must_use]
-    fn new_scope<'this>(&'this self) -> Context<'this, 'ctx> {
+    fn new_scope<'this>(&'this self) -> Context<'this, 'src> {
         let &Self {
             ref type_aliases,
             ref variables,
@@ -111,8 +110,8 @@ impl<'ctx> Context<'_, 'ctx> {
     }
 }
 
-#[throws(Error<'ctx>)]
-pub(crate) fn typck<'ctx>(program: &'ctx Program<'ctx>) {
+#[throws(Error<'src>)]
+pub(crate) fn typck<'src>(program: &'src Program<'src>) {
     gates::check_extensions(program)?;
     check_main(program)?;
 

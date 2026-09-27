@@ -79,8 +79,8 @@ impl GateCollector<'_> {
     }
 }
 
-impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
-    fn visit_function(&mut self, function: &Function<'ctx>) {
+impl<'src> Visitor<'src> for GateCollector<'_> {
+    fn visit_function(&mut self, function: &Function<'src>) {
         let Function {
             annotations: _,
             name: _,
@@ -111,7 +111,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
         unsupported::annotations(annotation)
     }
 
-    fn visit_pattern_binding(&mut self, pattern_binding: &PatternBinding<'ctx>) {
+    fn visit_pattern_binding(&mut self, pattern_binding: &PatternBinding<'src>) {
         let PatternBinding { lhs, rhs: _ } = pattern_binding;
         if !matches!(lhs, Pattern::Var(_)) {
             self.require(Extension::LetPatterns)
@@ -119,12 +119,12 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
         pattern_binding.visit_inner_with(self)
     }
 
-    fn visit_binding(&mut self, binding: &Binding<'ctx>) {
+    fn visit_binding(&mut self, binding: &Binding<'src>) {
         self.require(Extension::Records);
         binding.visit_inner_with(self)
     }
 
-    fn visit_decl(&mut self, decl: &Decl<'ctx>) {
+    fn visit_decl(&mut self, decl: &Decl<'src>) {
         match decl {
             Decl::Function(_) => {
                 if !self.is_in_global_scope {
@@ -140,7 +140,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
         decl.visit_inner_with(self)
     }
 
-    fn visit_ty(&mut self, ty: &Type<'ctx>) {
+    fn visit_ty(&mut self, ty: &Type<'src>) {
         match ty {
             Type::Bool | Type::Nat => {}
             Type::Fn { args, ret: _ } => self.require_fn_arity(args.len()),
@@ -170,7 +170,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
         ty.visit_inner_with(self)
     }
 
-    fn visit_pat(&mut self, pat: &Pattern<'ctx>) {
+    fn visit_pat(&mut self, pat: &Pattern<'src>) {
         match pat {
             Pattern::Var(_) => {
                 self.require_one_of(
@@ -206,7 +206,7 @@ impl<'ctx> Visitor<'ctx> for GateCollector<'_> {
         pat.visit_inner_with(self)
     }
 
-    fn visit_expr(&mut self, expr: &Expr<'ctx>) {
+    fn visit_expr(&mut self, expr: &Expr<'src>) {
         match expr {
             Expr::True
             | Expr::False

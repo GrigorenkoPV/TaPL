@@ -11,13 +11,13 @@ use crate::{
 
 use super::{Context, Error, check_no_duplicate_field_names, nat_rec_step_type};
 
-impl<'ctx> Context<'_, 'ctx> {
+impl<'src> Context<'_, 'src> {
     #[expect(clippy::too_many_lines, reason = "giant match")]
     pub(super) fn ensure(
         &self,
-        expr: &'ctx Expr<'ctx>,
-        expected: &Type<'ctx>,
-    ) -> Result<(), Error<'ctx>> {
+        expr: &'src Expr<'src>,
+        expected: &Type<'src>,
+    ) -> Result<(), Error<'src>> {
         match (expr, expected) {
             // Unsupported
             (e @ (Expr::Fold { .. } | Expr::Unfold { .. }), _) => unsupported::fold_unfold(e),

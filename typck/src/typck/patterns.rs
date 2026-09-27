@@ -6,19 +6,19 @@ use crate::ast::{Pattern, PatternBinding, Type};
 
 use super::{Context, Error};
 
-impl<'ctx> Context<'_, 'ctx> {
-    #[throws(Error<'ctx>)]
+impl<'src> Context<'_, 'src> {
+    #[throws(Error<'src>)]
     pub(super) fn check_bindings(
         &mut self,
-        bindings: impl IntoIterator<Item = &'ctx PatternBinding<'ctx>>,
+        bindings: impl IntoIterator<Item = &'src PatternBinding<'src>>,
     ) {
         for binding in bindings {
             self.check_binding(binding)?
         }
     }
 
-    #[throws(Error<'ctx>)]
-    fn check_binding(&mut self, binding: &'ctx PatternBinding<'ctx>) {
+    #[throws(Error<'src>)]
+    fn check_binding(&mut self, binding: &'src PatternBinding<'src>) {
         let PatternBinding { lhs, rhs } = binding;
         match lhs {
             Pattern::Unit => self.ensure(rhs, &Type::Unit)?,

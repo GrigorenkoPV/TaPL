@@ -8,16 +8,19 @@ use crate::{
     extensions::{Extension, unsupported},
 };
 
-use super::{Context, Error, Typed, check_no_duplicate_field_names, nat_rec_step_type};
+use super::{Context, Error, check_no_duplicate_field_names, nat_rec_step_type};
 
 fn dot_tuple(types: Vec<Type<'_>>, index: Integer) -> Option<Type<'_>> {
     let index = index.checked_sub(1)?.try_into().ok()?;
     types.into_iter().nth(index)
 }
 
-impl<'ctx> Context<'_, 'ctx> {
+impl<'src> Context<'_, 'src> {
     #[expect(clippy::too_many_lines, reason = "big match")]
-    pub(super) fn infer(&self, expr: &'ctx Expr<'ctx>) -> Result<Typed<'ctx>, Error<'ctx>> {
+    pub(super) fn infer(
+        &self,
+        expr: &'src Expr<'src>,
+    ) -> Result<Cow<'src, Type<'src>>, Error<'src>> {
         Ok(match expr {
             // Unsupported:
 

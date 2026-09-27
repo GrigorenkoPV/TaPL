@@ -12,16 +12,16 @@ use crate::{
 
 use super::{Context, Error};
 
-impl<'ctx> Context<'_, 'ctx> {
-    #[throws(Error<'ctx>)]
-    pub(super) fn check_decls(&mut self, decls: impl IntoIterator<Item = &'ctx Decl<'ctx>>) {
+impl<'src> Context<'_, 'src> {
+    #[throws(Error<'src>)]
+    pub(super) fn check_decls(&mut self, decls: impl IntoIterator<Item = &'src Decl<'src>>) {
         for decl in decls {
             self.check_decl(decl)?
         }
     }
 
-    #[throws(Error<'ctx>)]
-    fn check_decl(&mut self, decl: &'ctx Decl<'ctx>) {
+    #[throws(Error<'src>)]
+    fn check_decl(&mut self, decl: &'src Decl<'src>) {
         match decl {
             Decl::Function(function) => self.check_function(function)?,
             Decl::TypeAlias { name, ty } => {
@@ -43,8 +43,8 @@ impl<'ctx> Context<'_, 'ctx> {
         }
     }
 
-    #[throws(Error<'ctx>)]
-    fn check_ty_wf(&self, ty: &'ctx Type<'ctx>) {
+    #[throws(Error<'src>)]
+    fn check_ty_wf(&self, ty: &'src Type<'src>) {
         match ty {
             Type::Bool | Type::Nat | Type::Unit | Type::Top | Type::Bot | Type::Auto => {}
 
@@ -106,8 +106,8 @@ impl<'ctx> Context<'_, 'ctx> {
         }
     }
 
-    #[throws(Error<'ctx>)]
-    fn check_function(&mut self, function: &'ctx Function<'ctx>) {
+    #[throws(Error<'src>)]
+    fn check_function(&mut self, function: &'src Function<'src>) {
         let Function {
             annotations,
             name: fn_name,

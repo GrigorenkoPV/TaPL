@@ -1,11 +1,11 @@
 use core::iter::zip;
+use std::borrow::Cow;
 
 use culpa::{throw, throws};
 
 use crate::{
     ast::{Expr, Type},
     extensions::{Extension, unsupported},
-    typck::Typed,
 };
 
 use super::{
@@ -13,13 +13,13 @@ use super::{
     error::{Error, RecordWithMissingFields},
 };
 
-impl<'ctx> Context<'_, 'ctx> {
-    #[throws(Error<'ctx>)]
+impl<'src> Context<'_, 'src> {
+    #[throws(Error<'src>)]
     pub(super) fn check_coe(
         &self,
-        actual: Typed<'ctx>,
-        expected: &Type<'ctx>,
-        expr: &'ctx Expr<'ctx>,
+        actual: Cow<'src, Type<'src>>,
+        expected: &Type<'src>,
+        expr: &'src Expr<'src>,
     ) {
         if self.structural_subtyping {
             self.check_subtype(actual.as_ref(), expected, Some(expr))?
@@ -35,10 +35,10 @@ impl<'ctx> Context<'_, 'ctx> {
     #[expect(clippy::too_many_lines, reason = "big switch")]
     pub(super) fn check_subtype(
         &self,
-        actual: &Type<'ctx>,
-        expected: &Type<'ctx>,
-        expr: Option<&'ctx Expr<'ctx>>,
-    ) -> Result<(), Error<'ctx>> {
+        actual: &Type<'src>,
+        expected: &Type<'src>,
+        expr: Option<&'src Expr<'src>>,
+    ) -> Result<(), Error<'src>> {
         debug_assert!(
             self.structural_subtyping,
             "use equality if there's no subtyping"
@@ -132,7 +132,7 @@ impl<'ctx> Context<'_, 'ctx> {
                             None
                         }
                     }) else {
-                        throw!(Error::<'ctx>::MissingRecordFields {
+                        throw!(Error::<'src>::MissingRecordFields {
                             actual: RecordWithMissingFields::Subtyping {
                                 actual_expr,
                                 actual_type: actual.to_owned()
@@ -158,7 +158,7 @@ impl<'ctx> Context<'_, 'ctx> {
                             None
                         }
                     }) else {
-                        throw!(Error::<'ctx>::UnexpectedVariantLabel {
+                        throw!(Error::<'src>::UnexpectedVariantLabel {
                             expected: expected.clone(),
                             actual: actual_label.clone()
                         })
