@@ -1,24 +1,86 @@
-use core::{iter::zip, mem};
+use core::iter::zip;
 
 use culpa::throw;
 
-use crate::{ast::Type, extensions::unsupported};
+use crate::{
+    ast::{Expr, Type},
+    extensions::{Extension, unsupported},
+};
 
-use super::Context;
+use super::{Context, Error};
 
-#[expect(
-    clippy::self_only_used_in_recursion,
-    single_use_lifetimes,
-    clippy::elidable_lifetime_names,
-    reason = "WIP"
-)]
 impl<'ctx> Context<'_, 'ctx> {
-    // TODO: is this just equality?
-    pub(super) fn check_ty_coerces(&self, from: &Type<'_>, to: &Type<'_>) -> Result<(), ()> {
-        match [from, to] {
+    #[expect(clippy::too_many_lines, reason = "big switch")]
+    pub(super) fn check_subtype(
+        &self,
+        actual: &Type<'ctx>,
+        expected: &Type<'ctx>,
+        expr: Option<&'ctx Expr<'ctx>>,
+    ) -> Result<(), Error<'ctx>> {
+        debug_assert!(
+            self.structural_subtyping,
+            "use equality if there's no subtyping"
+        );
+
+        let error = || Error::UnexpectedSubtype {
+            expected: expected.to_owned(),
+            actual: actual.to_owned(),
+            expr,
+        };
+
+        #[expect(
+            unused,
+            reason = "prevent the function argument `expr` from being used
+            anywhere beside error creation at this level of recursion"
+        )]
+        let expr = ();
+
+        match [actual, expected] {
+            // Unsupported
             [rec @ Type::Rec { .. }, _] | [_, rec @ Type::Rec { .. }] => unsupported::mu(rec),
 
-            [Type::Bool, Type::Bool] | [Type::Nat, Type::Nat] | [Type::Unit, Type::Unit] => Ok(()),
+            [Type::Var(_), _] | [_, Type::Var(_)] => {
+                debug_assert!(!Extension::UniversalTypes.supported(), "TODO");
+                unreachable!()
+            }
+
+            // Trivial
+            [Type::Bot, _] | [_, Type::Top] => Ok(()),
+
+            // Covariant
+            [Type::List(from), Type::List(to)] => self.check_subtype(from, to, None),
+            [
+                Type::Sum {
+                    left: from_left,
+                    right: from_right,
+                },
+                Type::Sum {
+                    left: to_left,
+                    right: to_right,
+                },
+            ] => {
+                self.check_subtype(from_left, to_left, None)?;
+                self.check_subtype(from_right, to_right, None)?;
+                Ok(())
+            }
+            [Type::Tuple(from), Type::Tuple(to)] => {
+                if from.len() != to.len() {
+                    throw!(error())
+                }
+                for (from, to) in zip(from, to) {
+                    self.check_subtype(from, to, None)?
+                }
+                Ok(())
+            }
+
+            // Invariant
+            [Type::Ref(from), Type::Ref(to)] => {
+                self.check_subtype(from, to, None)?;
+                self.check_subtype(to, from, None)?;
+                Ok(())
+            }
+
+            // Contravariant in arguments, covariant in return type
             [
                 Type::Fn {
                     args: args_from,
@@ -30,76 +92,29 @@ impl<'ctx> Context<'_, 'ctx> {
                 },
             ] => {
                 if args_from.len() != args_to.len() {
-                    throw!(())
+                    throw!(error())
                 }
                 for (arg_from, arg_to) in zip(args_from, args_to) {
-                    self.check_ty_coerces(arg_to, arg_from)?
+                    self.check_subtype(arg_to, arg_from, None)?
                 }
-                self.check_ty_coerces(ret_from, ret_to)
-            }
-            [
-                Type::Sum {
-                    left: from_left,
-                    right: from_right,
-                },
-                Type::Sum {
-                    left: to_left,
-                    right: to_right,
-                },
-            ] => {
-                self.check_ty_coerces(from_left, to_left)?;
-                self.check_ty_coerces(from_right, to_right)?;
-                Ok(())
+                self.check_subtype(ret_from, ret_to, None)
             }
 
-            [Type::List(from), Type::List(to)] | [Type::Ref(from), Type::Ref(to)] => {
-                self.check_ty_coerces(from, to)
-            }
-
-            [Type::Tuple(from), Type::Tuple(to)] => {
-                if from.len() != to.len() {
-                    throw!(())
-                }
-                for (from, to) in zip(from, to) {
-                    self.check_ty_coerces(from, to)?
-                }
-                Ok(())
-            }
             [Type::Record(from), Type::Record(to)] => {
-                if from.len() != to.len() {
-                    throw!(())
-                }
-                for ((from_name, from), (to_name, to)) in zip(from, to) {
-                    if from_name != to_name {
-                        throw!(())
-                    }
-                    self.check_ty_coerces(from, to)?
-                }
-                Ok(())
+                todo!("subtyping of records")
             }
+
             [Type::Variant(from), Type::Variant(to)] => {
-                if from.len() != to.len() {
-                    throw!(())
-                }
-                for ((from_name, from), (to_name, to)) in zip(from, to) {
-                    if from_name != to_name {
-                        throw!(())
-                    }
-                    match [from, to] {
-                        [None, None] => Ok(()),
-                        [None, Some(_)] | [Some(_), None] => Err(()),
-                        [Some(from), Some(to)] => self.check_ty_coerces(from, to),
-                    }?
-                }
-                Ok(())
+                todo!("subtyping of variants")
             }
+
+            // No special handling
             [from, to] => {
-                assert_ne!(
-                    mem::discriminant(from),
-                    mem::discriminant(to),
-                    "TODO: check coercion from {from:?} to {to:?}"
-                );
-                Err(())
+                if from == to {
+                    Ok(())
+                } else {
+                    Err(error())
+                }
             }
         }
     }

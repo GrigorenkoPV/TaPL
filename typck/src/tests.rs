@@ -1288,19 +1288,10 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/ambiguous_reference_type/pr
     cannot infer reference type
 "#]]
 
-/// FIXME: this is wrong
+#[should_panic(expected = "not yet implemented: subtyping of records")]
 subtyping
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/missing_record_fields/subtyping.stella")
-=> expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	x
-    has type
-    	{a : Nat}
-    but expected to have type
-    	{a : Nat, b : Bool}
-"#]]
+=> expect![]
 
 not_a_reference
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/not_a_reference/primitive.stella")
@@ -1336,74 +1327,60 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_reference/primit
     	Unit
 "#]]
 
-// FIXME: wrong error
 invariant_ref_with_bot
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invariant-ref-with-bot.stella")
 => expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	x
-    has type
-    	&Bot
-    but expected to have type
-    	&{a : Nat, b : Bool}
+    38
+    ERROR_UNEXPECTED_SUBTYPE
+    	{a : Nat, b : Bool}
+    is not a subtype of
+    	Bot
 "#]]
 
-// FIXME: wrong error
 invariant_ref_with_top_in_ctx
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invariant-ref-with-top-in-ctx.stella")
 => expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    38
+    ERROR_UNEXPECTED_SUBTYPE
     expression
     	n
     has type
     	Top
-    but expected to have type
+    which is not a subtype of the expected type
     	{a : Nat, b : Bool}
 "#]]
 
-// FIXME: wrong error
 invariant_ref_with_top
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/invariant-ref-with-top.stella")
 => expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	x
-    has type
-    	&Top
-    but expected to have type
-    	&{a : Nat, b : Bool}
+    38
+    ERROR_UNEXPECTED_SUBTYPE
+    	Top
+    is not a subtype of
+    	{a : Nat, b : Bool}
 "#]]
 
-// FIXME: wrong error
 unexpected_subtype
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/primitive.stella")
 => expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
+    38
+    ERROR_UNEXPECTED_SUBTYPE
     expression
     	0
     has type
     	Nat
-    but expected to have type
+    which is not a subtype of the expected type
     	Bool
 "#]]
 
-// FIXME: wrong error
 ref_chain
 include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_subtype/ref-chain.stella")
 => expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	a
-    has type
-    	Nat
-    but expected to have type
+    38
+    ERROR_UNEXPECTED_SUBTYPE
     	Top
+    is not a subtype of
+    	Nat
 "#]]
 
 sub_fn_stack_bad
@@ -1497,166 +1474,66 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     	<|c: <|c: Nat, d: Bool|>, d: Bool|>
 "#]]
 
-// FIXME: this is wrong
+#[should_panic(expected = "not yet implemented: subtyping of records")]
 deref
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/deref.stella")
-=> expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	n
-    has type
-    	&{a : Nat, b : Bool}
-    but expected to have type
-    	&{a : Nat}
-"#]]
+=> expect![]
 
 inferred_mem
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/inferred-mem.stella")
 => expect![]
 
-// FIXME: this is wrong
 invariant_ref_with_bot_in_ctx
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref-with-bot-in-ctx.stella")
-=> expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	n
-    has type
-    	Bot
-    but expected to have type
-    	{a : Nat, b : Bool}
-"#]]
+=> expect![]
 
-// FIXME: this is wrong
+#[should_panic(expected = "not yet implemented: subtyping of records")]
 invariant_ref
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref.stella")
-=> expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	x
-    has type
-    	&{b : Bool, a : Nat}
-    but expected to have type
-    	&{a : Nat, b : Bool}
-"#]]
+=> expect![]
 
-// FIXME: this is wrong
 ref_assign
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/ref-assign.stella")
-=> expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	n
-    has type
-    	Bot
-    but expected to have type
-    	Nat
-"#]]
+=> expect![]
 
 refs
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/refs.stella")
 => expect![]
 
-/// FIXME: this is wrong
+#[should_panic(expected = "not yet implemented: subtyping of records")]
 sub_fn_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-fn-stack.stella")
-=> expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	test(n)
-    has type
-    	fn({a : Nat}) -> Bot
-    but expected to have type
-    	fn({a : Nat, b : Bool}) -> Bool
-"#]]
+=> expect![]
 
-/// FIXME: this is wrong
+#[should_panic(expected = "not yet implemented: subtyping of records")]
 sub_list_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-list-stack.stella")
-=> expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	test(n)
-    has type
-    	[{a : Nat, b : Bool}]
-    but expected to have type
-    	[{a : Nat}]
-"#]]
+=> expect![]
 
-/// FIXME: this is wrong
+#[should_panic(expected = "not yet implemented: subtyping of records")]
 sub_rec_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-rec-stack.stella")
-=> expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	test(n)
-    has type
-    	{a : {a : Nat, b : Bool}, b : Bool}
-    but expected to have type
-    	{a : {a : Nat}}
-"#]]
+=> expect![]
 
+#[should_panic(expected = "not yet implemented: subtyping of records")]
 sub_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
-=> expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	test(n)
-    has type
-    	{a : <|c: Nat|>, b : Bool}
-    but expected to have type
-    	{a : <|c: Nat, d: Bool|>}
-"#]]
+=> expect![]
 
-/// FIXME: this is wrong
+#[should_panic(expected = "not yet implemented: subtyping of records")]
 sub_sum_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-sum-stack.stella")
-=> expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	test(n)
-    has type
-    	{a : Nat, b : Bool} + Nat
-    but expected to have type
-    	{a : Nat} + Nat
-"#]]
+=> expect![]
 
-/// FIXME: this is wrong
+#[should_panic(expected = "not yet implemented: subtyping of records")]
 sub_tuple_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-tuple-stack.stella")
-=> expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	test(n)
-    has type
-    	{{a : Nat, b : Bool}, Nat}
-    but expected to have type
-    	{{a : Nat}, Nat}
-"#]]
+=> expect![]
 
-/// FIXME: this is wrong
+#[should_panic(expected = "not yet implemented: subtyping of variants")]
 sub_var_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-var-stack.stella")
-=> expect![[r#"
-    3
-    ERROR_UNEXPECTED_TYPE_FOR_EXPRESSION
-    expression
-    	test(n)
-    has type
-    	<|c: <|c: Nat|>|>
-    but expected to have type
-    	<|c: <|c: Nat, d: Bool|>, d: Bool|>
-"#]]
+=> expect![]
 
 sum_type
 include_str!("../tests/ThatDraenGuy/stage3/extra/additional-error-codes/ill-typed/ambiguous_type/sum-type.stella")

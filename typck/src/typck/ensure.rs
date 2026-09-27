@@ -22,11 +22,7 @@ impl<'ctx> Context<'_, 'ctx> {
             (e @ (Expr::Fold { .. } | Expr::Unfold { .. }), _) => unsupported::fold_unfold(e),
             (_, t @ Type::Rec { .. }) => unsupported::mu(t),
 
-            // Special types
-            (_, Type::Auto) => todo!("auto"),
-            (_, Type::Forall { .. }) => todo!("forall"),
-
-            // Var type
+            // TypeAliases
             (expr, Type::Var(var)) => {
                 let expected = self
                     .type_aliases
@@ -92,13 +88,15 @@ impl<'ctx> Context<'_, 'ctx> {
                 }
                 let mut ctx = self.new_scope();
                 for ((name, actual), expected) in zip(args_actual, args_expected) {
-                    self.check_ty_coerces(expected, actual).map_err(|()| {
-                        Error::UnexpectedTypeForParameter {
+                    if self.structural_subtyping {
+                        self.check_subtype(actual, expected, None)?
+                    } else if expected != actual {
+                        throw!(Error::UnexpectedTypeForParameter {
                             param: Borrowed(name),
                             actual: actual.to_owned(),
                             expected: expected.to_owned(),
-                        }
-                    })?;
+                        })
+                    }
                     ctx.variables
                         .add_local(Borrowed(name), Borrowed(actual))
                         .map_err(|(_old, _new)| Error::DuplicateFunctionParameter {
@@ -448,13 +446,15 @@ impl<'ctx> Context<'_, 'ctx> {
             )
             | (_, Type::Bot | Type::Top) => {
                 let actual = self.infer(expr)?;
-                self.check_ty_coerces(&actual, expected).map_err(|()| {
-                    Error::UnexpectedTypeForExpression {
+                if self.structural_subtyping {
+                    self.check_subtype(actual.as_ref(), expected, Some(expr))?
+                } else if expected != actual.as_ref() {
+                    throw!(Error::UnexpectedTypeForExpression {
                         expr,
-                        actual: actual.clone().into_owned(),
+                        actual: actual.into_owned(),
                         expected: expected.to_owned(),
-                    }
-                })?;
+                    })
+                }
             }
 
             // Unknown stage
@@ -558,8 +558,13 @@ impl<'ctx> Context<'_, 'ctx> {
                 | Type::Variant(_)
                 | Type::List(_)
                 | Type::Unit,
-            ) => {
+            )
+            | (_, Type::Forall { .. }) => {
                 debug_assert!(!Extension::UniversalTypes.supported(), "TODO");
+                unreachable!("stage 3: ensure {expr:?} is {expected:?}")
+            }
+            (_, Type::Auto) => {
+                debug_assert!(!Extension::TypeReconstruction.supported(), "TODO");
                 unreachable!("stage 3: ensure {expr:?} is {expected:?}")
             }
         }

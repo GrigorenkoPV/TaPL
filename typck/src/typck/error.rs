@@ -259,8 +259,11 @@ pub(crate) enum Error<'src> {
     ///
     /// Эта ошибка должна возникать только если ни одна из более специфичных ошибок
     /// (перечисленных выше вместе с кодами Этапа 1) не возникла раньше.
-    #[expect(dead_code, reason = "WIP")]
-    UnexpectedSubtype,
+    UnexpectedSubtype {
+        expected: Type<'src>,
+        actual: Type<'src>,
+        expr: Option<&'src Expr<'src>>,
+    },
 
     // Stage 3:
     //
@@ -350,14 +353,6 @@ impl fmt::Display for Error<'_> {
             }
             Self::UndefinedVariable(name) => writeln!(f, "undefined variable `{name}`"),
 
-            Self::UnexpectedTypeForExpression {
-                actual,
-                expected,
-                expr,
-            } => writeln!(
-                f,
-                "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to have type\n\t{expected}"
-            ),
             Self::UnexpectedTypeForParameter {
                 actual,
                 expected,
@@ -366,6 +361,28 @@ impl fmt::Display for Error<'_> {
                 f,
                 "parameter `{param}` has type\n\t{actual}\nbut expected to have type\n\t{expected}"
             ),
+
+            Self::UnexpectedTypeForExpression {
+                actual,
+                expected,
+                expr,
+            } => writeln!(
+                f,
+                "expression\n\t{expr}\nhas type\n\t{actual}\nbut expected to have type\n\t{expected}"
+            ),
+            Self::UnexpectedSubtype {
+                expected,
+                actual,
+                expr: Some(expr),
+            } => writeln!(
+                f,
+                "expression\n\t{expr}\nhas type\n\t{actual}\nwhich is not a subtype of the expected type\n\t{expected}"
+            ),
+            Self::UnexpectedSubtype {
+                expected,
+                actual,
+                expr: None,
+            } => writeln!(f, "\t{actual}\nis not a subtype of\n\t{expected}"),
 
             Self::UnexpectedNumberOfParametersInLambda {
                 expected,
@@ -639,7 +656,6 @@ impl fmt::Display for Error<'_> {
             | Self::UnexpectedNonNullaryVariantPattern
             | Self::UnexpectedNullaryVariantPattern
             | Self::ExceptionTypeNotDeclared
-            | Self::UnexpectedSubtype
             | Self::OccursCheckInfiniteType
             | Self::NotAGenericFunction
             | Self::IncorrectNumberOfTypeArguments => todo!("format Error::{self:?}"),
@@ -707,7 +723,7 @@ impl Error<'_> {
             Error::NotAReference { .. } => nz!(35),
             Error::UnexpectedMemoryAddress { .. } => nz!(36),
             Error::UnexpectedReference { .. } => nz!(37),
-            Error::UnexpectedSubtype => nz!(38),
+            Error::UnexpectedSubtype { .. } => nz!(38),
 
             Error::OccursCheckInfiniteType => nz!(39),
             Error::NotAGenericFunction => nz!(40),

@@ -63,7 +63,7 @@ pub(crate) enum Annotation {
     Inline,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum Type<'src> {
     Bool,
     Nat,

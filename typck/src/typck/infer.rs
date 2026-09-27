@@ -86,17 +86,17 @@ impl<'ctx> Context<'_, 'ctx> {
                         callee: expr
                     })
                 };
-                match self.check_ty_coerces(&ret, arg_ty) {
-                    Err(()) => throw!(Error::UnexpectedTypeForExpression {
+                if arg_ty != ret.as_ref() {
+                    throw!(Error::UnexpectedTypeForExpression {
                         expr,
                         expected: Type::Fn {
                             args: vec![ret.as_ref().to_owned()],
                             ret: ret.clone()
                         },
                         actual: Type::Fn { args, ret },
-                    }),
-                    Ok(()) => Owned(*ret),
+                    })
                 }
+                Owned(*ret)
             }
 
             Expr::Application {
