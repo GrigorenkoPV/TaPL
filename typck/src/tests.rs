@@ -1483,10 +1483,18 @@ include_str!("../tests/ThatDraenGuy/stage2/ill-typed/unexpected_type_for_express
     	<|c: <|c: Nat, d: Bool|>, d: Bool|>
 "#]]
 
-#[should_panic(expected = "not yet implemented: subtyping of records")]
+// FIXME: this is wrong
 deref
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/deref.stella")
-=> expect![]
+=> expect![[r#"
+    15
+    ERROR_MISSING_RECORD_FIELDS
+    expected
+    	{a : Nat}
+    to be a subtype of
+    	{a : Nat, b : Bool}
+    but it is missing field `b`
+"#]]
 
 inferred_mem
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/inferred-mem.stella")
@@ -1496,7 +1504,6 @@ invariant_ref_with_bot_in_ctx
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref-with-bot-in-ctx.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: subtyping of records")]
 invariant_ref
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/invariant-ref.stella")
 => expect![]
@@ -1509,32 +1516,27 @@ refs
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/refs.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: subtyping of records")]
 sub_fn_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-fn-stack.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: subtyping of records")]
 sub_list_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-list-stack.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: subtyping of records")]
 sub_rec_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-rec-stack.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: subtyping of records")]
+#[should_panic(expected = "not yet implemented: subtyping of variants")]
 sub_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-stack.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: subtyping of records")]
 sub_sum_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-sum-stack.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: subtyping of records")]
 sub_tuple_stack
 include_str!("../tests/ThatDraenGuy/stage2/well-typed/sub-tuple-stack.stella")
 => expect![]

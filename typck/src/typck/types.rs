@@ -105,8 +105,14 @@ impl<'ctx> Context<'_, 'ctx> {
             }
 
             [Type::Record(actual_fields), Type::Record(expected_fields)] => {
-                for (expected_name, _) in expected_fields {
-                    if !actual_fields.iter().any(|(name, _)| name == expected_name) {
+                for (expected_name, expected_field) in expected_fields {
+                    let Some(actual_field) = actual_fields.iter().find_map(|(name, ty)| {
+                        if name == expected_name {
+                            Some(ty)
+                        } else {
+                            None
+                        }
+                    }) else {
                         throw!(Error::<'ctx>::MissingRecordFields {
                             actual: RecordWithMissingFields::Subtyping {
                                 actual_expr,
@@ -115,9 +121,10 @@ impl<'ctx> Context<'_, 'ctx> {
                             expected: expected.to_owned(),
                             missing: expected_name.clone(),
                         })
-                    }
+                    };
+                    self.check_subtype(actual_field, expected_field, None)?
                 }
-                todo!("subtyping of records")
+                Ok(())
             }
 
             [Type::Variant(from), Type::Variant(to)] => {
