@@ -432,7 +432,7 @@ impl<'src> Context<'_, 'src> {
                 let switch_actual = self.infer(switch)?;
                 for (pattern, case) in cases {
                     let mut ctx = self.new_scope();
-                    ctx.bind(pattern, switch_actual.clone())?;
+                    ctx.bind(pattern, &switch_actual)?;
                     ctx.ensure(case, expected)?
                 }
                 if cases.is_empty() {
@@ -536,7 +536,7 @@ impl<'src> Context<'_, 'src> {
                 self.ensure(r#try, expected)?;
                 let exception_type = self.get_exception_type()?;
                 let mut ctx = self.new_scope();
-                ctx.bind(pat, exception_type)?;
+                ctx.bind(pat, &exception_type)?;
                 ctx.ensure(caught, expected)?
             }
 

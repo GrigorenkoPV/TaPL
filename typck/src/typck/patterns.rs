@@ -1,4 +1,4 @@
-use std::borrow::Cow::{self, Borrowed};
+use std::borrow::Cow::{Borrowed, Owned};
 
 use culpa::throws;
 
@@ -31,7 +31,7 @@ impl<'src> Context<'_, 'src> {
                     .add_local(Borrowed(var), ty)
                     .map_err(|(_old, _new)| Error::DuplicateLetBinding(Borrowed(var)))?
             }
-            Pattern::Asc { pat, ty } => self.bind(pat, Borrowed(ty))?,
+            Pattern::Asc { pat, ty } => self.bind(pat, ty)?,
             Pattern::CastAs { .. }
             | Pattern::Variant { .. }
             | Pattern::Inl(_)
@@ -51,17 +51,21 @@ impl<'src> Context<'_, 'src> {
     }
 
     #[throws(Error<'src>)]
-    pub(super) fn bind(&mut self, pat: &'src Pattern<'src>, ty: Cow<'src, Type<'src>>) {
+    pub(super) fn bind(&mut self, pat: &'src Pattern<'src>, ty: &Type<'src>) {
         match (pat, ty) {
-            (Pattern::Var(name), ty) => self
+            (Pattern::Var(name), _) => self
                 .variables
-                .add_local(Borrowed(name), ty)
+                .add_local(Borrowed(name), Owned(ty.to_owned()))
                 .map_err(|(_old, _new)| todo!())?,
 
             (Pattern::Asc { pat, ty }, expected) => {
-                self.check_subtype(&expected, ty, None)?;
-                self.bind(pat, Borrowed(ty))?
+                self.check_subtype(expected, ty, None)?;
+                self.bind(pat, ty)?
             }
+
+            (Pattern::Inl(pat), Type::Sum { left: ty, right: _ })
+            | (Pattern::Inr(pat), Type::Sum { left: _, right: ty }) => self.bind(pat, ty)?,
+
             (
                 Pattern::CastAs { .. }
                 | Pattern::Unit

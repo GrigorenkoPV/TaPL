@@ -840,7 +840,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/missing_record_fields/primi
     but it is missing field `b`
 "#]]
 
-#[should_panic(expected = "not yet implemented: check binding")]
+// FIXME: wrong
 nonexhaustive_match_patterns
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/nonexhaustive_match_patterns/primitive.stella")
 => expect![]
@@ -1145,7 +1145,6 @@ square
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/square.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: check binding")]
 sum_types
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/sum-types.stella")
 => expect![]

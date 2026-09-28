@@ -399,7 +399,7 @@ impl<'src> Context<'_, 'src> {
                 let result = self.infer(r#try)?;
                 let exception_type = self.get_exception_type()?;
                 let mut ctx = self.new_scope();
-                ctx.bind(pat, exception_type)?;
+                ctx.bind(pat, &exception_type)?;
                 ctx.ensure(caught, &result)?;
                 result
             }
