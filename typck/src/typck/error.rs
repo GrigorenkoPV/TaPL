@@ -1,5 +1,8 @@
 use core::{debug_assert_matches, fmt, mem, num::NonZero};
-use std::{borrow::Cow, collections::btree_set::BTreeSet};
+use std::{
+    borrow::Cow,
+    collections::{btree_map::BTreeMap, btree_set::BTreeSet},
+};
 
 use crate::{
     ast::{Binding, Expr, Ident, Integer, Type},
@@ -12,6 +15,18 @@ pub(crate) enum RecordWithMissingFields<'src> {
     Subtyping {
         actual_expr: Option<&'src Expr<'src>>,
         actual_type: Type<'src>,
+    },
+}
+
+#[derive(Debug)]
+pub(crate) enum ConflictingExceptionTypes<'src> {
+    FromSimpleToOpen {
+        old: Type<'src>,
+        new: (Ident<'src>, Type<'src>),
+    },
+    FromOpenToSimple {
+        old: BTreeMap<Ident<'src>, &'src Type<'src>>,
+        new: Type<'src>,
     },
 }
 
@@ -309,6 +324,7 @@ pub(crate) enum Error<'src> {
         old: Type<'src>,
         new: Type<'src>,
     },
+    ConflictingExceptionDeclarations(ConflictingExceptionTypes<'src>),
 }
 
 impl core::error::Error for Error<'_> {}
@@ -702,6 +718,31 @@ impl fmt::Display for Error<'_> {
                 f,
                 "redefinition of the open exception type's variant `{label}`\nold:\n\t{old}\nnew:\n\t{new}"
             ),
+            Self::ConflictingExceptionDeclarations(
+                ConflictingExceptionTypes::FromSimpleToOpen {
+                    old,
+                    new: (label, data),
+                },
+            ) => writeln!(
+                f,
+                "was a type:\n\t{old}\now an open exception variant\n\t<| {label} = {data}|>"
+            ),
+            Self::ConflictingExceptionDeclarations(
+                ConflictingExceptionTypes::FromOpenToSimple { old, new },
+            ) => writeln!(
+                f,
+                "was an open exception\n\t<| {} |>\nnow:\n\t{new}",
+                fmt::from_fn(|f| {
+                    let first = &mut true;
+                    for (label, data) in old {
+                        if !mem::take(first) {
+                            write!(f, ", ")?
+                        }
+                        write!(f, "{label} = {data}")?
+                    }
+                    Ok(())
+                })
+            ),
 
             Self::IllegalEmptyMatching
             | Self::NonexhaustiveMatchPatterns
@@ -782,6 +823,7 @@ impl Error<'_> {
             Error::IncorrectNumberOfTypeArguments => nz!(41),
             Error::UndefinedTypeVariable(_) => nz!(42),
 
+            Error::ConflictingExceptionDeclarations { .. } => nz!(250),
             Error::DuplicateExceptionVariant { .. } => nz!(251),
             Error::DuplicateExceptionType { .. } => nz!(252),
             Error::UnsupportedExtensions(_) => nz!(253),

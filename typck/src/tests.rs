@@ -1160,10 +1160,16 @@ unit
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/unit.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: report conflicted exception type")]
 conflicting_exception_declarations
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/conflicting_exception_declarations/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    250
+    ERROR_CONFLICTING_EXCEPTION_DECLARATIONS
+    was an open exception
+    	<| error_code = Nat |>
+    now:
+    	<|good: Bool|>
+"#]]
 
 duplicate_exception_type
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/duplicate_exception_type/primitive.stella")

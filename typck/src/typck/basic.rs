@@ -11,7 +11,10 @@ use crate::{
     extensions::unsupported,
 };
 
-use super::{Context, Error, ExceptionType};
+use super::{
+    Context, ExceptionType,
+    error::{ConflictingExceptionTypes, Error},
+};
 
 impl<'src> Context<'_, 'src> {
     #[throws(Error<'src>)]
@@ -40,7 +43,12 @@ impl<'src> Context<'_, 'src> {
                         old: prev.to_owned(),
                         new: ty.to_owned(),
                     }),
-                    ExceptionType::Open(_) => todo!("report conflicted exception type"),
+                    ExceptionType::Open(old) => throw!(Error::ConflictingExceptionDeclarations(
+                        ConflictingExceptionTypes::FromOpenToSimple {
+                            old,
+                            new: ty.to_owned()
+                        }
+                    )),
                 }
             }
             Decl::ExceptionVariant { label, data } => {
@@ -50,7 +58,12 @@ impl<'src> Context<'_, 'src> {
                     overridable @ (ExceptionType::None | ExceptionType::FromParent(_)) => {
                         *overridable = ExceptionType::Open([(label, data)].into())
                     }
-                    ExceptionType::Simple(_) => todo!("report conflicted exception type"),
+                    ExceptionType::Simple(old) => throw!(Error::ConflictingExceptionDeclarations(
+                        ConflictingExceptionTypes::FromSimpleToOpen {
+                            old: old.to_owned(),
+                            new: (label, data.to_owned())
+                        }
+                    )),
                     ExceptionType::Open(variants) => {
                         if let Some(prev) = variants.insert(label, data) {
                             throw!(Error::DuplicateExceptionVariant {
