@@ -36,7 +36,10 @@ impl<'src> Context<'_, 'src> {
             Decl::ExceptionType(ty) => {
                 match mem::replace(&mut self.exception_type, ExceptionType::Simple(ty)) {
                     ExceptionType::None | ExceptionType::FromParent(_) => {}
-                    ExceptionType::Simple(_) => todo!("report redefinition of exception type"),
+                    ExceptionType::Simple(prev) => throw!(Error::DuplicateExceptionType {
+                        old: prev.to_owned(),
+                        new: ty.to_owned(),
+                    }),
                     ExceptionType::Open(_) => todo!("report conflicted exception type"),
                 }
             }

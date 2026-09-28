@@ -1165,10 +1165,17 @@ conflicting_exception_declarations
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/conflicting_exception_declarations/primitive.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: report redefinition of exception type")]
 duplicate_exception_type
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/duplicate_exception_type/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    252
+    ERROR_DUPLICATE_EXCEPTION_TYPE
+    redefinition of the exception type in the same scope
+    old:
+    	<|error_code: Nat, good: Bool|>
+    new:
+    	<|good: Bool|>
+"#]]
 
 #[should_panic(expected = "not yet implemented: report redefinition of exception variant")]
 duplicate_exception_variant

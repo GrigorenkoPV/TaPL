@@ -299,6 +299,11 @@ pub(crate) enum Error<'src> {
         mandatory: Extensions,
         choosable: BTreeSet<Extensions>,
     },
+
+    DuplicateExceptionType {
+        old: Type<'src>,
+        new: Type<'src>,
+    },
 }
 
 impl core::error::Error for Error<'_> {}
@@ -682,7 +687,12 @@ impl fmt::Display for Error<'_> {
             Self::AmbiguousThrowType {} => writeln!(f, "cannot infer throw type"),
             Self::AmbiguousPanicType {} => writeln!(f, "cannot infer panic type"),
             Self::AmbiguousList {} => writeln!(f, "cannot infer element type of an empty list"),
+
             Self::ExceptionTypeNotDeclared {} => Ok(()),
+            Self::DuplicateExceptionType { old, new } => writeln!(
+                f,
+                "redefinition of the exception type in the same scope\nold:\n\t{old}\nnew:\n\t{new}"
+            ),
 
             Self::IllegalEmptyMatching
             | Self::NonexhaustiveMatchPatterns
@@ -763,6 +773,7 @@ impl Error<'_> {
             Error::IncorrectNumberOfTypeArguments => nz!(41),
             Error::UndefinedTypeVariable(_) => nz!(42),
 
+            Error::DuplicateExceptionType { .. } => nz!(252),
             Error::UnsupportedExtensions(_) => nz!(253),
             Error::MissingExtensions { .. } => nz!(254),
         }
