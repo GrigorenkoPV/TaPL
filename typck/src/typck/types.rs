@@ -132,7 +132,7 @@ impl<'src> Context<'_, 'src> {
                             None
                         }
                     }) else {
-                        throw!(Error::<'src>::MissingRecordFields {
+                        throw!(Error::MissingRecordFields {
                             actual: RecordWithMissingFields::Subtyping {
                                 actual_expr,
                                 actual_type: actual.to_owned()
@@ -158,7 +158,7 @@ impl<'src> Context<'_, 'src> {
                             None
                         }
                     }) else {
-                        throw!(Error::<'src>::UnexpectedVariantLabel {
+                        throw!(Error::UnexpectedVariantLabel {
                             expected: expected.clone(),
                             actual: actual_label.clone()
                         })

@@ -1,4 +1,4 @@
-use core::{debug_assert_matches, fmt, mem, num::NonZero};
+use core::{fmt, mem, num::NonZero};
 use std::{
     borrow::Cow,
     collections::{btree_map::BTreeMap, btree_set::BTreeSet},
@@ -509,7 +509,7 @@ impl fmt::Display for Error<'_> {
                 actual,
                 expected,
             } => {
-                debug_assert_matches!(tuple, Expr::Tuple(_));
+                debug_assert!(matches!(tuple, Expr::Tuple(_)), "not tuple");
                 debug_assert_ne!(actual, expected, "not unexpected");
                 writeln!(
                     f,
@@ -518,7 +518,10 @@ impl fmt::Display for Error<'_> {
             }
 
             Self::UnexpectedList { list, expected } => {
-                debug_assert_matches!(list, Expr::Cons { .. } | Expr::List(_));
+                debug_assert!(
+                    matches!(list, Expr::Cons { .. } | Expr::List(_)),
+                    "not list"
+                );
                 debug_assert!(
                     !matches!(expected, Type::List { .. }),
                     "So it's an *expected* list?"
@@ -532,7 +535,10 @@ impl fmt::Display for Error<'_> {
                 injection,
                 expected,
             } => {
-                debug_assert_matches!(injection, Expr::Inl(_) | Expr::Inr(_));
+                debug_assert!(
+                    matches!(injection, Expr::Inl(_) | Expr::Inr(_)),
+                    "not injection"
+                );
                 debug_assert!(
                     !matches!(expected, Type::Sum { .. }),
                     "So it's an *expected* injection?"
@@ -543,7 +549,7 @@ impl fmt::Display for Error<'_> {
                 )
             }
             Self::UnexpectedTuple { tuple, expected } => {
-                debug_assert_matches!(tuple, Expr::Tuple(_));
+                debug_assert!(matches!(tuple, Expr::Tuple(_)), "not tuple");
                 debug_assert!(
                     !matches!(expected, Type::Tuple(_)),
                     "So it's an *expected* tuple?"
@@ -555,7 +561,7 @@ impl fmt::Display for Error<'_> {
             }
 
             Self::UnexpectedRecord { record, expected } => {
-                debug_assert_matches!(record, Expr::Record(_));
+                debug_assert!(matches!(record, Expr::Record(_)), "not record");
                 debug_assert!(
                     !matches!(expected, Type::Record(_)),
                     "So it's an *expected* record?"
@@ -567,7 +573,7 @@ impl fmt::Display for Error<'_> {
             }
 
             Self::UnexpectedVariant { variant, expected } => {
-                debug_assert_matches!(variant, Expr::Variant { .. });
+                debug_assert!(matches!(variant, Expr::Variant { .. }), "not variant");
                 debug_assert!(
                     !matches!(expected, Type::Variant(_)),
                     "So it's an *expected* variant?"
@@ -579,7 +585,7 @@ impl fmt::Display for Error<'_> {
             }
 
             Self::UnexpectedMemoryAddress { address, expected } => {
-                debug_assert_matches!(address, Expr::Address { .. });
+                debug_assert!(matches!(address, Expr::Address { .. }), "not address");
                 debug_assert!(!matches!(expected, Type::Ref(_)), "not unexpected");
                 writeln!(
                     f,
@@ -590,7 +596,7 @@ impl fmt::Display for Error<'_> {
                 reference,
                 expected,
             } => {
-                debug_assert_matches!(reference, Expr::New { .. });
+                debug_assert!(matches!(reference, Expr::New { .. }), "not new");
                 debug_assert!(!matches!(expected, Type::Ref(_)), "not unexpected");
                 writeln!(
                     f,
@@ -599,11 +605,11 @@ impl fmt::Display for Error<'_> {
             }
 
             Self::AmbiguousSumType(expr) => {
-                debug_assert_matches!(expr, Expr::Inl(_) | Expr::Inr(_));
+                debug_assert!(matches!(expr, Expr::Inl(_) | Expr::Inr(_)), "not injection");
                 writeln!(f, "cannot infer type of an injection\n\t{expr}")
             }
             Self::AmbiguousVariantType(expr) => {
-                debug_assert_matches!(expr, Expr::Variant { .. });
+                debug_assert!(matches!(expr, Expr::Variant { .. }), "not variant");
                 writeln!(f, "cannot infer type of variant\n\t{expr}")
             }
 
@@ -640,8 +646,8 @@ impl fmt::Display for Error<'_> {
                 expected,
                 missing,
             } => {
-                debug_assert_matches!(actual, Expr::Record(_));
-                debug_assert_matches!(expected, Type::Record(_));
+                debug_assert!(matches!(actual, Expr::Record(_)), "not record");
+                debug_assert!(matches!(expected, Type::Record(_)), "not record");
 
                 // TODO: debug_assert that field is missing
                 writeln!(
@@ -658,8 +664,8 @@ impl fmt::Display for Error<'_> {
                 expected,
                 missing,
             } => {
-                debug_assert_matches!(actual_type, Type::Record(_));
-                debug_assert_matches!(expected, Type::Record(_));
+                debug_assert!(matches!(actual_type, Type::Record(_)), "not record");
+                debug_assert!(matches!(expected, Type::Record(_)), "not record");
                 // TODO: debug_assert that field is missing
                 writeln!(
                     f,
@@ -677,8 +683,8 @@ impl fmt::Display for Error<'_> {
                 expected,
                 unexpected,
             } => {
-                debug_assert_matches!(actual, Expr::Record(_));
-                debug_assert_matches!(expected, Type::Record(_));
+                debug_assert!(matches!(actual, Expr::Record(_)), "not record");
+                debug_assert!(matches!(expected, Type::Record(_)), "not record");
                 // TODO: debug_assert that field is unexpected
                 writeln!(
                     f,
