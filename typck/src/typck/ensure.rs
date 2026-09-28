@@ -519,19 +519,17 @@ impl<'src> Context<'_, 'src> {
             }
 
             (
-                Expr::TryCatch { .. },
-                Type::Bool
-                | Type::Nat
-                | Type::Ref(_)
-                | Type::Sum { .. }
-                | Type::Fn { .. }
-                | Type::Tuple(_)
-                | Type::Record(_)
-                | Type::Variant(_)
-                | Type::List(_)
-                | Type::Unit,
+                Expr::TryCatch {
+                    r#try,
+                    catch: (pat, caught),
+                },
+                expected,
             ) => {
-                todo!("ensure {expr:?} is {expected:?}")
+                self.ensure(r#try, expected)?;
+                let exception_type = self.get_exception_type()?;
+                let mut ctx = self.new_scope();
+                ctx.bind(pat, exception_type)?;
+                ctx.ensure(caught, expected)?
             }
 
             // fallback to infer + check_ty_coerces

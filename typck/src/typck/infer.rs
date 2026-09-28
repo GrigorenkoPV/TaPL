@@ -392,8 +392,16 @@ impl<'src> Context<'_, 'src> {
                 result
             }
 
-            Expr::TryCatch { .. } => {
-                todo!("infer {expr:?}")
+            Expr::TryCatch {
+                r#try,
+                catch: (pat, caught),
+            } => {
+                let result = self.infer(r#try)?;
+                let exception_type = self.get_exception_type()?;
+                let mut ctx = self.new_scope();
+                ctx.bind(pat, exception_type)?;
+                ctx.ensure(caught, &result)?;
+                result
             }
         })
     }

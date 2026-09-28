@@ -1,8 +1,11 @@
-use std::borrow::Cow::Borrowed;
+use std::borrow::Cow::{self, Borrowed};
 
 use culpa::throws;
 
-use crate::ast::{Pattern, PatternBinding, Type};
+use crate::{
+    ast::{Pattern, PatternBinding, Type},
+    extensions::Extension,
+};
 
 use super::{Context, Error};
 
@@ -40,7 +43,34 @@ impl<'src> Context<'_, 'src> {
             | Pattern::False
             | Pattern::True
             | Pattern::Int(_)
-            | Pattern::Succ(_) => todo!("let binding {binding:?}"),
+            | Pattern::Succ(_) => {
+                const { debug_assert!(!Extension::LetPatterns.supported(), "TODO") };
+                unreachable!()
+            }
+        }
+    }
+
+    #[throws(Error<'src>)]
+    pub(super) fn bind(&mut self, pat: &'src Pattern<'src>, ty: Cow<'src, Type<'src>>) {
+        match pat {
+            Pattern::Var(name) => self
+                .variables
+                .add_local(Borrowed(name), ty)
+                .map_err(|(_old, _new)| todo!())?,
+            Pattern::CastAs { .. }
+            | Pattern::Unit
+            | Pattern::Asc { .. }
+            | Pattern::Variant { .. }
+            | Pattern::Inl(_)
+            | Pattern::Inr(_)
+            | Pattern::Tuple(_)
+            | Pattern::Record(_)
+            | Pattern::List(_)
+            | Pattern::Cons(_)
+            | Pattern::False
+            | Pattern::True
+            | Pattern::Int(_)
+            | Pattern::Succ(_) => todo!(),
         }
     }
 }
