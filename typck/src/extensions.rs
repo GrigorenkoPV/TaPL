@@ -104,7 +104,7 @@ impl Extension {
             | Self::NullaryVariantLabels => true,
             Self::StructuralPatterns => false,
             Self::LetrecBindings => false,
-            Self::PatternAscriptions => false,
+            Self::PatternAscriptions => true,
 
             // Stage 1 (unclear if optional or mandatory)
             Self::LetPatterns => false,

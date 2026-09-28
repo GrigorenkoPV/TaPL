@@ -31,10 +31,7 @@ impl<'src> Context<'_, 'src> {
                     .add_local(Borrowed(var), ty)
                     .map_err(|(_old, _new)| Error::DuplicateLetBinding(Borrowed(var)))?
             }
-            Pattern::Asc { .. } => {
-                const { debug_assert!(!Extension::PatternAscriptions.supported(), "TODO") };
-                unreachable!()
-            }
+            Pattern::Asc { pat, ty } => self.bind(pat, Borrowed(ty))?,
             Pattern::CastAs { .. }
             | Pattern::Variant { .. }
             | Pattern::Inl(_)
@@ -61,9 +58,9 @@ impl<'src> Context<'_, 'src> {
                 .add_local(Borrowed(name), ty)
                 .map_err(|(_old, _new)| todo!())?,
 
-            (Pattern::Asc { .. }, _) => {
-                const { debug_assert!(!Extension::PatternAscriptions.supported(), "TODO") };
-                unreachable!()
+            (Pattern::Asc { pat, ty }, expected) => {
+                self.check_subtype(&expected, ty, None)?;
+                self.bind(pat, Borrowed(ty))?
             }
             (
                 Pattern::CastAs { .. }

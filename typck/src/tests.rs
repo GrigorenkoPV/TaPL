@@ -394,7 +394,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/additional-error-codes/ill-type
     the following unsupported extensions are enabled:
     	#structural-patterns
     	#letrec-bindings
-    	#pattern-ascriptions
     	#let-patterns
 "#]]
 
@@ -406,7 +405,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/letrec-bindings/ill-typed/unexp
     the following unsupported extensions are enabled:
     	#structural-patterns
     	#letrec-bindings
-    	#pattern-ascriptions
     	#let-patterns
 "#]]
 
@@ -418,7 +416,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/letrec-bindings/well-typed/tupl
     the following unsupported extensions are enabled:
     	#structural-patterns
     	#letrec-bindings
-    	#pattern-ascriptions
     	#let-patterns
 "#]]
 
@@ -430,7 +427,6 @@ include_str!("../tests/ThatDraenGuy/stage1/extra/letrec-bindings/well-typed/tupl
     the following unsupported extensions are enabled:
     	#structural-patterns
     	#letrec-bindings
-    	#pattern-ascriptions
     	#let-patterns
 "#]]
 
@@ -1642,7 +1638,6 @@ include_str!("../tests/ThatDraenGuy/stage3/well-typed/pair2.stella")
     253
     ERROR_UNSUPPORTED_EXTENSIONS
     the following unsupported extensions are enabled:
-    	#pattern-ascriptions
     	#let-patterns
     	#type-reconstruction
 "#]]
