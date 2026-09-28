@@ -140,7 +140,29 @@
 
   \color{blue}
   \textbf{Решение.}
-  \emph{место для решения}
+
+  \begin{prooftree}
+  \AxiomC{$\Gamma \vdash \code{t$_{\mathsf{nat}}$} \Leftarrow \code{Nat}$}
+  \AxiomC{$\Gamma \vdash \code{t$_{\mathsf{zero}}$} \Leftarrow \code{T}$}
+  \AxiomC{$\Gamma,\, \code{k : Nat},\, \code{r : T} \vdash \code{t$_{\mathsf{step}}$} \Leftarrow \code{T}$}
+  \RightLabel{T-NatFor}
+  \TrinaryInfC{$\Gamma \vdash \primrec{r}{t|$_{\mathsf{zero}}$|}{k}{t|$_{\mathsf{nat}}$|}{t|$_{\mathsf{step}}$|} \Leftarrow \code{T}$}
+  \end{prooftree}
+  \begin{prooftree}
+  \AxiomC{$\Gamma \vdash \code{t$_{\mathsf{nat}}$} \Leftarrow \code{Nat}$}
+  \AxiomC{$\Gamma \vdash \code{t$_{\mathsf{zero}}$} \Rightarrow \code{T}$}
+  \AxiomC{$\Gamma,\, \code{k : Nat},\, \code{r : T} \vdash \code{t$_{\mathsf{step}}$} \Leftarrow \code{T}$}
+  \RightLabel{T-NatFor}
+  \TrinaryInfC{$\Gamma \vdash \primrec{r}{t|$_{\mathsf{zero}}$|}{k}{t|$_{\mathsf{nat}}$|}{t|$_{\mathsf{step}}$|} \Rightarrow \code{T}$}
+  \end{prooftree}
+
+  $\code{t$_{\mathsf{nat}}$} \Leftarrow \code{Nat}$ обязательно и достаточно в обоих правилах.
+
+  Тип резлуьтата обязан совпадать с $\code{t$_{\mathsf{zero}}$}$.
+  В первом случае достаточно проверки, во втором нужен синтез, чтобы не создать неоднозначностей.
+
+  Для $\code{t$_{\mathsf{step}}$}$ проверки будет достаточно.
+
   \color{black}
 
 \end{enumerate}

@@ -131,7 +131,50 @@
 
   \color{blue}
   \textbf{Решение.}
-  \emph{место для решения}
+  \begin{enumerate}
+      \item \
+\begin{minted}[frame=single,linenos,fontsize=\footnotesize]{scheme}
+length[T] =
+let result = ref (λ l : list[T] . 0) in
+(
+  f := (λ l : list[T] .
+    if isnil[T] l
+    then 0
+    else succ ((!f) (tail[T] l))
+  )
+  ;
+  ! f
+)
+\end{minted}
+      \item \
+\begin{minted}[frame=single,linenos,fontsize=\footnotesize]{scheme}
+reverse[T] =
+let move = ref (λ to : list[T] . λ from : list[T] . to) in
+(
+  move := (λ to : list[T] . λ from : list[T] .
+    if isnil[T] from
+    then to
+    else (!move) (cons[T] (head[T] from) to) (tail[T] from)
+  )
+  ;
+  (! move) (nil[T])
+)
+\end{minted}
+      \item \
+    \begin{minted}[frame=single,linenos,fontsize=\footnotesize]{scheme}
+map[T, U] = λ f : (T -> U) .
+let inner = ref (λ l : list[T] . nil[U]) in
+(
+  inner := (λ l : list[T] .
+    if isnil[T] l
+    then nil[U]
+    else cons[U] (f (head[T] l)) ((!inner) (tail[T] l))
+  )
+  ;
+  ! inner
+)
+\end{minted}
+    \end{enumerate}
   \color{black}
 
   \clearpage
