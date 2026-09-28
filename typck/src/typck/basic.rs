@@ -53,7 +53,11 @@ impl<'src> Context<'_, 'src> {
                     ExceptionType::Simple(_) => todo!("report conflicted exception type"),
                     ExceptionType::Open(variants) => {
                         if let Some(prev) = variants.insert(label, data) {
-                            todo!("report redefinition of exception variant: {old_label} = {prev}")
+                            throw!(Error::DuplicateExceptionVariant {
+                                label: Borrowed(old_label),
+                                old: prev.to_owned(),
+                                new: data.to_owned()
+                            })
                         }
                     }
                 }

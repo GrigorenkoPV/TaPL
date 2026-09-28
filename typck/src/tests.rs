@@ -1177,10 +1177,17 @@ include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typ
     	<|good: Bool|>
 "#]]
 
-#[should_panic(expected = "not yet implemented: report redefinition of exception variant")]
 duplicate_exception_variant
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/duplicate_exception_variant/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    251
+    ERROR_DUPLICATE_EXCEPTION_VARIANT
+    redefinition of the open exception type's variant `error_code`
+    old:
+    	Nat
+    new:
+    	Nat
+"#]]
 
 illegal_local_exception_type
 include_str!("../tests/ThatDraenGuy/stage2/extra/open-variant-exceptions/ill-typed/illegal_local_exception_type/primitive.stella")
