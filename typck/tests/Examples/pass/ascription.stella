@@ -1,0 +1,8 @@
+language core;
+
+extend with #records, #lists, #natural-literals;
+extend with #type-ascriptions;
+
+fn main(n : Nat) -> Nat {
+    return { list =  [] as [Nat], num = 5}.num;
+}

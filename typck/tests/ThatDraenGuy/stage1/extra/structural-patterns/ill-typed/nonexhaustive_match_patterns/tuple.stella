@@ -1,0 +1,11 @@
+language core;
+extend with #structural-patterns, #sum-types, #natural-literals, #tuples;
+extend with #records, #lists, #unit-type, #variants;
+
+fn main(input : { Nat, Bool }) -> Nat {
+ return
+   match input {
+    { 0, false } => 0
+    |{ succ(n), bool } => n
+  }
+}

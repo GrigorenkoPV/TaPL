@@ -1,0 +1,13 @@
+language core;
+extend with #structural-patterns;
+
+fn main(n : Nat) -> Nat {
+  return match n {
+    succ(succ(succ(0))) => 0
+    | 7 => 0
+    | succ(succ(succ(n))) => n
+    | 0 => 0
+    | 1 => succ(0)
+    | 2 => succ(succ(0))
+  }
+}

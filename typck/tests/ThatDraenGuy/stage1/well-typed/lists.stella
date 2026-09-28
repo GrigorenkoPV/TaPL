@@ -1,0 +1,14 @@
+language core;
+extend with #lists;
+
+fn nonempty(list : [Nat]) -> Bool {
+  return if List::isempty(list) then true else false
+}
+
+fn first_or_default(list : [Nat]) -> Nat {
+  return if nonempty(list) then List::head(list) else 0
+}
+
+fn main(default : Nat) -> Nat {
+  return first_or_default([])
+}

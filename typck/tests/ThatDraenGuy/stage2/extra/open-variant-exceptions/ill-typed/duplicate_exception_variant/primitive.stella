@@ -1,0 +1,16 @@
+language core;
+
+extend with #variants;
+extend with #exception-type-declaration;
+extend with #open-variant-exceptions;
+
+
+exception variant error_code : Nat
+
+fn main(n : Nat) -> Nat {
+  return 0
+}
+
+exception variant good : Bool
+
+exception variant error_code : Nat

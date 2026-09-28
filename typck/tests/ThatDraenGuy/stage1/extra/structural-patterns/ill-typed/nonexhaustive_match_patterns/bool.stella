@@ -1,0 +1,10 @@
+language core;
+extend with #structural-patterns, #sum-types, #natural-literals, #tuples;
+extend with #records, #lists, #unit-type, #variants;
+
+fn main(input : Bool) -> Nat {
+ return
+   match input {
+    false => 0
+  }
+}

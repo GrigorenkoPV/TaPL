@@ -1,0 +1,6 @@
+language core;
+extend with #records;
+
+fn main(n : Nat) -> Nat {
+  return if n.status then succ(0) else 0
+}

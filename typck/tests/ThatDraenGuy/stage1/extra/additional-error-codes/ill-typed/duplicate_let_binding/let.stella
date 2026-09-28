@@ -1,0 +1,10 @@
+language core;
+extend with #let-bindings;
+extend with #let-patterns;
+extend with #tuples;
+extend with #structural-patterns;
+
+
+fn main(n : Nat) -> Nat {
+  return let {a, a} = {0, 0} in 0;
+}

@@ -1,0 +1,361 @@
+#![expect(clippy::unnecessary_box_returns, reason = "Box<T> macro")]
+#![allow(clippy::wildcard_imports, reason = "No autocomplete")]
+
+use lalrpop_util::ParseError;
+
+use crate::ast::*;
+use super::*;
+
+grammar;
+
+extern {
+    type Error = anyhow::Error;
+}
+
+// Lexer
+match {
+    r"//[^\n]*" => { }, // Skip comments
+    r"/\*.*\*/" => { }, // Skip comments
+    r"[ \t\r\n]+" => { }, // Skip whitespace
+} else {
+    ",",
+    ";",
+    "(",
+    ")",
+    "{",
+    "}",
+    "=",
+    ":",
+    "->",
+    "=>",
+    "|",
+    "<|",
+    "|>",
+    "[",
+    "]",
+    "<",
+    "<=",
+    ">",
+    ">=",
+    "==",
+    "!=",
+    "+",
+    "-",
+    "*",
+    "/",
+    ".",
+    "List::head",
+    "List::isempty",
+    "List::tail",
+    "Nat::pred",
+    "Nat::iszero",
+    "Nat::rec",
+    "Bool",
+    "Nat",
+    "Unit",
+    "and",
+    "as",
+    "cons",
+    "core",
+    "else",
+    "extend",
+    "false",
+    "fix",
+    "fn",
+    "fold",
+    "if",
+    "in",
+    "inl",
+    "inline",
+    "inr",
+    "language",
+    "let",
+    "letrec",
+    "match",
+    "not",
+    "or",
+    "return",
+    "succ",
+    "then",
+    "throws",
+    "true",
+    "type",
+    "unfold",
+    "unit",
+    "with",
+    "µ",
+    "exception",
+    "variant",
+    "cast",
+    ":=",
+    "&",
+    "new",
+    "panic!",
+    "throw",
+    "try",
+    "catch",
+    "Top",
+    "Bot",
+    "auto",
+    "generic",
+    "forall",
+} else {
+    r"#([\-_0-9A-Za-z])+" => EXTENSION,
+    r"<0x[0-9a-fA-F]+>" => ADDRESS,
+    r"[_a-zA-Z][_a-zA-Z0-9!\-:?_]*" => IDENT,
+    r"[0-9]+" => INTEGER,
+}
+
+SepWith1<Sep, T>: Vec<T> = {
+    <mut v:(<T> Sep)*> <e:T> => {
+        v.push(e);
+        v
+    }
+}
+
+SepWith0<Sep, T>: Vec<T> = {
+    <mut v:(<T> Sep)*> <e:T?> => match e {
+        None => v,
+        Some(e) => {
+            v.push(e);
+            v
+        }
+    }
+}
+
+Box<T>: Box<T> = T => Box::new(<>);
+
+// Parser
+pub(in crate::parser) Program: Program<'input> = {
+    LanguageDecl <extensions: FlattenExtensions> <decls: Decl*> => Program { <> }
+}
+
+// HACK: this is a bit inefficient, collecting to a set directly would be better
+FlattenExtensions: Extensions = ExtendWith* => flatten(<>);
+
+Extension: Extension = EXTENSION =>? Ok(parse_extension(<>)?);
+
+ExtendWith = "extend" "with" <SepWith1<",", Extension>> ";";
+
+LanguageDecl = "language" "core" ";" ;
+
+FnParams: Vec<(Ident<'input>, Type<'input>)> = SepWith0<",", (<Ident> ":" <Type>)>;
+
+Generics = SepWith0<",", Ident>;
+
+// No idea why they need the `generic` keyword here
+Function: Function<'input> = {
+    <annotations: Annotation*> "fn" <name: Ident>
+        "(" <params: FnParams> ")"
+        <ret_ty: ReturnType> <throws: ThrowsTy>
+        "{" <decls: Decl*> "return" <body: Expr> "}"
+        => Function { generics: vec![], <> },
+    <annotations: Annotation*> "generic" "fn" <name: Ident>
+        "[" <generics: Generics> "]"
+        "(" <params: FnParams> ")"
+        <ret_ty: ReturnType> <throws: ThrowsTy>
+        "{" <decls: Decl*> "return" <body: Expr> "}"
+        => Function { <> },
+}
+
+Decl: Decl<'input> = {
+    Box<Function> => Decl::Function(<>),
+    "type" <name: Ident> "=" <ty: Type> => Decl::TypeAlias { <> },
+    "exception" "type" "=" <Type> => Decl::ExceptionType(<>),
+    "exception" "variant" <label: Ident> ":" <data: Type> => Decl::ExceptionVariant { <> },
+}
+
+ReturnType: Option<Type<'input>> = ("->" <Type>)?;
+
+ThrowsTy: Vec<Type<'input>> = ("throws" <SepWith1<",", Type>>)? => (<>).unwrap_or_default();
+
+Annotation: Annotation = {
+    "inline" => Annotation::Inline,
+}
+
+Ident: Ident<'input> = IDENT => (<>).into();
+
+CommaTypes = SepWith0<",", Type>;
+
+Type: Type<'input> = {
+    "auto" => Type::Auto,
+    "fn" "(" <args: CommaTypes> ")" "->" <ret: Box<Type>> => Type::Fn { <> },
+    "forall" <binders: Ident*> "." <ty: Box<Type>> => Type::Forall { <> },
+    "µ" <var: Ident> "." <ty: Box<Type>> => Type::Rec { <> },
+    Type1
+}
+
+Type1: Type<'input> = {
+    <left: Box<Type2>> "+" <right: Box<Type2>> => Type::Sum { <> },
+    Type2
+}
+
+Type2: Type<'input> = {
+    "{" <CommaTypes> "}" => Type::Tuple(<>),
+    "{" <SepWith1<",", (<Ident> ":" <Type>)>> "}" => Type::Record(<>),
+    "<|" <SepWith0<",", (Ident (":" <Type>)?)>> "|>" => Type::Variant(<>),
+    "[" <Box<Type>> "]" => Type::List(<>),
+    Type3
+}
+
+Type3: Type<'input> = {
+    "Bool" => Type::Bool,
+    "Nat" => Type::Nat,
+    "Unit" => Type::Unit,
+    "Top" => Type::Top,
+    "Bot" => Type::Bot,
+    "&" <Box<Type2>> => Type::Ref(<>),
+    Ident => Type::Var(<>),
+    "(" <Type> ")"
+}
+
+Patterns = SepWith0<",", Pattern>;
+
+Pattern: Pattern<'input> = {
+    <pat: Box<Pattern>> "cast" "as" <ty: Type> => Pattern::CastAs { <> },
+    <pat: Box<Pattern>> "as" <ty: Type> => Pattern::Asc { <> },
+    "<|" <label: Ident> <pat: ("=" <Box<Pattern>>)?> "|>" => Pattern::Variant { <> },
+    "inl" "(" <Box<Pattern>> ")" => Pattern::Inl(<>),
+    "inr" "(" <Box<Pattern>> ")" => Pattern::Inr(<>),
+    "{" <Patterns> "}" => Pattern::Tuple(<>),
+    "{" <SepWith1<",", (<Ident> "=" <Pattern>)>> "}" => Pattern::Record(<>),
+    "[" <Patterns> "]" => Pattern::List(<>),
+    "cons"? "(" <Pattern> "," <Pattern> ")" => Pattern::Cons(Box::new([<>])),
+    "false" => Pattern::False,
+    "true" => Pattern::True,
+    "unit" => Pattern::Unit,
+    Integer => Pattern::Int(<>),
+    "succ" "(" <Box<Pattern>> ")" => Pattern::Succ(<>),
+    Ident => Pattern::Var(<>),
+    "(" <Pattern> ")"
+}
+
+PatternBinding: PatternBinding<'input> = <lhs: Pattern> "=" <rhs: Expr> => PatternBinding { <> };
+Binding: Binding<'input> = <name: Ident> "=" <value: Expr> => Binding { <> };
+
+Bindings = SepWith1<",", Binding>;
+PatternBindings = SepWith1<",", PatternBinding>;
+
+LetOrLetRec: bool = {
+    "let" => false,
+    "letrec" => true,
+}
+
+Expr: Expr<'input> = {
+    <Expr1> ";" <Expr> => Expr::Seq(Box::new([<>])),
+    <rec: LetOrLetRec> <bindings: PatternBindings> "in" <body: Box<Expr>> => Expr::Let { <> },
+    "generic" "[" <generics: Generics> "]" <expr: Box<Expr>> => Expr::Generic { <> },
+    <Expr1> ";"?
+}
+
+Expr1: Expr<'input> = {
+    <lhs: Box<Expr2>> ":=" <rhs: Box<Expr1>> => Expr::Assign { <> },
+    "if" <cond: Box<Expr1>> "then" <on_true: Box<Expr1>> "else" <on_false: Box<Expr1>> => Expr::If { <> },
+    Expr2
+}
+
+Comparison: BinOp = {
+    "<" => BinOp::LT,
+    "<=" => BinOp::LE,
+    ">" => BinOp::GT,
+    ">=" => BinOp::GE,
+    "==" => BinOp::EQ,
+    "!=" => BinOp::NE,
+}
+
+BinOp<Lhs, Op, Rhs> : Expr<'input> = <lhs: Box<Lhs>> <op: Op> <rhs: Box<Rhs>> => Expr::BinOp { <> };
+
+Expr2: Expr<'input> = {
+    BinOp<Expr3, Comparison, Expr3>,
+    Expr3
+}
+
+AddSubOr: BinOp = {
+    "+" => BinOp::Plus,
+    "-" => BinOp::Minus,
+    "or" => BinOp::Or,
+}
+
+CommaExprs = SepWith0<",", Expr>;
+
+MatchCase = <Pattern> "=>" <Expr>;
+
+Expr3: Expr<'input> = {
+    <expr: Box<Expr3>> "as" <ty: Type2> => Expr::Ascription { <> },
+    <expr: Box<Expr3>> "cast" "as" <ty: Type2> => Expr::Cast { <> },
+    "fn" "(" <params: FnParams> ")" "{" "return" <ret: Box<Expr>> "}" => Expr::Abstraction { <> },
+    "<|" <label: Ident> <data: ("=" <Box<Expr>>)?> "|>" => Expr::Variant { <> },
+    "match" <switch: Box<Expr2>> "{" <cases: SepWith0<"|", MatchCase>> "}" => Expr::Match { <> },
+    "[" <CommaExprs> "]" => Expr::List(<>),
+
+    BinOp<Expr3, AddSubOr, Expr4>,
+    Expr4
+}
+
+MulDivAnd: BinOp = {
+    "*" => BinOp::Mul,
+    "/" => BinOp::Div,
+    "and" => BinOp::And,
+}
+
+Expr4: Expr<'input> = {
+    BinOp<Expr4, MulDivAnd, Expr5>,
+    Expr5
+}
+
+Expr5: Expr<'input> = {
+    "new" "(" <Box<Expr>> ")" => Expr::New(<>),
+    "*" <Box<Expr5>> => Expr::Deref(<>),
+    Expr6
+}
+
+Catch = "{" <Pattern> "=>" <Box<Expr>> "}";
+With = "with" "{" <Box<Expr>> "}";
+
+Expr6: Expr<'input> = {
+    <lhs: Box<Expr6>> "(" <args: CommaExprs> ")" => Expr::Application { <> },
+    <lhs: Box<Expr6>> "[" <types: CommaTypes> "]" => Expr::TypeApplication { <> },
+
+    <lhs: Box<Expr6>> "." <field: Ident> => Expr::DotRecord { <> },
+    <lhs: Box<Expr6>> "." <field: Integer> => Expr::DotTuple { <> },
+    "{" <CommaExprs> "}" => Expr::Tuple(<>),
+    "{" <Bindings> "}" => Expr::Record(<>),
+    "cons" "(" <head: Box<Expr>> "," <tail: Box<Expr>> ")" => Expr::Cons { <> },
+    "List::head" "(" <Box<Expr>> ")" => Expr::ListHead(<>),
+    "List::isempty" "(" <Box<Expr>> ")" => Expr::ListIsEmpty(<>),
+    "List::tail" "(" <Box<Expr>> ")" => Expr::ListTail(<>),
+
+    "panic!" => Expr::Panic,
+    "throw" "(" <Box<Expr>> ")" => Expr::Throw(<>),
+    "try" "{" <r#try: Box<Expr>> "}" "catch" <catch: Catch> => Expr::TryCatch { <> },
+    "try" "{" <r#try: Box<Expr>> "}" <with: With> => Expr::TryWith { <> },
+    "try" "{" <r#try: Box<Expr>> "}" "cast" "as" <r#as: Type> <catch: Catch> <with: With> => Expr::TryCastAs { <> },
+
+    "inl" "(" <Box<Expr>> ")" => Expr::Inl(<>),
+    "inr" "(" <Box<Expr>> ")" => Expr::Inr(<>),
+    "succ" "(" <Box<Expr>> ")" => Expr::Succ(<>),
+    "not" "(" <Box<Expr>> ")" => Expr::Not(<>),
+    "Nat::pred" "(" <Box<Expr>> ")" => Expr::NatPred(<>),
+    "Nat::iszero" "(" <Box<Expr>> ")" => Expr::NatIsZero(<>),
+
+    "fix" "(" <Box<Expr>> ")" => Expr::Fix(<>),
+    "Nat::rec" "(" <iterations: Box<Expr>> "," <start: Box<Expr>> "," <step: Box<Expr>> ")"
+        => Expr::NatRec { <> },
+
+    "fold" "[" <ty: Type> "]" <expr: Box<Expr7>> => Expr::Fold { <> },
+    "unfold" "[" <ty: Type> "]" <expr: Box<Expr7>> => Expr::Unfold { <> },
+
+    Expr7
+}
+
+Integer: Integer = INTEGER =>? Ok((<>).parse().context("Invalid literal")?);
+
+Expr7: Expr<'input> = {
+    Ident => Expr::Var(<>),
+    "true" => Expr::True,
+    "false" => Expr::False,
+    "unit" => Expr::Unit,
+    Integer => Expr::Integer(<>),
+    ADDRESS => Expr::Address(<>),
+    "(" <Expr> ")"
+}

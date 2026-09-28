@@ -1,0 +1,12 @@
+language core;
+
+extend with #type-reconstruction;
+extend with #pairs;
+
+fn test(b : auto) -> Nat {
+  return if b.1 then 0 else succ(b.2)
+}
+
+fn main(n : Nat) -> Nat {
+  return test({false, n})
+}

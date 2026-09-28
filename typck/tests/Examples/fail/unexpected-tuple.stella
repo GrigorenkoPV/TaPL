@@ -1,0 +1,11 @@
+language core;
+
+extend with #tuples, #natural-literals, #nullary-functions;
+
+fn go(f : fn(Nat) -> Nat) -> Nat {
+    return f(0)
+}
+
+fn main(x : Nat) -> Nat {
+    return go({1, 2, 3})
+}

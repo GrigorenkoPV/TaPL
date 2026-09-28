@@ -1,0 +1,9 @@
+language core;
+
+extend with #records;
+
+fn main(n : Nat) -> Nat {
+  return if { num = 0, bool = false, num = true }.bool 
+    then succ(0) 
+    else 0
+}

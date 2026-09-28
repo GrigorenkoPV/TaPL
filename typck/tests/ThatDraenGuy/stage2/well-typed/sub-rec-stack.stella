@@ -1,0 +1,12 @@
+language core;
+
+extend with #structural-subtyping;
+extend with #records;
+
+fn test(n : Nat) -> {a : {a : Nat, b : Bool}, b : Bool} {
+  return { a = { a = 0, b = false }, b = false }
+}
+
+fn main(n : Nat) -> {a : {a : Nat}} {
+  return test(n)
+}

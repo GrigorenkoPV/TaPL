@@ -1,0 +1,7 @@
+language core;
+
+extend with #tuples, #records;
+
+fn main(n : Nat) -> Nat {
+    return {}.meow
+}

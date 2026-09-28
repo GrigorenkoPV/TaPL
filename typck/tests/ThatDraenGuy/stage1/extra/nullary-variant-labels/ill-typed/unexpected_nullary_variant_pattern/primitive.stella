@@ -1,0 +1,11 @@
+language core;
+extend with #variants;
+extend with #nullary-variant-labels;
+extend with #structural-patterns;
+
+fn main(n : <| a : Nat, b : Bool |>) -> Nat {
+  return match n {
+    <| a |> => 0
+    | <| b = bool |> => succ(0);
+  }
+}

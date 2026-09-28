@@ -1,0 +1,7 @@
+language core;
+
+extend with #pairs, #multiparameter-functions;
+
+fn main(n : Nat, m : Nat ) -> {Nat, Nat} {
+   return {n, m}
+}

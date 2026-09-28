@@ -1,0 +1,7 @@
+language core;
+
+extend with #records, #natural-literals, #nullary-functions;
+
+fn main(x : Nat) -> Bool {
+    return {a = true, b = 1}.c
+}

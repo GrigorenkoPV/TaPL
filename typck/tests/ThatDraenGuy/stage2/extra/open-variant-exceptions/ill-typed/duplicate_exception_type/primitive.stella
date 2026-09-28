@@ -1,0 +1,13 @@
+language core;
+
+extend with #exception-type-declaration;
+extend with #variants;
+
+exception type = <| error_code : Nat, good : Bool |>
+
+
+fn main(n : Nat) -> Nat {
+  return 0
+}
+
+exception type = <| good : Bool |>

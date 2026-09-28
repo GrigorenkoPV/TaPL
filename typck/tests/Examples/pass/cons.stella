@@ -1,0 +1,9 @@
+language core;
+
+extend with
+  #natural-literals,
+  #lists;
+
+fn main(n : Nat) -> [Nat] {
+  return cons(1, [])
+}

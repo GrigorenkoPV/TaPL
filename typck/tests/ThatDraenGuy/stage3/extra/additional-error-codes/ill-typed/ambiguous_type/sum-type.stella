@@ -1,0 +1,17 @@
+language core;
+
+extend with #type-reconstruction;
+extend with #pairs;
+extend with #records;
+extend with #sum-types;
+
+fn test(n : auto) -> { a : Nat, b : Bool } {
+  return match n {
+    inl(l) => l
+    | inr(r) => { a = 0, b = false }
+  }
+}
+
+fn main(n : Nat) -> Nat {
+  return test(inl({ a = n, b = false })).a
+}
