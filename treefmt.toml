@@ -1,0 +1,12 @@
+[formatter.keep-sorted]
+command = "keep-sorted"
+includes = ["*"]
+
+[formatter.typos]
+command = "typos"
+options = ["--color", "always", "--force-exclude"]
+includes = ["*"]
+
+[formatter.nix]
+command = "nixfmt"
+includes = ["*.nix"]
