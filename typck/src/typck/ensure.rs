@@ -430,7 +430,15 @@ impl<'src> Context<'_, 'src> {
 
             (Expr::Match { switch, cases }, expected) => {
                 let switch_actual = self.infer(switch)?;
-                todo!("check match (_ : {switch_actual}) {cases:?} : {expected}")
+                for (pattern, case) in cases {
+                    let mut ctx = self.new_scope();
+                    ctx.bind(pattern, switch_actual.clone())?;
+                    ctx.ensure(case, expected)?
+                }
+                if cases.is_empty() {
+                    throw!(Error::IllegalEmptyMatching {})
+                }
+                // FIXME: check exhaustiveness
             }
 
             // Seq

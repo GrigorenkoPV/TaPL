@@ -169,8 +169,8 @@ pub(crate) enum Error<'src> {
     #[expect(clippy::empty_enum_variants_with_brackets, reason = "intentional")]
     AmbiguousList {},
     /// `match`-выражение с пустым списком альтернатив.
-    #[expect(dead_code, reason = "WIP")]
-    IllegalEmptyMatching,
+    #[expect(clippy::empty_enum_variants_with_brackets, reason = "intentional")]
+    IllegalEmptyMatching {},
     /// Не все образцы перечислены в `match`-выражении
     /// (`inl` и `inr` для типа-суммы, все теги для варианта).
     #[expect(dead_code, reason = "WIP")]
@@ -709,7 +709,7 @@ impl fmt::Display for Error<'_> {
             Self::AmbiguousPanicType {} => writeln!(f, "cannot infer panic type"),
             Self::AmbiguousList {} => writeln!(f, "cannot infer element type of an empty list"),
 
-            Self::ExceptionTypeNotDeclared {} => Ok(()),
+            Self::ExceptionTypeNotDeclared {} | Self::IllegalEmptyMatching {} => Ok(()),
             Self::DuplicateExceptionType { old, new } => writeln!(
                 f,
                 "redefinition of the exception type in the same scope\nold:\n\t{old}\nnew:\n\t{new}"
@@ -744,8 +744,7 @@ impl fmt::Display for Error<'_> {
                 })
             ),
 
-            Self::IllegalEmptyMatching
-            | Self::NonexhaustiveMatchPatterns
+            Self::NonexhaustiveMatchPatterns
             | Self::UnexpectedPatternForType
             | Self::UnexpectedNonNullaryVariantPattern
             | Self::UnexpectedNullaryVariantPattern
@@ -789,7 +788,7 @@ impl Error<'_> {
             Error::AmbiguousSumType(_) => nz!(21),
             Error::AmbiguousVariantType(_) => nz!(22),
             Error::AmbiguousList {} => nz!(23),
-            Error::IllegalEmptyMatching => nz!(24),
+            Error::IllegalEmptyMatching {} => nz!(24),
             Error::NonexhaustiveMatchPatterns => nz!(25),
             Error::UnexpectedPatternForType => nz!(26),
             Error::DuplicateRecordFields { .. } => nz!(27),

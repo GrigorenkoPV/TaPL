@@ -336,7 +336,7 @@ cons
 include_str!("../tests/Examples/pass/cons.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: check match")]
+#[should_panic(expected = "not yet implemented: check binding")]
 match_
 include_str!("../tests/Examples/pass/match.stella")
 => expect![]
@@ -817,10 +817,12 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/duplicate_variant_type_fiel
     `num` is declared more than once
 "#]]
 
-#[should_panic(expected = "not yet implemented: check match")]
 illegal_empty_matching
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/illegal_empty_matching/primitive.stella")
-=> expect![]
+=> expect![[r#"
+    24
+    ERROR_ILLEGAL_EMPTY_MATCHING
+"#]]
 
 missing_main
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/missing_main/primitive.stella")
@@ -842,7 +844,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/missing_record_fields/primi
     but it is missing field `b`
 "#]]
 
-#[should_panic(expected = "not yet implemented: check match")]
+#[should_panic(expected = "not yet implemented: check binding")]
 nonexhaustive_match_patterns
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/nonexhaustive_match_patterns/primitive.stella")
 => expect![]
@@ -994,7 +996,7 @@ include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_list/primitive.s
     	Nat
 "#]]
 
-#[should_panic(expected = "not yet implemented: check match")]
+#[should_panic(expected = "not yet implemented: check binding")]
 unexpected_pattern_for_type
 include_str!("../tests/ThatDraenGuy/stage1/ill-typed/unexpected_pattern_for_type/primitive.stella")
 => expect![]
@@ -1147,7 +1149,7 @@ square
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/square.stella")
 => expect![]
 
-#[should_panic(expected = "not yet implemented: check match")]
+#[should_panic(expected = "not yet implemented: check binding")]
 sum_types
 include_str!("../tests/ThatDraenGuy/stage1/well-typed/sum-types.stella")
 => expect![]
